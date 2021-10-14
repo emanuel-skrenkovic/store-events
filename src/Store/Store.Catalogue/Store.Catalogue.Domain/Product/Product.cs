@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Store.Catalogue.Domain.Product.Events;
 using Store.Core.Domain;
@@ -29,11 +30,11 @@ namespace Store.Catalogue.Domain.Product
         
         private void Apply(CreateProductEvent domainEvent)
         {
+            Id = Guid.NewGuid();
+            
             Name = domainEvent.Name;
             Price = domainEvent.Price;
             Description = domainEvent.Description;
-            
-            ApplyEvent(domainEvent);
         }
 
         public void AddRating(AddRatingEvent e)

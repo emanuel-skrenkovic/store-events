@@ -12,6 +12,8 @@ namespace Store.Core.Domain
         object Deserialize(string input, Type type);
         
         byte[] SerializeToBytes<T>(T input);
+        
+        byte[] SerializeToBytes(object input, Type type);
 
         T DeserializeFromBytes<T>(byte[] input);
         

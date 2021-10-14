@@ -9,23 +9,25 @@ namespace Store.Core.Infrastructure.Extensions
     {
         private const string TypeMetadataKey = "Type";
         
-        private static readonly ISerializer _serializer = null; // TODO
-
+        private static readonly ISerializer Serializer = new JsonSerializer(); // TODO
+        
         public static object Deserialize(this ResolvedEvent resolvedEvent)
         { 
             EventRecord record = resolvedEvent.Event;
 
-            return _serializer.DeserializeFromBytes(
+            return Serializer.DeserializeFromBytes(
                 record.Data.ToArray(),
                 Type.GetType(record.EventType));
         }
 
         public static EventData ToEventData<T>(this T domainEvent) where T : IEvent
         {
+            Type eventType = domainEvent.GetType();
+            
             return new EventData(
                 Uuid.NewUuid(), 
-                domainEvent.GetType().FullName, 
-                _serializer.SerializeToBytes(domainEvent));
+                eventType.FullName, 
+                Serializer.SerializeToBytes(domainEvent, eventType));
         }
     }
 }

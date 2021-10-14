@@ -8,6 +8,7 @@ using Store.Catalogue.AspNet.Models.Product;
 namespace Store.Catalogue.AspNet.Controllers
 {
     [ApiController]
+    [Route("[controller]")]
     public class ProductsController : ControllerBase
     {
         private readonly IMediator _mediator;

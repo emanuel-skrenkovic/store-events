@@ -10,7 +10,7 @@ namespace Store.Core.Domain
 
         private readonly ICollection<IEvent> _events;
         
-        public Guid Id { get; }
+        public Guid Id { get; protected set; }
 
         public int Version { get; }
 
