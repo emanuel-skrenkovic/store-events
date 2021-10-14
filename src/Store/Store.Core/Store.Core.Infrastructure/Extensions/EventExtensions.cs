@@ -7,9 +7,7 @@ namespace Store.Core.Infrastructure.Extensions
     // TODO: think about type names
     public static class EventExtensions
     {
-        private const string TypeMetadataKey = "Type";
-        
-        private static readonly ISerializer Serializer = new JsonSerializer(); // TODO
+        private static readonly ISerializer Serializer = new JsonSerializer(); // TODO: clean this up. This is horrible. D:
         
         public static object Deserialize(this ResolvedEvent resolvedEvent)
         { 

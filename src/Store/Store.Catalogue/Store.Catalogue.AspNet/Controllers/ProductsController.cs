@@ -18,7 +18,10 @@ namespace Store.Catalogue.AspNet.Controllers
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
         
+        #region Commands
+        
         [HttpPost]
+        [Route("commands/create")]
         public async Task<IActionResult> PostProduct([FromBody] ProductPostApiModel apiModel)
         {
             await _mediator.Send(new ProductCreateCommand(
@@ -27,6 +30,15 @@ namespace Store.Catalogue.AspNet.Controllers
                 apiModel.Description));
             
             return Ok();
+        }
+        
+        #endregion
+
+        [HttpGet]
+        [Route("{id:guid}")]
+        public Task<IActionResult> GetProduct([FromRoute] Guid id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

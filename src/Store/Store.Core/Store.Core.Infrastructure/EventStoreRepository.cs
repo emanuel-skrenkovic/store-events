@@ -22,7 +22,7 @@ namespace Store.Core.Infrastructure
         {
             EventStoreClient.ReadStreamResult eventStream = _eventStore.ReadStreamAsync(
                 Direction.Forwards,
-                id.ToString(),
+                GenerateStreamName<T>(id),
                 StreamPosition.Start);
             
             T entity = new();
@@ -46,9 +46,14 @@ namespace Store.Core.Infrastructure
                 .ToImmutableList();
 
             return _eventStore.AppendToStreamAsync(
-                entity.Id.ToString(), 
+                GenerateStreamName<T>(Guid.NewGuid()),
                 StreamState.Any, 
                 eventsData);
+        }
+
+        private string GenerateStreamName<T>(Guid id)
+        {
+            return $"{typeof(T).FullName}-{id}";
         }
     }
 }

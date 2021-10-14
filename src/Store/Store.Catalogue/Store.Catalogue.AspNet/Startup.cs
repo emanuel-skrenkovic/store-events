@@ -6,6 +6,7 @@ using EventStore.Client;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -55,6 +56,7 @@ namespace Store.Catalogue.AspNet
 
             app.UseHttpsRedirection();
 
+            app.UsePathBase(new PathString("/catalogue"));
             app.UseRouting();
 
             app.UseAuthorization();
