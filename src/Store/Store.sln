@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Store.Catalogue", "Store.Catalogue", "{EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Store.Cart", "Store.Cart", "{173D1E16-96AD-4DDB-82CF-1EE59AAF7909}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Store.Core", "Store.Core", "{9BCFAE85-02D8-492B-B323-B1B93C8F68D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Core.Infrastructure", "Store.Core\Store.Core.Infrastructure\Store.Core.Infrastructure.csproj", "{3D2A6C55-B482-4F44-8BE2-ED0A3E24A26C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Core.Domain", "Store.Core\Store.Core.Domain\Store.Core.Domain.csproj", "{EE5F2D00-026A-4817-9063-04E87016015E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3D2A6C55-B482-4F44-8BE2-ED0A3E24A26C} = {9BCFAE85-02D8-492B-B323-B1B93C8F68D0}
+		{EE5F2D00-026A-4817-9063-04E87016015E} = {9BCFAE85-02D8-492B-B323-B1B93C8F68D0}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3D2A6C55-B482-4F44-8BE2-ED0A3E24A26C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D2A6C55-B482-4F44-8BE2-ED0A3E24A26C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D2A6C55-B482-4F44-8BE2-ED0A3E24A26C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D2A6C55-B482-4F44-8BE2-ED0A3E24A26C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE5F2D00-026A-4817-9063-04E87016015E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE5F2D00-026A-4817-9063-04E87016015E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE5F2D00-026A-4817-9063-04E87016015E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE5F2D00-026A-4817-9063-04E87016015E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
