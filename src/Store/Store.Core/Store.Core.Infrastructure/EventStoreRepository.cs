@@ -27,6 +27,7 @@ namespace Store.Core.Infrastructure
             
             T entity = new();
             
+            // TODO: .ToListAsync()?
             await foreach (ResolvedEvent resolvedEvent in eventStream)
             {
                 IEvent domainEvent = resolvedEvent.Deserialize() as IEvent;
@@ -36,18 +37,18 @@ namespace Store.Core.Infrastructure
             return entity;
         }
 
-        public async Task SaveAsync<T>(T entity) where T : AggregateEntity
+        public Task SaveAsync<T>(T entity) where T : AggregateEntity
         {
             Guard.IsNotNull(entity, nameof(entity));
 
-            IReadOnlyCollection<EventData> eventData = entity.GetUncommittedEvents()
+            IReadOnlyCollection<EventData> eventsData = entity.GetUncommittedEvents()
                 .Select(domainEvent => domainEvent.ToEventData())
                 .ToImmutableList();
 
-            await _eventStore.AppendToStreamAsync(
+            return _eventStore.AppendToStreamAsync(
                 entity.Id.ToString(), 
                 StreamState.Any, 
-                eventData);
+                eventsData);
         }
     }
 }
