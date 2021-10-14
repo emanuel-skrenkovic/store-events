@@ -44,14 +44,20 @@ namespace Store.Core.Domain.Tests
     public class AggregateEntityTests
     {
         [Fact]
-        public void AggregateEntity_ShouldApplyChange_WithValidEvent()
+        public void AggregateEntity_ShouldApplyChange_WithValidEvents()
         {
             TestEntity entity = new TestEntity();
             SetValue1Event event1 = new SetValue1Event("test");
             entity.SetValue1(event1);
             
             Assert.Equal(entity.TestValue, event1.Value1);
-            Assert.Contains(entity.GetUncommittedEvents(), e => e == event1);
+            Assert.Contains(entity.GetUncommittedEvents(), e => e.Equals(event1));
+            
+            SetValue2Event event2 = new SetValue2Event(3);
+            entity.SetValue2(event2);
+            
+            Assert.Equal(entity.TestValue2, event2.Value2);
+            Assert.Contains(entity.GetUncommittedEvents(), e => e.Equals(event2));
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 
 namespace Store.Core.Domain
 {
@@ -9,7 +8,7 @@ namespace Store.Core.Domain
     {
         private readonly Dictionary<Type, Action<IEvent>> _eventAppliers;
 
-        protected readonly ICollection<IEvent> _events;
+        private readonly ICollection<IEvent> _events;
         
         public Guid Id { get; }
 

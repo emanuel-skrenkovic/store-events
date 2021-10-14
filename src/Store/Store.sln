@@ -14,6 +14,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.Domain", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Core.Domain.Tests", "Store.Core\Store.Core.Domain.Tests\Store.Core.Domain.Tests.csproj", "{610510A4-9DD9-492F-B909-818F33A7E933}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.Application", "Store.Catalogue\Store.Catalogue.Application\Store.Catalogue.Application.csproj", "{CCEAC299-7978-4112-90AF-ACBAB50D2280}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.AspNet", "Store.Catalogue\Store.Catalogue.AspNet\Store.Catalogue.AspNet.csproj", "{99BBA82C-F86B-4D78-9238-0D5DA9D52E2C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +28,8 @@ Global
 		{EE5F2D00-026A-4817-9063-04E87016015E} = {9BCFAE85-02D8-492B-B323-B1B93C8F68D0}
 		{B6C32B46-72B0-4BE3-8582-CB4A5CA8F344} = {EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}
 		{610510A4-9DD9-492F-B909-818F33A7E933} = {9BCFAE85-02D8-492B-B323-B1B93C8F68D0}
+		{CCEAC299-7978-4112-90AF-ACBAB50D2280} = {EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}
+		{99BBA82C-F86B-4D78-9238-0D5DA9D52E2C} = {EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{3D2A6C55-B482-4F44-8BE2-ED0A3E24A26C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -42,5 +48,13 @@ Global
 		{610510A4-9DD9-492F-B909-818F33A7E933}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{610510A4-9DD9-492F-B909-818F33A7E933}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{610510A4-9DD9-492F-B909-818F33A7E933}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCEAC299-7978-4112-90AF-ACBAB50D2280}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCEAC299-7978-4112-90AF-ACBAB50D2280}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCEAC299-7978-4112-90AF-ACBAB50D2280}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCEAC299-7978-4112-90AF-ACBAB50D2280}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99BBA82C-F86B-4D78-9238-0D5DA9D52E2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99BBA82C-F86B-4D78-9238-0D5DA9D52E2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99BBA82C-F86B-4D78-9238-0D5DA9D52E2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99BBA82C-F86B-4D78-9238-0D5DA9D52E2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
