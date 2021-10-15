@@ -4,9 +4,9 @@ namespace Store.Core.Domain.Tests
 {
     public record CreateTestEntityEvent(string Value1, int? Value2) : IEvent;
 
-    public record SetValue1Event(string Value1) : IEvent;
+    public record Value1SetEvent(string Value1) : IEvent;
 
-    public record SetValue2Event(int Value2) : IEvent;
+    public record Value2SetEvent(int Value2) : IEvent;
     
     public class TestEntity : AggregateEntity
     {
@@ -14,30 +14,30 @@ namespace Store.Core.Domain.Tests
         
         public int TestValue2 { get; private set; }
 
-        public void SetValue1(SetValue1Event domainEvent)
+        public void SetValue1(Value1SetEvent domainEvent)
         {
             ApplyEvent(domainEvent);
         }
 
-        private void Apply(SetValue1Event domainEvent)
+        private void Apply(Value1SetEvent domainEvent)
         {
             TestValue = domainEvent.Value1;
         }
         
-        public void SetValue2(SetValue2Event domainEvent)
+        public void SetValue2(Value2SetEvent domainEvent)
         {
             ApplyEvent(domainEvent);
         }
         
-        private void Apply(SetValue2Event domainEvent)
+        private void Apply(Value2SetEvent domainEvent)
         {
             TestValue2 = domainEvent.Value2;
         }
 
         protected override void RegisterAppliers()
         {
-            RegisterApplier<SetValue1Event>(Apply);
-            RegisterApplier<SetValue2Event>(Apply);
+            RegisterApplier<Value1SetEvent>(Apply);
+            RegisterApplier<Value2SetEvent>(Apply);
         }
     }
     
@@ -47,13 +47,13 @@ namespace Store.Core.Domain.Tests
         public void AggregateEntity_ShouldApplyChange_WithValidEvents()
         {
             TestEntity entity = new TestEntity();
-            SetValue1Event event1 = new SetValue1Event("test");
+            Value1SetEvent event1 = new Value1SetEvent("test");
             entity.SetValue1(event1);
             
             Assert.Equal(entity.TestValue, event1.Value1);
             Assert.Contains(entity.GetUncommittedEvents(), e => e.Equals(event1));
             
-            SetValue2Event event2 = new SetValue2Event(3);
+            Value2SetEvent event2 = new Value2SetEvent(3);
             entity.SetValue2(event2);
             
             Assert.Equal(entity.TestValue2, event2.Value2);

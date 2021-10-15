@@ -14,51 +14,51 @@ namespace Store.Catalogue.Domain.Product
 
         public decimal Price { get; private set; }
 
-        public ICollection<short> Ratings { get; private set; }
+        public ICollection<ProductRating> Ratings { get; private set; }
 
-        public double Rating => Ratings.Average(r => r);
+        public double CurrentRating => Ratings.Average(r => r.Rating);
 
         public ICollection<Tag> Tags { get; private set; }
 
         public static Product Create(string name, decimal price, string description = null)
         {
             Product product = new();
-            product.ApplyEvent(new CreateProductEvent(name, price, description));
+            product.ApplyEvent(new ProductCreatedEvent(name, price, description));
 
             return product;
         }
         
-        private void Apply(CreateProductEvent domainEvent)
+        private void Apply(ProductCreatedEvent domainCreatedEvent)
         {
             Id = Guid.NewGuid();
             
-            Name = domainEvent.Name;
-            Price = domainEvent.Price;
-            Description = domainEvent.Description;
+            Name = domainCreatedEvent.Name;
+            Price = domainCreatedEvent.Price;
+            Description = domainCreatedEvent.Description;
         }
 
-        public void AddRating(AddRatingEvent e)
+        public void AddRating(ProductRating productRating)
         {
-            ApplyEvent(e);
+            ApplyEvent(new ProductRatedEvent(productRating));
         }
 
-        private void Apply(AddRatingEvent domainEvent)
+        private void Apply(ProductRatedEvent domainRatedEvent)
         {
-            Ratings ??= new List<short>();
-            Ratings.Add(domainEvent.Rating);
+            Ratings ??= new List<ProductRating>();
+            Ratings.Add(domainRatedEvent.ProductRating);
         }
 
-        public void Tag(AddTagEvent domainEvent)
+        public void Tag(Tag tag)
         {
-            if (Tags.Any(t => t.Value == domainEvent.Tag.Value))
+            if (Tags?.Any(t => t.Value == tag.Value) == true)
             {
                 return;
             }
             
-            ApplyEvent(domainEvent);
+            ApplyEvent(new ProductTaggedEvent(tag));
         }
 
-        private void Apply(AddTagEvent domainEvent)
+        private void Apply(ProductTaggedEvent domainEvent)
         {
             Tags ??= new List<Tag>();
             Tags.Add(domainEvent.Tag);
@@ -66,9 +66,9 @@ namespace Store.Catalogue.Domain.Product
 
         protected override void RegisterAppliers()
         {
-            RegisterApplier<CreateProductEvent>(Apply);
-            RegisterApplier<AddRatingEvent>(Apply);
-            RegisterApplier<AddTagEvent>(Apply);
+            RegisterApplier<ProductCreatedEvent>(Apply);
+            RegisterApplier<ProductRatedEvent>(Apply);
+            RegisterApplier<ProductTaggedEvent>(Apply);
         }
     }
 }
