@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.Application
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.AspNet", "Store.Catalogue\Store.Catalogue.AspNet\Store.Catalogue.AspNet.csproj", "{99BBA82C-F86B-4D78-9238-0D5DA9D52E2C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.CatalogueManagement", "Store.CatalogueManagement\Store.CatalogueManagement.csproj", "{EB47280C-44F7-4349-9230-AAA2E8B2387A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,5 +58,9 @@ Global
 		{99BBA82C-F86B-4D78-9238-0D5DA9D52E2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99BBA82C-F86B-4D78-9238-0D5DA9D52E2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99BBA82C-F86B-4D78-9238-0D5DA9D52E2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB47280C-44F7-4349-9230-AAA2E8B2387A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB47280C-44F7-4349-9230-AAA2E8B2387A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB47280C-44F7-4349-9230-AAA2E8B2387A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB47280C-44F7-4349-9230-AAA2E8B2387A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

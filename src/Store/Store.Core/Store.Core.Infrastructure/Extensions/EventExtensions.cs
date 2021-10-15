@@ -24,7 +24,7 @@ namespace Store.Core.Infrastructure.Extensions
             
             return new EventData(
                 Uuid.NewUuid(), 
-                eventType.FullName, 
+                eventType.AssemblyQualifiedName, 
                 Serializer.SerializeToBytes(domainEvent, eventType));
         }
     }

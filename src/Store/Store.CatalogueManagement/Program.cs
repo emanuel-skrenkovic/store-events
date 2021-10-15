@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Store.Catalogue.AspNet
+namespace Store.CatalogueManagement
 {
     public class Program
     {

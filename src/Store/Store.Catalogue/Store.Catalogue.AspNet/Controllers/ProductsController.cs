@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Store.Catalogue.Application.Product.Command.AdjustPrice;
 using Store.Catalogue.Application.Product.Command.Create;
 using Store.Catalogue.AspNet.Models.Product;
 
@@ -28,7 +29,16 @@ namespace Store.Catalogue.AspNet.Controllers
                 apiModel.Name, 
                 apiModel.Price, 
                 apiModel.Description));
-            
+
+            return StatusCode(201); // TODO: check best way
+        }
+
+        [HttpPost]
+        [Route("{id:guid}/commands/adjust-price")]
+        public async Task<IActionResult> AdjustProductPrice([FromRoute] Guid id, ProductPriceAdjustmentApiModel apiModel)
+        {
+            await _mediator.Send(new ProductAdjustPriceCommand(id, apiModel.NewPrice));
+
             return Ok();
         }
         

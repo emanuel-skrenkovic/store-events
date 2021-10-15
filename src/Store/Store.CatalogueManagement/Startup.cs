@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using EventStore.Client;
 using MediatR;
@@ -18,7 +19,7 @@ using Store.Catalogue.Application.Product.Command.Create;
 using Store.Catalogue.Domain.Product;
 using Store.Core.Infrastructure;
 
-namespace Store.Catalogue.AspNet
+namespace Store.CatalogueManagement
 {
     public class Startup
     {
@@ -32,12 +33,18 @@ namespace Store.Catalogue.AspNet
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "Store.Catalogue.AspNet", Version = "v1" }); });
+            services.AddControllers()
+            .AddJsonOptions(opts =>
+            {
+                opts.JsonSerializerOptions.IgnoreNullValues = true;
+                opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
+            
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "Store.CatalogueManagement", Version = "v1" }); });
 
             services.AddMediatR(typeof(ProductCreateCommand));
 
-            services.AddTransient<EventStoreClient>(
+            services.AddScoped<EventStoreClient>(
                 _ => new EventStoreClient(EventStoreClientSettings.Create(Configuration["EventStore:ConnectionString"])));
             
             services.AddScoped<IRepository, EventStoreRepository>();
@@ -51,7 +58,7 @@ namespace Store.Catalogue.AspNet
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Store.Catalogue.AspNet v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Store.CatalogueManagement v1"));
             }
 
             app.UseHttpsRedirection();

@@ -37,6 +37,16 @@ namespace Store.Catalogue.Domain.Product
             Description = domainCreatedEvent.Description;
         }
 
+        public void ChangePrice(decimal newPrice, string reason = null)
+        {
+            ApplyEvent(new ProductPriceChangedEvent(newPrice, reason));
+        }
+
+        private void Apply(ProductPriceChangedEvent domainEvent)
+        {
+            Price = domainEvent.NewPrice;
+        }
+
         public void AddRating(ProductRating productRating)
         {
             ApplyEvent(new ProductRatedEvent(productRating));
@@ -69,6 +79,7 @@ namespace Store.Catalogue.Domain.Product
             RegisterApplier<ProductCreatedEvent>(Apply);
             RegisterApplier<ProductRatedEvent>(Apply);
             RegisterApplier<ProductTaggedEvent>(Apply);
+            RegisterApplier<ProductPriceChangedEvent>(Apply);
         }
     }
 }
