@@ -44,6 +44,8 @@ namespace Store.Core.Domain
         
         public static class CommonMessages
         {
+            [DebuggerHidden]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static string NullOrEmpty(string argName) => $"{argName} is null or empty.";
         }
     }
