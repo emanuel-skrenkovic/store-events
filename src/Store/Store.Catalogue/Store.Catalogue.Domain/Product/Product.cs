@@ -16,8 +16,6 @@ namespace Store.Catalogue.Domain.Product
 
         public ICollection<ProductRating> Ratings { get; private set; }
 
-        public double CurrentRating => Ratings.Average(r => r.Rating);
-
         public ICollection<Tag> Tags { get; private set; }
 
         public static Product Create(string name, decimal price, string description = null)
