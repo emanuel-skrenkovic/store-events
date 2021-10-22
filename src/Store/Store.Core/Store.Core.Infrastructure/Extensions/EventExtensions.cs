@@ -1,6 +1,7 @@
 using System;
 using EventStore.Client;
 using Store.Core.Domain;
+using Store.Core.Domain.Event;
 
 namespace Store.Core.Infrastructure.Extensions
 {
