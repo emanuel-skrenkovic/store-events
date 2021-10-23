@@ -8,25 +8,23 @@ namespace Store.Core.Infrastructure.Extensions
     // TODO: think about type names
     public static class EventExtensions
     {
-        private static readonly ISerializer Serializer = new JsonSerializer(); // TODO: clean this up. This is horrible. D:
-        
-        public static object Deserialize(this ResolvedEvent resolvedEvent)
+        public static object Deserialize(this ResolvedEvent resolvedEvent, ISerializer serializer)
         { 
             EventRecord record = resolvedEvent.Event;
 
-            return Serializer.DeserializeFromBytes(
+            return serializer.DeserializeFromBytes(
                 record.Data.ToArray(),
                 Type.GetType(record.EventType));
         }
 
-        public static EventData ToEventData<T>(this T domainEvent) where T : IEvent
+        public static EventData ToEventData<T>(this T domainEvent, ISerializer serializer) where T : IEvent
         {
             Type eventType = domainEvent.GetType();
             
             return new EventData(
                 Uuid.NewUuid(), 
-                eventType.AssemblyQualifiedName, 
-                Serializer.SerializeToBytes(domainEvent, eventType));
+                eventType.AssemblyQualifiedName!,
+                serializer.SerializeToBytes(domainEvent, eventType));
         }
     }
 }

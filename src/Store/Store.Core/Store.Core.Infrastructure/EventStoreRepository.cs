@@ -12,10 +12,12 @@ namespace Store.Core.Infrastructure
 {
     public class EventStoreRepository : IRepository
     {
+        private readonly ISerializer _serializer;
         private readonly EventStoreClient _eventStore;
        
-        public EventStoreRepository(EventStoreClient eventStore)
+        public EventStoreRepository(ISerializer serializer, EventStoreClient eventStore)
         {
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _eventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));
         }
         
@@ -27,7 +29,7 @@ namespace Store.Core.Infrastructure
                 StreamPosition.Start);
             
             IReadOnlyCollection<IEvent> domainEvents = await eventStream
-                .Select(e => e.Deserialize() as IEvent)
+                .Select(e => e.Deserialize(_serializer) as IEvent)
                 .ToArrayAsync();
 
             T entity = new();
@@ -47,7 +49,7 @@ namespace Store.Core.Infrastructure
             Guard.IsNotNull(entity, nameof(entity));
 
             IReadOnlyCollection<EventData> eventsData = entity.GetUncommittedEvents()
-                .Select(domainEvent => domainEvent.ToEventData())
+                .Select(domainEvent => domainEvent.ToEventData(_serializer))
                 .ToImmutableList();
 
             return _eventStore.AppendToStreamAsync(

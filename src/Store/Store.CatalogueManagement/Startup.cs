@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Store.Catalogue.Application.Product.Command.Create;
 using Store.Catalogue.Domain.Product;
+using Store.Core.Domain;
 using Store.Core.Infrastructure;
 
 namespace Store.CatalogueManagement
@@ -49,6 +50,8 @@ namespace Store.CatalogueManagement
             
             services.AddScoped<IRepository, EventStoreRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
+
+            services.AddScoped<ISerializer, JsonSerializer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
