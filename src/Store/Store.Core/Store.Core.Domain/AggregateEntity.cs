@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Store.Core.Domain.Event;
 
 namespace Store.Core.Domain
 {

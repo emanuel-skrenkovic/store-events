@@ -1,3 +1,4 @@
+using Store.Core.Domain.Event;
 using Xunit;
 
 namespace Store.Core.Domain.Tests

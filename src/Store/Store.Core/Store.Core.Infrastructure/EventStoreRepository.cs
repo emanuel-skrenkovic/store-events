@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventStore.Client;
 using Store.Core.Domain;
+using Store.Core.Domain.Event;
 using Store.Core.Infrastructure.Extensions;
 
 namespace Store.Core.Infrastructure
