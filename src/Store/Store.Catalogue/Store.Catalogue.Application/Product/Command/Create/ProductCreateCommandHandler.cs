@@ -19,11 +19,10 @@ namespace Store.Catalogue.Application.Product.Command.Create
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            Domain.Product.Product product = Domain.Product.Product.Create(
+            await _productRepository.CreateProductAsync(Domain.Product.Product.Create(
                 request.Name, 
                 request.Price, 
-                request.Description);
-            await _productRepository.SaveProductAsync(product);
+                request.Description));
 
             return Unit.Value;
         }

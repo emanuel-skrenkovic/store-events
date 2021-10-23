@@ -28,8 +28,6 @@ namespace Store.Catalogue.Domain.Product
         
         private void Apply(ProductCreatedEvent domainCreatedEvent)
         {
-            Id = Guid.NewGuid();
-            
             Name = domainCreatedEvent.Name;
             Price = domainCreatedEvent.Price;
             Description = domainCreatedEvent.Description;

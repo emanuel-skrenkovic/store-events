@@ -26,16 +26,20 @@ namespace Store.Core.Infrastructure
                 GenerateStreamName<T>(id),
                 StreamPosition.Start);
             
+            IReadOnlyCollection<IEvent> domainEvents = await eventStream
+                .Select(e => e.Deserialize() as IEvent)
+                .ToArrayAsync();
+
             T entity = new();
-            
-            // TODO: .ToListAsync()?
-            await foreach (ResolvedEvent resolvedEvent in eventStream)
-            {
-                IEvent domainEvent = resolvedEvent.Deserialize() as IEvent;
-                entity.ApplyEvent(domainEvent);
-            }
+            entity.Hydrate(id, domainEvents);
 
             return entity;
+        }
+
+        public Task CreateAsync<T>(T entity) where T : AggregateEntity
+        {
+            entity.Id = Guid.NewGuid();
+            return SaveAsync(entity);
         }
 
         public Task SaveAsync<T>(T entity) where T : AggregateEntity
@@ -47,7 +51,7 @@ namespace Store.Core.Infrastructure
                 .ToImmutableList();
 
             return _eventStore.AppendToStreamAsync(
-                GenerateStreamName<T>(Guid.NewGuid()),
+                GenerateStreamName<T>(entity.Id),
                 StreamState.Any, 
                 eventsData);
         }

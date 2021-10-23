@@ -37,7 +37,10 @@ namespace Store.Catalogue.AspNet.Controllers
         [Route("{id:guid}/commands/adjust-price")]
         public async Task<IActionResult> AdjustProductPrice([FromRoute] Guid id, ProductPriceAdjustmentApiModel apiModel)
         {
-            await _mediator.Send(new ProductAdjustPriceCommand(id, apiModel.NewPrice));
+            await _mediator.Send(new ProductAdjustPriceCommand(
+                id, 
+                apiModel.NewPrice, 
+                apiModel.Reason));
 
             return Ok();
         }

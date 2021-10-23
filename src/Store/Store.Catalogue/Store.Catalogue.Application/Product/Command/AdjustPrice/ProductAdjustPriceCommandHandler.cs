@@ -26,7 +26,7 @@ namespace Store.Catalogue.Application.Product.Command.AdjustPrice
                 // TODO
             }
             
-            product.ChangePrice(request.NewPrice);
+            product.ChangePrice(request.NewPrice, request.Reason);
 
             await _productRepository.SaveProductAsync(product);
 
