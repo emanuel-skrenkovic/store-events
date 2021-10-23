@@ -26,7 +26,15 @@ namespace Store.Core.Domain.Event.InMemory
 
             foreach (IEventSubscriber<TEvent> sub in subscribers)
             {
-                sub.HandleEvent(integrationEvent);
+                try
+                {
+                    sub.HandleEvent(integrationEvent);
+                }
+                catch
+                {
+                    // Need to publish to all subscribers regardless if some of them break.
+                    // TODO: add logging here
+                }
             }
 
             return Task.CompletedTask;
