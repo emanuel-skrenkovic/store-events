@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using Store.Core.Domain.Event.Integration;
 
 namespace Store.Core.Domain.Event.InMemory
 {
@@ -16,7 +17,7 @@ namespace Store.Core.Domain.Event.InMemory
                                        ?? throw new ArgumentNullException(nameof(eventSubscriberProvider));
         }
 
-        public Task PublishAsync<TEvent>(TEvent integrationEvent) where TEvent : IIntegrationEvent
+        public Task PublishAsync<TEvent>(TEvent integrationEvent) where TEvent : IEvent
         {
             IEnumerable<IEventSubscriber<TEvent>> subscribers = _eventSubscriberProvider
                 .GetSubscribers<TEvent>()
@@ -33,7 +34,7 @@ namespace Store.Core.Domain.Event.InMemory
                 catch
                 {
                     // Need to publish to all subscribers regardless if some of them break.
-                    // TODO: add logging here
+                    // TODO: add logging here or create logging wrapper.
                 }
             }
 

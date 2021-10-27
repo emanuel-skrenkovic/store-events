@@ -1,8 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using Store.Core.Domain;
 
-namespace Store.Core.Infrastructure
+namespace Store.Core.Domain
 {
     public interface IRepository
     {

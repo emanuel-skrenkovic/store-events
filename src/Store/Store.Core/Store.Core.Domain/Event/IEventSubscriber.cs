@@ -2,8 +2,10 @@ using System.Threading.Tasks;
 
 namespace Store.Core.Domain.Event
 {
-    public interface IEventSubscriber<T> where T : IIntegrationEvent
+    public interface IEventSubscriber
     {
-        Task HandleEvent(T eventData);
+        bool Handles(string eventType);
+        
+        Task Handle(object domainEvent);
     }
 }
