@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Store.Core.Domain.Event;
+using Store.Core.Domain.Event.Integration;
 
 namespace Store.Core.Infrastructure.AspNet
 {
@@ -15,7 +16,7 @@ namespace Store.Core.Infrastructure.AspNet
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
         
-        public IEnumerable<IEventSubscriber<TEvent>> GetSubscribers<TEvent>() where TEvent : IIntegrationEvent
+        public IEnumerable<IEventSubscriber<TEvent>> GetSubscribers<TEvent>() where TEvent :IEvent 
         {
             return _serviceProvider.GetServices<IEventSubscriber<TEvent>>();
         }

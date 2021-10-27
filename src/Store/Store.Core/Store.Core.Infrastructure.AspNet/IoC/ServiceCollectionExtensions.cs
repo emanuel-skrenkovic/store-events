@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Store.Core.Domain.Event;
+using Store.Core.Domain.Event.Integration;
 
 namespace Store.Core.Infrastructure.AspNet.IoC
 {
@@ -28,6 +29,9 @@ namespace Store.Core.Infrastructure.AspNet.IoC
                         c,
                         mapping.implementation));
             }
+            
+            // TODO: Think about adding 'Subscribe' method to IEventBus
+            // and calling register here!!!! Is it even possible?
             
             return services;
         }

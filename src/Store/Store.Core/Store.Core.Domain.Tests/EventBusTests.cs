@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Store.Core.Domain.Event;
 using Store.Core.Domain.Event.InMemory;
+using Store.Core.Domain.Event.Integration;
 using Xunit;
 
 namespace Store.Core.Domain.Tests
@@ -88,7 +89,7 @@ namespace Store.Core.Domain.Tests
                 }
             }
             
-            public IEnumerable<IEventSubscriber<TEvent>> GetSubscribers<TEvent>() where TEvent : IIntegrationEvent
+            public IEnumerable<IEventSubscriber<TEvent>> GetSubscribers<TEvent>() where TEvent : IEvent 
             {
                 if (!Subscribers.ContainsKey(typeof(TEvent))) return new IEventSubscriber<TEvent>[] { };
                 
@@ -138,12 +139,12 @@ namespace Store.Core.Domain.Tests
             }
         }
 
-        private class TestIntegrationEvent : IIntegrationEvent
+        private class TestIntegrationEvent :IEvent 
         {
             public string TestValue { get; set; }
         }
 
-        private class TestIntegrationEvent2 : IIntegrationEvent
+        private class TestIntegrationEvent2 : IEvent
         {
             public int TestValue { get; set; }
         }
