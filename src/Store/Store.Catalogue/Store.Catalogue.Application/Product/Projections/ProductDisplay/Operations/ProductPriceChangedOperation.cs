@@ -15,8 +15,8 @@ namespace Store.Catalogue.Application.Product.Projections.ProductDisplay.Operati
         
         public ProductDisplay Apply(ProductDisplay productDisplay)
         {
-            // TODO: think about using records. Mutations probably work better.
-            return productDisplay with { Price = _event.NewPrice };
+            productDisplay.Price = _event.NewPrice;
+            return productDisplay;
         }
     }
 }

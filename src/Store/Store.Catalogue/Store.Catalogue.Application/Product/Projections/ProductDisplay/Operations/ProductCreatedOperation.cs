@@ -15,10 +15,12 @@ namespace Store.Catalogue.Application.Product.Projections.ProductDisplay.Operati
             
         public ProductDisplay Apply(ProductDisplay productDisplay)
         {
-            return productDisplay with
-            {
-                Id = Guid.Empty, Name = _event.Name, Description = _event.Description, Price = _event.Price
-            };
+            productDisplay.Id = Guid.Empty;
+            productDisplay.Name = _event.Name;
+            productDisplay.Description = _event.Description;
+            productDisplay.Price = _event.Price;
+
+            return productDisplay;
         }
     }
 }

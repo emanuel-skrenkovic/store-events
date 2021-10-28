@@ -5,7 +5,7 @@ using Store.Catalogue.Domain.Product.Events;
 using Store.Core.Domain.Event;
 using Store.Core.Domain.Projection;
 
-namespace Store.Catalogue.Application.Product.Projections
+namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
 {
     public class ProductDisplayProjectionEventSubscriber : IEventSubscriber
     {
@@ -18,11 +18,9 @@ namespace Store.Catalogue.Application.Product.Projections
         };
             
         private readonly IProjectionRunner _runner;
-        private readonly IProjection<ProductDisplay.ProductDisplay> _projection;
+        private readonly IProjection<ProductDisplay> _projection;
         
-        public ProductDisplayProjectionEventSubscriber(
-            IProjectionRunner runner,
-            IProjection<ProductDisplay.ProductDisplay> projection)
+        public ProductDisplayProjectionEventSubscriber(IProjectionRunner runner, IProjection<ProductDisplay> projection)
         {
             _runner = runner ?? throw new ArgumentNullException(nameof(runner));
             _projection = projection ?? throw new ArgumentNullException(nameof(projection));
@@ -30,6 +28,8 @@ namespace Store.Catalogue.Application.Product.Projections
         
         public Task Handle(object @event)
         {
+            if (!Handles(@event.GetType())) return Task.CompletedTask;
+            
             return _runner.RunAsync(_projection, @event);
         }
 

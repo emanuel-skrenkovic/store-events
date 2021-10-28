@@ -3,34 +3,34 @@ using System.Collections.Generic;
 
 namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
 {
-    public record ProductDisplay
+    public class ProductDisplay
     {
-        public Guid Id { get; init; }
+        public Guid Id { get; set; }
         
-        public string Name { get; init; }
+        public string Name { get; set; }
         
-        public string Description { get; init; }
+        public string Description { get; set; }
         
-        public decimal Price { get; init; }
+        public decimal Price { get; set; }
 
-        public ICollection<ProductReview> Reviews { get; init; }
+        public ICollection<ProductReview> Reviews { get; set; }
 
-        public ICollection<Tag> Tags { get; init; }
+        public ICollection<Tag> Tags { get; set; }
     }
 
-    public record Tag
+    public class Tag
     {
-        public string Value { get; init; }
+        public string Value { get; set; }
     }
 
-    public record ProductReview
+    public class ProductReview
     {
-        public string CustomerId { get; init; }
+        public string CustomerId { get; set; }
         
-        public ushort Rating { get; init; }
+        public ushort Rating { get; set; }
         
-        public string Text { get; init; }
+        public string Text { get; set; }
         
-        public DateTime DateRated { get; init; }
+        public DateTime DateRated { get; set; }
     }
 }
