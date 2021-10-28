@@ -5,9 +5,9 @@ using EventStore.Client;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
 using Store.Core.Domain.Event.Integration;
-using Store.Core.Infrastructure.Extensions;
+using Store.Core.Infrastructure.EventStore.Extensions;
 
-namespace Store.Core.Infrastructure
+namespace Store.Core.Infrastructure.EventStore
 {
     public class EventStoreEventTopic : IEventTopic, IDisposable
     {
@@ -17,7 +17,7 @@ namespace Store.Core.Infrastructure
         private readonly EventStoreClient _eventStore;
         private readonly EventStoreEventTopicConfiguration _configuration;
         
-        private readonly ISubscriptionCheckpointRepository _checkpointRepository;
+        private readonly ICheckpointRepository _checkpointRepository;
         private readonly IEventBus _eventBus;
         private readonly ISerializer _serializer;
         
@@ -25,7 +25,7 @@ namespace Store.Core.Infrastructure
         public EventStoreEventTopic(
             EventStoreClient                  eventStore, 
             EventStoreEventTopicConfiguration configuration,
-            ISubscriptionCheckpointRepository checkpointRepository, 
+            ICheckpointRepository checkpointRepository, 
             IEventBus                         eventBus,
             ISerializer                       serializer) 
         {

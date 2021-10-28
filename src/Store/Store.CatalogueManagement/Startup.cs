@@ -19,6 +19,7 @@ using Store.Catalogue.Application.Product.Command.Create;
 using Store.Catalogue.Domain.Product;
 using Store.Core.Domain;
 using Store.Core.Infrastructure;
+using Store.Core.Infrastructure.EventStore;
 
 namespace Store.CatalogueManagement
 {
@@ -48,7 +49,7 @@ namespace Store.CatalogueManagement
             services.AddScoped<EventStoreClient>(
                 _ => new EventStoreClient(EventStoreClientSettings.Create(Configuration["EventStore:ConnectionString"])));
             
-            services.AddScoped<IRepository, EventStoreRepository>();
+            services.AddScoped<IAggregateRepository, EventStoreAggregateRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
 
             services.AddScoped<ISerializer, JsonSerializer>();

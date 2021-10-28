@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Store.Core.Domain
 {
-    public interface IRepository
+    public interface IAggregateRepository
     {
         Task<T> GetAsync<T>(Guid id) where T : AggregateEntity, new();
         

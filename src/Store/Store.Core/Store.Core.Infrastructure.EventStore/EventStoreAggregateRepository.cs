@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 using EventStore.Client;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
-using Store.Core.Infrastructure.Extensions;
+using Store.Core.Infrastructure.EventStore.Extensions;
 
-namespace Store.Core.Infrastructure
+namespace Store.Core.Infrastructure.EventStore
 {
-    public class EventStoreRepository : IRepository
+    public class EventStoreAggregateRepository : IAggregateRepository
     {
         private readonly ISerializer _serializer;
         private readonly EventStoreClient _eventStore;
        
-        public EventStoreRepository(ISerializer serializer, EventStoreClient eventStore)
+        public EventStoreAggregateRepository(ISerializer serializer, EventStoreClient eventStore)
         {
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _eventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));

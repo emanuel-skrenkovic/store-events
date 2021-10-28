@@ -48,6 +48,7 @@ namespace Store.Core.Domain
             _events.Clear();
         }
 
+        // TODO: should probably dequeue, i.e., clear the list.
         public IReadOnlyCollection<IEvent> GetUncommittedEvents() => _events.ToImmutableList();
 
         protected abstract void RegisterAppliers();
