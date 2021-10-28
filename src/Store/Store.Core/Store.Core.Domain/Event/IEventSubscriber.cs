@@ -1,11 +1,12 @@
+using System;
 using System.Threading.Tasks;
 
 namespace Store.Core.Domain.Event
 {
     public interface IEventSubscriber
     {
-        bool Handles(string eventType);
+        Task Handle(object @event);
         
-        Task Handle(object domainEvent);
+        bool Handles(Type type);
     }
 }

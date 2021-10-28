@@ -12,19 +12,29 @@ namespace Store.Core.Domain.Projection
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public Task RunAsync<T>(IProjectionOperation<T> operation) where T : class
+        public async Task RunAsync<T>(IProjection<T> projection, object @event) where T : class, new()
         {
-            Guard.IsNotNull(operation, nameof(operation));
-            
-            return _repository.InsertAsync(operation.Apply());
-        }
-
-        public async Task RunUpdateAsync<T>(IProjectionUpdateOperation<T> operation) where T : class
-        {
-            Guard.IsNotNull(operation, nameof(operation));
+            Guard.IsNotNull(projection, nameof(projection));
 
             T model = await _repository.GetAsync<T>(Guid.Empty);
-            await _repository.UpdateAsync(operation.ApplyUpdate(model));
+
+            bool isNew = model == null;
+            if (isNew)
+            {
+                model = new();
+            }
+
+            T projectedModel = projection.Project(model, @event);
+
+
+            if (isNew)
+            {
+                await _repository.InsertAsync(projectedModel);
+            }
+            else
+            {
+                await _repository.UpdateAsync(projectedModel);
+            }
         }
     }
 }

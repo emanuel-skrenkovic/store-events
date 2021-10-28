@@ -13,9 +13,12 @@ namespace Store.Catalogue.Application.Product.Projections.ProductDisplay.Operati
             _event = @event ?? throw new ArgumentNullException(nameof(@event));
         }
             
-        public ProductDisplay Apply()
+        public ProductDisplay Apply(ProductDisplay productDisplay)
         {
-            return new ProductDisplay(Guid.Empty, _event.Name, _event.Description, _event.Price);
+            return productDisplay with
+            {
+                Id = Guid.Empty, Name = _event.Name, Description = _event.Description, Price = _event.Price
+            };
         }
     }
 }

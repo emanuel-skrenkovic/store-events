@@ -4,7 +4,7 @@ using Store.Core.Domain.Projection;
 
 namespace Store.Catalogue.Application.Product.Projections.ProductDisplay.Operations
 {
-    public class ProductPriceChangedOperation : IProjectionUpdateOperation<ProductDisplay>
+    public class ProductPriceChangedOperation : IProjectionOperation<ProductDisplay>
     {
         private readonly ProductPriceChangedEvent _event;
         
@@ -13,7 +13,7 @@ namespace Store.Catalogue.Application.Product.Projections.ProductDisplay.Operati
             _event = @event ?? throw new ArgumentNullException(nameof(@event));
         }
         
-        public ProductDisplay ApplyUpdate(ProductDisplay productDisplay)
+        public ProductDisplay Apply(ProductDisplay productDisplay)
         {
             // TODO: think about using records. Mutations probably work better.
             return productDisplay with { Price = _event.NewPrice };

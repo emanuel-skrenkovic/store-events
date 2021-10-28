@@ -1,9 +1,7 @@
-using System.Threading.Tasks;
-
 namespace Store.Core.Domain.Projection
 {
-    public interface IProjection
+    public interface IProjection<T>
     { 
-        Task ProjectAsync(object receivedEvent);
+        T Project(T initialState, object receivedEvent);
     }
 }
