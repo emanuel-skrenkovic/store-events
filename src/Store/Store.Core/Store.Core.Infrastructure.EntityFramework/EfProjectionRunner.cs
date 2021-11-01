@@ -7,17 +7,13 @@ using Store.Core.Domain.Projection;
 
 namespace Store.Core.Infrastructure.EntityFramework
 {
-    public class EfProjectionRunner<TEntity, TContext> : IProjectionRunner
-        where TEntity : ProjectionDocument, new()
-        where TContext : DbContext
+    public class EfProjectionRunner<TContext> : IProjectionRunner where TContext : DbContext
     {
         private readonly TContext _context;
-        private readonly ISerializer _serializer;
 
-        public EfProjectionRunner(TContext context, ISerializer serializer)
+        public EfProjectionRunner(TContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
         public async Task RunAsync<T>(IProjection<T> projection, IEvent @event)
@@ -26,21 +22,25 @@ namespace Store.Core.Infrastructure.EntityFramework
             Guard.IsNotNull(projection, nameof(projection));
             Guard.IsNotNull(@event, nameof(@event));
 
-            DbSet<TEntity> set = _context.Set<TEntity>();
+            DbSet<T> set = _context.Set<T>();
 
-            TEntity entity = await set.FindAsync(@event.EntityId);
+            T entity = await set.FindAsync(@event.EntityId);
 
-            if (entity == null)
-            {
-                entity = new();
-                set.Add(entity);
-            }
+            bool isNew = entity == null;
+            if (isNew)   entity = new();
 
             // TODO: ugly and bad
-            T updatedModel = projection.Project(_serializer.Deserialize<T>(entity.Data), @event);
-            entity.Data = _serializer.Serialize(updatedModel);
+            T updatedEntity = projection.Project(entity, @event);
 
-            _context.Update(entity);
+            if (isNew)
+            {
+                set.Add(updatedEntity);
+            }
+            else
+            {
+                set.Update(updatedEntity);
+            }
+            
             await _context.SaveChangesAsync();
         }
     }

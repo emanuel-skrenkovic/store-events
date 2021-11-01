@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Store.Catalogue.Domain.Product.Projections.ProductDisplay
 {
@@ -16,6 +17,21 @@ namespace Store.Catalogue.Domain.Product.Projections.ProductDisplay
         public ICollection<ProductReview> Reviews { get; set; }
 
         public ICollection<Tag> Tags { get; set; }
+
+        #region Persistence
+        
+        // TODO: bad
+        public string Serialized => JsonSerializer.Serialize(new
+        {
+            Id,
+            Name,
+            Description,
+            Price,
+            Reviews,
+            Tags
+        });
+        
+        #endregion
     }
 
     public class Tag

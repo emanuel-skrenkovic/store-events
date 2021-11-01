@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using Store.Catalogue.Infrastructure.EntityFramework.Entity;
+using Store.Catalogue.Domain.Product.Projections.ProductDisplay;
 
 namespace Store.Catalogue.Infrastructure.EntityFramework
 {
     public class StoreCatalogueDbContext : DbContext
     {
-        public DbSet<ProductDisplayEntity> ProductDisplays { get; set; }
+        public DbSet<ProductDisplay> ProductDisplays { get; set; }
         
         public StoreCatalogueDbContext(DbContextOptions<StoreCatalogueDbContext> options) : base(options) { }
         
