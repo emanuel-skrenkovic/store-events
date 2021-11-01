@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Core.Infrastructure.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Core.Infrastructure.EntityFramework", "Store.Core\Store.Core.Infrastructure.EntityFramework\Store.Core.Infrastructure.EntityFramework.csproj", "{B58F3321-4B8E-45E0-B7F3-930E475C7DCE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.Infrastructure.EntityFramework", "Store.Catalogue\Store.Catalogue.Infrastructure.EntityFramework\Store.Catalogue.Infrastructure.EntityFramework.csproj", "{7D14346C-7276-4542-8968-9AF335531C7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,7 @@ Global
 		{99BBA82C-F86B-4D78-9238-0D5DA9D52E2C} = {EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}
 		{D7230754-25E5-4431-B7BA-1AFD0D3BAD0D} = {9BCFAE85-02D8-492B-B323-B1B93C8F68D0}
 		{B58F3321-4B8E-45E0-B7F3-930E475C7DCE} = {9BCFAE85-02D8-492B-B323-B1B93C8F68D0}
+		{7D14346C-7276-4542-8968-9AF335531C7F} = {EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{3D2A6C55-B482-4F44-8BE2-ED0A3E24A26C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -76,5 +79,9 @@ Global
 		{B58F3321-4B8E-45E0-B7F3-930E475C7DCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B58F3321-4B8E-45E0-B7F3-930E475C7DCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B58F3321-4B8E-45E0-B7F3-930E475C7DCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D14346C-7276-4542-8968-9AF335531C7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D14346C-7276-4542-8968-9AF335531C7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D14346C-7276-4542-8968-9AF335531C7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D14346C-7276-4542-8968-9AF335531C7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

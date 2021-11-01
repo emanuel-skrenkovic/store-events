@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
+namespace Store.Catalogue.Domain.Product.Projections.ProductDisplay
 {
     public class ProductDisplay
     {

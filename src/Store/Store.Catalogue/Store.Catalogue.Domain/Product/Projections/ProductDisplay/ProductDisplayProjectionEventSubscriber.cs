@@ -5,7 +5,7 @@ using Store.Catalogue.Domain.Product.Events;
 using Store.Core.Domain.Event;
 using Store.Core.Domain.Projection;
 
-namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
+namespace Store.Catalogue.Domain.Product.Projections.ProductDisplay
 {
     public class ProductDisplayProjectionEventSubscriber : IEventSubscriber
     {
@@ -26,7 +26,7 @@ namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
             _projection = projection ?? throw new ArgumentNullException(nameof(projection));
         }
         
-        public Task Handle(object @event)
+        public Task Handle(IEvent @event)
         {
             if (!Handles(@event.GetType())) return Task.CompletedTask;
             

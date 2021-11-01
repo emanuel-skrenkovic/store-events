@@ -2,7 +2,7 @@ using System;
 using Store.Catalogue.Domain.Product.Events;
 using Store.Core.Domain.Projection;
 
-namespace Store.Catalogue.Application.Product.Projections.ProductDisplay.Operations
+namespace Store.Catalogue.Domain.Product.Projections.ProductDisplay.Operations
 {
     public class ProductPriceChangedOperation : IProjectionOperation<ProductDisplay>
     {

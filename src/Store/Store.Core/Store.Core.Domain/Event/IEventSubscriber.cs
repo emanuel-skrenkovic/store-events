@@ -5,7 +5,7 @@ namespace Store.Core.Domain.Event
 {
     public interface IEventSubscriber
     {
-        Task Handle(object @event);
+        Task Handle(IEvent @event);
         
         bool Handles(Type type);
     }

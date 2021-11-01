@@ -1,8 +1,8 @@
-﻿using Store.Catalogue.Application.Product.Projections.ProductDisplay.Operations;
-using Store.Catalogue.Domain.Product.Events;
+﻿using Store.Catalogue.Domain.Product.Events;
+using Store.Catalogue.Domain.Product.Projections.ProductDisplay.Operations;
 using Store.Core.Domain.Projection;
 
-namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
+namespace Store.Catalogue.Domain.Product.Projections.ProductDisplay
 {
     public class ProductDisplayProjection : IProjection<ProductDisplay>
     {

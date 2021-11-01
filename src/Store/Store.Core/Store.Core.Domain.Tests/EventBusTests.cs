@@ -63,7 +63,7 @@ namespace Store.Core.Domain.Tests
         {
             public bool HandleEventRan { get; private set; }
 
-            public Task Handle(object @event)
+            public Task Handle(IEvent @event)
             {
                 if (@event == null) throw new ArgumentNullException(nameof(@event));
 
@@ -79,7 +79,7 @@ namespace Store.Core.Domain.Tests
         {
             public bool HandleEventRan { get; private set; }
             
-            public Task Handle(object @event)
+            public Task Handle(IEvent @event)
             {
                 if (@event == null) throw new ArgumentNullException(nameof(@event));
 
@@ -95,7 +95,7 @@ namespace Store.Core.Domain.Tests
         {
             public bool HandleEventRan { get; private set; }
             
-            public Task Handle(object @event)
+            public Task Handle(IEvent @event)
             {
                 if (@event == null) throw new ArgumentNullException(nameof(@event));
 
@@ -109,11 +109,15 @@ namespace Store.Core.Domain.Tests
 
         private class TestIntegrationEvent :IEvent 
         {
+            public Guid EntityId { get; set; }
+            
             public string TestValue { get; set; }
         }
 
         private class TestIntegrationEvent2 : IEvent
         {
+            public Guid EntityId { get; set; } 
+            
             public int TestValue { get; set; }
         }
     }
