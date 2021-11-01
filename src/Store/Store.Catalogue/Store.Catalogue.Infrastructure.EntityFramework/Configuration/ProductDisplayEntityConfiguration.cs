@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Store.Catalogue.Domain.Product.Projections.ProductDisplay;
+using Store.Catalogue.Infrastructure.EntityFramework.Entity;
 
 namespace Store.Catalogue.Infrastructure.EntityFramework.Configuration
 {
-    public class ProductConfiguration : IEntityTypeConfiguration<ProductDisplay>
+    public class ProductDisplayEntityConfiguration : IEntityTypeConfiguration<ProductDisplayEntity>
     {
-        public void Configure(EntityTypeBuilder<ProductDisplay> builder)
+        public void Configure(EntityTypeBuilder<ProductDisplayEntity> builder)
         {
             builder.ToTable("product_display");
             

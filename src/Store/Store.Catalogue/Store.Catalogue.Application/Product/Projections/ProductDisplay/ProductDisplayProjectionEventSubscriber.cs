@@ -2,10 +2,11 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Store.Catalogue.Domain.Product.Events;
+using Store.Catalogue.Infrastructure.EntityFramework.Entity;
 using Store.Core.Domain.Event;
 using Store.Core.Domain.Projection;
 
-namespace Store.Catalogue.Domain.Product.Projections.ProductDisplay
+namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
 {
     public class ProductDisplayProjectionEventSubscriber : IEventSubscriber
     {
@@ -18,9 +19,9 @@ namespace Store.Catalogue.Domain.Product.Projections.ProductDisplay
         };
             
         private readonly IProjectionRunner _runner;
-        private readonly IProjection<ProductDisplay> _projection;
+        private readonly IProjection<ProductDisplayEntity> _projection;
         
-        public ProductDisplayProjectionEventSubscriber(IProjectionRunner runner, IProjection<ProductDisplay> projection)
+        public ProductDisplayProjectionEventSubscriber(IProjectionRunner runner, IProjection<ProductDisplayEntity> projection)
         {
             _runner = runner ?? throw new ArgumentNullException(nameof(runner));
             _projection = projection ?? throw new ArgumentNullException(nameof(projection));

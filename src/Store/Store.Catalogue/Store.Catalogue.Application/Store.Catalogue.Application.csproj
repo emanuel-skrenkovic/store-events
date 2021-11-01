@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Store.Catalogue.Domain\Store.Catalogue.Domain.csproj" />
+      <ProjectReference Include="..\Store.Catalogue.Infrastructure.EntityFramework\Store.Catalogue.Infrastructure.EntityFramework.csproj" />
     </ItemGroup>
 
 </Project>

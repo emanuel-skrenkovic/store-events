@@ -24,12 +24,17 @@ namespace Store.Core.Infrastructure.EventStore
         public async Task<ulong?> GetAsync(string subscriptionId)
         {
             Guard.IsNotNullOrEmpty(subscriptionId, Guard.CommonMessages.NullOrEmpty(nameof(subscriptionId)));
-
+            
             EventStoreClient.ReadStreamResult result = _eventStore.ReadStreamAsync(
                 Direction.Backwards, 
                 GenerateCheckpointStreamName(subscriptionId), 
                 StreamPosition.End,
                 maxCount: 1);
+
+            if (await result.ReadState == ReadState.StreamNotFound)
+            {
+                return 0;
+            }
             
             ResolvedEvent finalEvent = await result.FirstOrDefaultAsync();
             return finalEvent.Deserialize(_serializer) as ulong?;

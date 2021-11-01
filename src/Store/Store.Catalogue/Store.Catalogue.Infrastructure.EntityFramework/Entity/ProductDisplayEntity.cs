@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using Store.Core.Domain.Projection;
 
-namespace Store.Catalogue.Domain.Product.Projections.ProductDisplay
+namespace Store.Catalogue.Infrastructure.EntityFramework.Entity
 {
-    public class ProductDisplay
+    public class ProductDisplayEntity : IReadModel
     {
         public Guid Id { get; set; }
         
@@ -19,17 +20,23 @@ namespace Store.Catalogue.Domain.Product.Projections.ProductDisplay
         public ICollection<Tag> Tags { get; set; }
 
         #region Persistence
+
+        private string _data;
         
         // TODO: bad
-        public string Serialized => JsonSerializer.Serialize(new
+        public string Serialized
         {
-            Id,
-            Name,
-            Description,
-            Price,
-            Reviews,
-            Tags
-        });
+            get => JsonSerializer.Serialize(new
+            {
+                Id,
+                Name,
+                Description,
+                Price,
+                Reviews,
+                Tags
+            });
+            set => _data = value;
+        }
         
         #endregion
     }

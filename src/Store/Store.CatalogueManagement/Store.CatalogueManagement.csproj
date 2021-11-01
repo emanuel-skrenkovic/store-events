@@ -7,12 +7,18 @@
     <ItemGroup>
         <PackageReference Include="EventStore.Client.Grpc.Streams" Version="21.2.0" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.11">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Store.Catalogue\Store.Catalogue.Application\Store.Catalogue.Application.csproj" />
       <ProjectReference Include="..\Store.Catalogue\Store.Catalogue.AspNet\Store.Catalogue.AspNet.csproj" />
+      <ProjectReference Include="..\Store.Catalogue\Store.Catalogue.Infrastructure.EntityFramework\Store.Catalogue.Infrastructure.EntityFramework.csproj" />
+      <ProjectReference Include="..\Store.Core\Store.Core.Infrastructure.AspNet\Store.Core.Infrastructure.AspNet.csproj" />
     </ItemGroup>
 
 </Project>

@@ -18,16 +18,17 @@ namespace Store.Catalogue.Domain.Product
 
         public ICollection<Tag> Tags { get; private set; }
 
-        public static Product Create(string name, decimal price, string description = null)
+        public static Product Create(Guid id, string name, decimal price, string description = null)
         {
             Product product = new();
-            product.ApplyEvent(new ProductCreatedEvent(Guid.Empty, name, price, description)); // TODO: id
+            product.ApplyEvent(new ProductCreatedEvent(id, name, price, description)); // TODO: id
 
             return product;
         }
         
         private void Apply(ProductCreatedEvent domainCreatedEvent)
         {
+            Id = domainCreatedEvent.EntityId;
             Name = domainCreatedEvent.Name;
             Price = domainCreatedEvent.Price;
             Description = domainCreatedEvent.Description;

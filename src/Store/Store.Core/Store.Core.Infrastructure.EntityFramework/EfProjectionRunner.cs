@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
 using Store.Core.Domain.Projection;
@@ -9,25 +10,31 @@ namespace Store.Core.Infrastructure.EntityFramework
 {
     public class EfProjectionRunner<TContext> : IProjectionRunner where TContext : DbContext
     {
-        private readonly TContext _context;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public EfProjectionRunner(TContext context)
+        public EfProjectionRunner(IServiceScopeFactory serviceScopeFactory)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         public async Task RunAsync<T>(IProjection<T> projection, IEvent @event)
-            where T : class, new()
+            where T : class, IReadModel, new()
         {
             Guard.IsNotNull(projection, nameof(projection));
             Guard.IsNotNull(@event, nameof(@event));
 
-            DbSet<T> set = _context.Set<T>();
+            using IServiceScope scope = _serviceScopeFactory.CreateScope();
+            TContext context = scope.ServiceProvider.GetRequiredService<TContext>();
+            DbSet<T> set = context.Set<T>();
 
             T entity = await set.FindAsync(@event.EntityId);
 
             bool isNew = entity == null;
-            if (isNew)   entity = new();
+            if (isNew)
+            {
+                entity = new();
+                entity.Id = @event.EntityId;
+            }
 
             // TODO: ugly and bad
             T updatedEntity = projection.Project(entity, @event);
@@ -41,7 +48,7 @@ namespace Store.Core.Infrastructure.EntityFramework
                 set.Update(updatedEntity);
             }
             
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
     }
 }

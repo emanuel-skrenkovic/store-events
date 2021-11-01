@@ -40,7 +40,6 @@ namespace Store.Core.Infrastructure.EventStore
 
         public Task CreateAsync<T>(T entity) where T : AggregateEntity
         {
-            entity.Id = Guid.NewGuid();
             return SaveAsync(entity);
         }
 

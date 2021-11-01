@@ -55,17 +55,16 @@ namespace Store.Core.Infrastructure.EventStore
 
             try
             {
-                await _eventBus.PublishAsync(resolvedEvent.Deserialize(_serializer) as IEvent);
-                _checkpoint++;
+                IEvent @event = resolvedEvent.Deserialize(_serializer) as IEvent;
+                
+                if (@event == null) return;
+
+                await _eventBus.PublishAsync(@event);
+                await _checkpointRepository.SaveAsync(_subscription.SubscriptionId, ++_checkpoint);
             }
             catch (Exception ex)
             {
                 // TODO: logging
-            }
-            finally
-            {
-                // TODO: fire and forget?
-                await _checkpointRepository.SaveAsync(_subscription.SubscriptionId, _checkpoint);
             }
         }
 
