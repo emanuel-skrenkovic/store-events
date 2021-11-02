@@ -1,6 +1,6 @@
 ﻿using Store.Catalogue.Application.Product.Projections.ProductDisplay.Operations;
 using Store.Catalogue.Domain.Product.Events;
-using Store.Catalogue.Infrastructure.EntityFramework.Entity;
+using Store.Catalogue.Infrastructure.Entity;
 using Store.Core.Domain.Projection;
 
 namespace Store.Catalogue.Application.Product.Projections.ProductDisplay

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Store.Core.Domain.Projection;
 
-namespace Store.Catalogue.Infrastructure.EntityFramework.Entity
+namespace Store.Catalogue.Infrastructure.Entity
 {
     public class ProductDisplayEntity : IReadModel
     {

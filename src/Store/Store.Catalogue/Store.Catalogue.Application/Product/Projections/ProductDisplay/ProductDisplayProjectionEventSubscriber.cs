@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Store.Catalogue.Domain.Product.Events;
-using Store.Catalogue.Infrastructure.EntityFramework.Entity;
+using Store.Catalogue.Infrastructure.Entity;
 using Store.Core.Domain.Event;
 using Store.Core.Domain.Projection;
 

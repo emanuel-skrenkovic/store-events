@@ -10,7 +10,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Store.Core\Store.Core.Infrastructure.EntityFramework\Store.Core.Infrastructure.EntityFramework.csproj" />
       <ProjectReference Include="..\Store.Catalogue.Domain\Store.Catalogue.Domain.csproj" />
     </ItemGroup>
 

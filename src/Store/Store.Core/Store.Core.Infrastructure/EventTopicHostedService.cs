@@ -9,7 +9,7 @@ using Store.Core.Domain.Event;
 using Store.Core.Domain.Event.Integration;
 using Store.Core.Infrastructure.EventStore;
 
-namespace Store.Core.Infrastructure.AspNet
+namespace Store.Core.Infrastructure
 {
     public class EventTopicHostedService : IHostedService
     {
