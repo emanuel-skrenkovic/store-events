@@ -59,8 +59,9 @@ namespace Store.Core.Infrastructure.EventStore
                 
                 if (@event == null) return;
 
+                // TODO: transaction of some sort?
                 await _eventBus.PublishAsync(@event);
-                await _checkpointRepository.SaveAsync(_subscription.SubscriptionId, ++_checkpoint);
+                await _checkpointRepository.SaveAsync(_configuration.SubscriptionId, ++_checkpoint);
             }
             catch
             {

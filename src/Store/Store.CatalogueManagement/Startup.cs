@@ -60,7 +60,7 @@ namespace Store.CatalogueManagement
 
             services.AddSingleton(_ => new EventStoreEventTopicConfiguration
             {
-                SubscriptionId = "$all"
+                SubscriptionId = "projections"
             });
 
             services.AddSingleton<ICheckpointRepository, EventStoreCheckpointRepository>();
