@@ -56,8 +56,7 @@ namespace Store.CatalogueManagement
 
             services.AddMediatR(typeof(ProductCreateCommand));
 
-            services.AddSingleton<EventStoreClient>(
-                _ => new EventStoreClient(EventStoreClientSettings.Create(Configuration["EventStore:ConnectionString"])));
+            services.AddSingleton(_ => new EventStoreClient(EventStoreClientSettings.Create(Configuration["EventStore:ConnectionString"])));
             
             services.AddScoped<IAggregateRepository, EventStoreAggregateRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
@@ -67,15 +66,16 @@ namespace Store.CatalogueManagement
             services.AddDbContext<StoreCatalogueDbContext>(
                 options => options.UseNpgsql(Configuration["Postgres:ConnectionString"], b => b.MigrationsAssembly("Store.Catalogue.Infrastructure.EntityFramework")));
 
-            services.AddScoped<EventStoreEventTopicConfiguration>(_ => new EventStoreEventTopicConfiguration
+            services.AddScoped(_ => new EventStoreEventTopicConfiguration
             {
                 SubscriptionId = "$all"
             });
+
             services.AddScoped<ICheckpointRepository, EventStoreCheckpointRepository>();
             services.AddScoped<IEventSubscriber, ProductDisplayProjectionEventSubscriber>();
             services.AddScoped<IEventBus, InMemoryEventBus>();
             services.AddScoped<IProjection<ProductDisplayEntity>, ProductDisplayProjection>();
-            services.AddScoped<IProjectionRunner, EfProjectionRunner<StoreCatalogueDbContext>>();
+            services.AddScoped<IProjectionRunner<ProductDisplayEntity>, EfProjectionRunner<ProductDisplayEntity, StoreCatalogueDbContext>>();
             services.AddScoped<IEventTopic, EventStoreEventTopic>();
             services.AddHostedService<EventTopicHostedService>();
         }

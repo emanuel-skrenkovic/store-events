@@ -2,9 +2,12 @@ using System;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Store.Catalogue.Application.Product;
 using Store.Catalogue.Application.Product.Command.AdjustPrice;
 using Store.Catalogue.Application.Product.Command.Create;
+using Store.Catalogue.Application.Product.Query.ProductDisplay;
 using Store.Catalogue.AspNet.Models.Product;
+using Store.Catalogue.Infrastructure.EntityFramework.Entity;
 
 namespace Store.Catalogue.AspNet.Controllers
 {
@@ -19,10 +22,10 @@ namespace Store.Catalogue.AspNet.Controllers
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
         
-        #region Commands
+        #region Actions 
         
         [HttpPost]
-        [Route("commands/create")]
+        [Route("actions/create")]
         public async Task<IActionResult> PostProduct([FromBody] ProductPostApiModel apiModel)
         {
             await _mediator.Send(new ProductCreateCommand(
@@ -34,7 +37,7 @@ namespace Store.Catalogue.AspNet.Controllers
         }
 
         [HttpPost]
-        [Route("{id:guid}/commands/adjust-price")]
+        [Route("{id:guid}/actions/adjust-price")]
         public async Task<IActionResult> AdjustProductPrice([FromRoute] Guid id, ProductPriceAdjustmentApiModel apiModel)
         {
             await _mediator.Send(new ProductAdjustPriceCommand(
@@ -49,9 +52,13 @@ namespace Store.Catalogue.AspNet.Controllers
 
         [HttpGet]
         [Route("{id:guid}")]
-        public Task<IActionResult> GetProduct([FromRoute] Guid id)
+        public async Task<IActionResult> GetProduct([FromRoute] Guid id)
         {
-            throw new NotImplementedException();
+            ProductDto product = await _mediator.Send(new ProductDisplayQuery(id));
+
+            if (product == null) return NotFound();
+
+            return Ok(product);
         }
     }
 }
