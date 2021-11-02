@@ -1,13 +1,18 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
-using Store.Core.Domain.Projection;
+using Store.Core.Domain;
+using Store.Core.Infrastructure.EntityFramework;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Store.Catalogue.Infrastructure.Entity
 {
-    public class ProductDisplayEntity : IReadModel
+    public class ProductDisplayEntity : IProjectionDocument
     {
         public Guid Id { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+        
+        public DateTime UpdatedAt { get; set; }
         
         public string Name { get; set; }
         
@@ -20,13 +25,12 @@ namespace Store.Catalogue.Infrastructure.Entity
         public ICollection<Tag> Tags { get; set; }
 
         #region Persistence
-
-        private string _data;
         
-        // TODO: bad
-        public string Serialized
+        public string Data { get; set; }
+
+        public void SerializeData(ISerializer serializer)
         {
-            get => JsonSerializer.Serialize(new
+            Data = serializer.Serialize(new
             {
                 Id,
                 Name,
@@ -35,9 +39,20 @@ namespace Store.Catalogue.Infrastructure.Entity
                 Reviews,
                 Tags
             });
-            set => _data = value;
         }
-        
+
+        public void DeserializeData(ISerializer serializer)
+        {
+            ProductDisplayEntity deserialized = serializer.Deserialize<ProductDisplayEntity>(Data);
+            
+            Id = deserialized.Id;
+            Name = deserialized.Name;
+            Description = deserialized.Description;
+            Price = deserialized.Price;
+            Reviews = deserialized.Reviews;
+            Tags = deserialized.Tags;
+        }
+
         #endregion
     }
 

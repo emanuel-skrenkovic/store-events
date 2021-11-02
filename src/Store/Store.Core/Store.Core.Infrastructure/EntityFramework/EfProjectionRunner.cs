@@ -9,13 +9,15 @@ using Store.Core.Domain.Projection;
 namespace Store.Core.Infrastructure.EntityFramework
 {
     public class EfProjectionRunner<TModel, TContext> : IProjectionRunner<TModel> 
-        where TModel : class, IReadModel, new()
+        where TModel : class, IProjectionDocument, IReadModel, new()
         where TContext : DbContext
     {
+        private readonly ISerializer _serializer;
         private readonly IServiceScopeFactory _scopeFactory;
 
-        public EfProjectionRunner(IServiceScopeFactory scopeFactory)
+        public EfProjectionRunner(ISerializer serializer, IServiceScopeFactory scopeFactory)
         {
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
         }
         
@@ -37,17 +39,21 @@ namespace Store.Core.Infrastructure.EntityFramework
             {
                 model = new() { Id = @event.EntityId };
             }
+            else
+            {
+                model.DeserializeData(_serializer);
+            }
 
-            // TODO: ugly and bad
-            TModel updatedModel = projection.Project(model, @event);
+            projection.Project(model, @event);
+            model.SerializeData(_serializer);
 
             if (isNew)
             {
-                set.Add(updatedModel);
+                set.Add(model);
             }
             else
             {
-                set.Update(updatedModel);
+                set.Update(model);
             }
             
             await context.SaveChangesAsync();
