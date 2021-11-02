@@ -58,17 +58,17 @@ namespace Store.CatalogueManagement
             services.AddDbContext<StoreCatalogueDbContext>(
                 options => options.UseNpgsql(Configuration["Postgres:ConnectionString"], b => b.MigrationsAssembly("Store.Catalogue.Infrastructure")));
 
-            services.AddScoped(_ => new EventStoreEventTopicConfiguration
+            services.AddSingleton(_ => new EventStoreEventTopicConfiguration
             {
                 SubscriptionId = "$all"
             });
 
-            services.AddScoped<ICheckpointRepository, EventStoreCheckpointRepository>();
-            services.AddScoped<IEventSubscriber, ProductDisplayProjectionEventSubscriber>();
-            services.AddScoped<IEventBus, InMemoryEventBus>();
-            services.AddScoped<IProjection<ProductDisplayEntity>, ProductDisplayProjection>();
-            services.AddScoped<IProjectionRunner<ProductDisplayEntity>, EfProjectionRunner<ProductDisplayEntity, StoreCatalogueDbContext>>();
-            services.AddScoped<IEventTopic, EventStoreEventTopic>();
+            services.AddSingleton<ICheckpointRepository, EventStoreCheckpointRepository>();
+            services.AddSingleton<IEventSubscriber, ProductDisplayProjectionEventSubscriber>();
+            services.AddSingleton<IEventBus, InMemoryEventBus>();
+            services.AddSingleton<IProjection<ProductDisplayEntity>, ProductDisplayProjection>();
+            services.AddSingleton<IProjectionRunner<ProductDisplayEntity>, EfProjectionRunner<ProductDisplayEntity, StoreCatalogueDbContext>>();
+            services.AddSingleton<IEventTopic, EventStoreEventTopic>();
             services.AddHostedService<EventTopicHostedService>();
         }
 
