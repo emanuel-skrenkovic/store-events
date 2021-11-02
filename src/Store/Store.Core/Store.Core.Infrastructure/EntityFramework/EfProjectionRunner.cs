@@ -16,7 +16,7 @@ namespace Store.Core.Infrastructure.EntityFramework
 
         public EfProjectionRunner(IServiceScopeFactory scopeFactory)
         {
-            _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));;
+            _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
         }
         
         public async Task RunAsync(IProjection<TModel> projection, IEvent @event)

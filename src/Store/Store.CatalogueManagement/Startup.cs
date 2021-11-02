@@ -1,33 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using EventStore.Client;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Store.Catalogue.Application.Product.Command.Create;
 using Store.Catalogue.Application.Product.Projections.ProductDisplay;
 using Store.Catalogue.Domain.Product;
-using Store.Catalogue.Infrastructure.EntityFramework;
-using Store.Catalogue.Infrastructure.EntityFramework.Entity;
+using Store.Catalogue.Infrastructure;
+using Store.Catalogue.Infrastructure.Entity;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
 using Store.Core.Domain.Event.InMemory;
 using Store.Core.Domain.Event.Integration;
 using Store.Core.Domain.Projection;
 using Store.Core.Infrastructure;
-using Store.Core.Infrastructure.AspNet;
 using Store.Core.Infrastructure.EntityFramework;
 using Store.Core.Infrastructure.EventStore;
 
@@ -64,7 +56,7 @@ namespace Store.CatalogueManagement
             services.AddSingleton<ISerializer, JsonSerializer>();
             
             services.AddDbContext<StoreCatalogueDbContext>(
-                options => options.UseNpgsql(Configuration["Postgres:ConnectionString"], b => b.MigrationsAssembly("Store.Catalogue.Infrastructure.EntityFramework")));
+                options => options.UseNpgsql(Configuration["Postgres:ConnectionString"], b => b.MigrationsAssembly("Store.Catalogue.Infrastructure")));
 
             services.AddScoped(_ => new EventStoreEventTopicConfiguration
             {

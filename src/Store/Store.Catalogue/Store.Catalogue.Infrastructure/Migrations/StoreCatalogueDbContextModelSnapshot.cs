@@ -2,18 +2,15 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using Store.Catalogue.Infrastructure.EntityFramework;
 
-namespace Store.Catalogue.Infrastructure.EntityFramework.Migrations
+namespace Store.Catalogue.Infrastructure.Migrations
 {
     [DbContext(typeof(StoreCatalogueDbContext))]
-    [Migration("20211101144432_project_display_initial")]
-    partial class project_display_initial
+    partial class StoreCatalogueDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

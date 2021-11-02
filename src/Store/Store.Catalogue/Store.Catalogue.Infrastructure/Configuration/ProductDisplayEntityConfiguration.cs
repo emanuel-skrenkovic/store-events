@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Store.Catalogue.Infrastructure.EntityFramework.Entity;
+using Store.Catalogue.Infrastructure.Entity;
 
-namespace Store.Catalogue.Infrastructure.EntityFramework.Configuration
+namespace Store.Catalogue.Infrastructure.Configuration
 {
     public class ProductDisplayEntityConfiguration : IEntityTypeConfiguration<ProductDisplayEntity>
     {

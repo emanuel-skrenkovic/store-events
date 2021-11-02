@@ -62,7 +62,7 @@ namespace Store.Core.Infrastructure.EventStore
                 await _eventBus.PublishAsync(@event);
                 await _checkpointRepository.SaveAsync(_subscription.SubscriptionId, ++_checkpoint);
             }
-            catch (Exception ex)
+            catch
             {
                 // TODO: logging
             }

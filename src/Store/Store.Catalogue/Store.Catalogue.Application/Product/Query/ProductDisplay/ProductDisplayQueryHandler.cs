@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 using Dapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Store.Catalogue.Infrastructure.EntityFramework;
-using Store.Catalogue.Infrastructure.EntityFramework.Entity;
+using Store.Catalogue.Infrastructure;
 using Store.Core.Domain;
 
 namespace Store.Catalogue.Application.Product.Query.ProductDisplay

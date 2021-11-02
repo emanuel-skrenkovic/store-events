@@ -11,7 +11,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Store.Catalogue.Domain\Store.Catalogue.Domain.csproj" />
-      <ProjectReference Include="..\Store.Catalogue.Infrastructure.EntityFramework\Store.Catalogue.Infrastructure.EntityFramework.csproj" />
+      <ProjectReference Include="..\Store.Catalogue.Infrastructure\Store.Catalogue.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

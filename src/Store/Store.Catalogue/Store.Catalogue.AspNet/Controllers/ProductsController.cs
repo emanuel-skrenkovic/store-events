@@ -7,7 +7,6 @@ using Store.Catalogue.Application.Product.Command.AdjustPrice;
 using Store.Catalogue.Application.Product.Command.Create;
 using Store.Catalogue.Application.Product.Query.ProductDisplay;
 using Store.Catalogue.AspNet.Models.Product;
-using Store.Catalogue.Infrastructure.EntityFramework.Entity;
 
 namespace Store.Catalogue.AspNet.Controllers
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Store.Catalogue.Infrastructure.EntityFramework.Migrations
+namespace Store.Catalogue.Infrastructure.Migrations
 {
     public partial class project_display_initial : Migration
     {

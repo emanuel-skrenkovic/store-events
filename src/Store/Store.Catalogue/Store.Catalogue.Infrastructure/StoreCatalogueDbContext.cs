@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Store.Catalogue.Infrastructure.EntityFramework.Entity;
+using Store.Catalogue.Infrastructure.Entity;
 
-namespace Store.Catalogue.Infrastructure.EntityFramework
+namespace Store.Catalogue.Infrastructure
 {
     public class StoreCatalogueDbContext : DbContext
     {
