@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Store.Core.Domain.Event;
 using Store.Core.Domain.Event.InMemory;
@@ -15,10 +12,9 @@ namespace Store.Core.Domain.Tests
         [Fact]
         public void Should_SendEvent_To_Subscriber()
         {
-            IEventSubscriber<TestIntegrationEvent> subscriber = new TestIntegrationEventSubscriber();
-            IEventSubscriberProvider provider = new InMemoryEventSubscriberProvider(new[] { subscriber });
+            IEventSubscriber subscriber = new TestIntegrationEventSubscriber();
 
-            IEventBus bus = new InMemoryEventBus(provider);
+            IEventBus bus = new InMemoryEventBus(new[] { subscriber });
             bus.PublishAsync(new TestIntegrationEvent { TestValue = "TestValue" });
             
             Assert.True(((TestIntegrationEventSubscriber)subscriber).HandleEventRan);
@@ -27,11 +23,10 @@ namespace Store.Core.Domain.Tests
         [Fact]
         public void Should_SendEvent_To_MultipleSubscribers()
         {
-            IEventSubscriber<TestIntegrationEvent> subscriber = new TestIntegrationEventSubscriber();
-            IEventSubscriber<TestIntegrationEvent> subscriber2 = new TestIntegrationEventSubscriber2();
-            IEventSubscriberProvider provider = new InMemoryEventSubscriberProvider(new[] { subscriber, subscriber2 });
+            IEventSubscriber subscriber = new TestIntegrationEventSubscriber();
+            IEventSubscriber subscriber2 = new TestIntegrationEventSubscriber2();
 
-            IEventBus bus = new InMemoryEventBus(provider);
+            IEventBus bus = new InMemoryEventBus(new[] { subscriber, subscriber2 });
             bus.PublishAsync(new TestIntegrationEvent { TestValue = "TestValue" });
             
             Assert.True(((TestIntegrationEventSubscriber)subscriber).HandleEventRan);
@@ -41,10 +36,9 @@ namespace Store.Core.Domain.Tests
         [Fact]
         public void Should_Not_SendEvent_To_NonSubscribers()
         {
-            IEventSubscriber<TestIntegrationEvent> subscriber = new TestIntegrationEventSubscriber();
-            IEventSubscriberProvider provider = new InMemoryEventSubscriberProvider(new[] { subscriber });
+            IEventSubscriber subscriber = new TestIntegrationEventSubscriber();
 
-            IEventBus bus = new InMemoryEventBus(provider);
+            IEventBus bus = new InMemoryEventBus(new[] { subscriber });
             bus.PublishAsync(new TestIntegrationEvent2 { TestValue = 2 });
             
             Assert.False(((TestIntegrationEventSubscriber)subscriber).HandleEventRan);
@@ -53,16 +47,11 @@ namespace Store.Core.Domain.Tests
         [Fact]
         public void Should_SendEvent_Only_To_Subscribers()
         {
-            IEventSubscriber<TestIntegrationEvent> subscriber = new TestIntegrationEventSubscriber();
-            IEventSubscriber<TestIntegrationEvent> subscriber2 = new TestIntegrationEventSubscriber2();
-            IEventSubscriber<TestIntegrationEvent2> subscriber3 = new TestIntegrationEventSubscriber3();
-            
-            IEventSubscriberProvider provider = new InMemoryEventSubscriberProvider(new dynamic[]
-            {
-                subscriber, subscriber2, subscriber3
-            });
+            IEventSubscriber subscriber = new TestIntegrationEventSubscriber();
+            IEventSubscriber subscriber2 = new TestIntegrationEventSubscriber2();
+            IEventSubscriber subscriber3 = new TestIntegrationEventSubscriber3();
 
-            IEventBus bus = new InMemoryEventBus(provider);
+            IEventBus bus = new InMemoryEventBus(new[] { subscriber, subscriber2, subscriber3 });
             bus.PublishAsync(new TestIntegrationEvent { TestValue = "TestValue" });
             
             Assert.True(((TestIntegrationEventSubscriber)subscriber).HandleEventRan);
@@ -70,82 +59,65 @@ namespace Store.Core.Domain.Tests
             Assert.False(((TestIntegrationEventSubscriber3)subscriber3).HandleEventRan);
         }
         
-        private class InMemoryEventSubscriberProvider : IEventSubscriberProvider
-        {
-            private static readonly ConcurrentDictionary<Type, List<object>> Subscribers = new();
-            
-            public InMemoryEventSubscriberProvider(IEnumerable<object> subscribers)
-            {
-                foreach (object sub in subscribers)
-                {
-                    Type eventType = sub.GetType().GetInterfaces()[0].GetGenericArguments()[0];
-                    
-                    if (!Subscribers.ContainsKey(eventType))
-                    {
-                        Subscribers.TryAdd(eventType, new List<object>());
-                    }
-                    
-                    Subscribers[eventType].Add(sub);
-                }
-            }
-            
-            public IEnumerable<IEventSubscriber<TEvent>> GetSubscribers<TEvent>() where TEvent : IEvent 
-            {
-                if (!Subscribers.ContainsKey(typeof(TEvent))) return new IEventSubscriber<TEvent>[] { };
-                
-                return Subscribers[typeof(TEvent)].Select(sub => (IEventSubscriber<TEvent>)sub);
-            }
-        }
-        
-        private class TestIntegrationEventSubscriber : IEventSubscriber<TestIntegrationEvent>
+        private class TestIntegrationEventSubscriber : IEventSubscriber
         {
             public bool HandleEventRan { get; private set; }
-            
-            public Task HandleEvent(TestIntegrationEvent eventData)
+
+            public Task Handle(IEvent @event)
             {
-                if (eventData == null) throw new ArgumentNullException(nameof(eventData));
+                if (@event == null) throw new ArgumentNullException(nameof(@event));
 
                 HandleEventRan = true;
                 
                 return Task.CompletedTask;
             }
+
+            public bool Handles(Type type) => type == typeof(TestIntegrationEvent);
         }
         
-        private class TestIntegrationEventSubscriber2 : IEventSubscriber<TestIntegrationEvent>
+        private class TestIntegrationEventSubscriber2 : IEventSubscriber
         {
             public bool HandleEventRan { get; private set; }
             
-            public Task HandleEvent(TestIntegrationEvent eventData)
+            public Task Handle(IEvent @event)
             {
-                if (eventData == null) throw new ArgumentNullException(nameof(eventData));
+                if (@event == null) throw new ArgumentNullException(nameof(@event));
 
                 HandleEventRan = true;
                 
                 return Task.CompletedTask;
             }
+
+            public bool Handles(Type type) => type == typeof(TestIntegrationEvent);
         }
         
-        private class TestIntegrationEventSubscriber3 : IEventSubscriber<TestIntegrationEvent2>
+        private class TestIntegrationEventSubscriber3 : IEventSubscriber
         {
             public bool HandleEventRan { get; private set; }
             
-            public Task HandleEvent(TestIntegrationEvent2 eventData)
+            public Task Handle(IEvent @event)
             {
-                if (eventData == null) throw new ArgumentNullException(nameof(eventData));
+                if (@event == null) throw new ArgumentNullException(nameof(@event));
 
                 HandleEventRan = true;
                 
                 return Task.CompletedTask;
             }
+
+            public bool Handles(Type type) => type == typeof(TestIntegrationEvent2);
         }
 
         private class TestIntegrationEvent :IEvent 
         {
+            public Guid EntityId { get; set; }
+            
             public string TestValue { get; set; }
         }
 
         private class TestIntegrationEvent2 : IEvent
         {
+            public Guid EntityId { get; set; } 
+            
             public int TestValue { get; set; }
         }
     }

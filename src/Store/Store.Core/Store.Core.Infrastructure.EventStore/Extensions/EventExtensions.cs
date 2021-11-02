@@ -3,7 +3,7 @@ using EventStore.Client;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
 
-namespace Store.Core.Infrastructure.Extensions
+namespace Store.Core.Infrastructure.EventStore.Extensions
 {
     // TODO: think about type names
     public static class EventExtensions

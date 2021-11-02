@@ -5,9 +5,9 @@ using EventStore.Client;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
 using Store.Core.Domain.Event.Integration;
-using Store.Core.Infrastructure.Extensions;
+using Store.Core.Infrastructure.EventStore.Extensions;
 
-namespace Store.Core.Infrastructure
+namespace Store.Core.Infrastructure.EventStore
 {
     public class EventStoreEventTopic : IEventTopic, IDisposable
     {
@@ -17,7 +17,7 @@ namespace Store.Core.Infrastructure
         private readonly EventStoreClient _eventStore;
         private readonly EventStoreEventTopicConfiguration _configuration;
         
-        private readonly ISubscriptionCheckpointRepository _checkpointRepository;
+        private readonly ICheckpointRepository _checkpointRepository;
         private readonly IEventBus _eventBus;
         private readonly ISerializer _serializer;
         
@@ -25,7 +25,7 @@ namespace Store.Core.Infrastructure
         public EventStoreEventTopic(
             EventStoreClient                  eventStore, 
             EventStoreEventTopicConfiguration configuration,
-            ISubscriptionCheckpointRepository checkpointRepository, 
+            ICheckpointRepository checkpointRepository, 
             IEventBus                         eventBus,
             ISerializer                       serializer) 
         {
@@ -55,17 +55,16 @@ namespace Store.Core.Infrastructure
 
             try
             {
-                await _eventBus.PublishAsync(resolvedEvent.Deserialize(_serializer) as IEvent);
-                _checkpoint++;
+                IEvent @event = resolvedEvent.Deserialize(_serializer) as IEvent;
+                
+                if (@event == null) return;
+
+                await _eventBus.PublishAsync(@event);
+                await _checkpointRepository.SaveAsync(_subscription.SubscriptionId, ++_checkpoint);
             }
             catch (Exception ex)
             {
                 // TODO: logging
-            }
-            finally
-            {
-                // TODO: fire and forget?
-                await _checkpointRepository.SaveAsync(_subscription.SubscriptionId, _checkpoint);
             }
         }
 

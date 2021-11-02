@@ -1,7 +1,7 @@
-using Store.Core.Domain;
+using System;
 using Store.Core.Domain.Event;
 
 namespace Store.Catalogue.Domain.Product.Events
 {
-    public record ProductRatedEvent(ProductRating ProductRating) : IEvent;
+    public record ProductRatedEvent(Guid EntityId, ProductRating ProductRating) : IEvent;
 }

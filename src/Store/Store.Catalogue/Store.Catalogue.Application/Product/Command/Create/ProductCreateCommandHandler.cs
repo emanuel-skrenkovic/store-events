@@ -20,6 +20,7 @@ namespace Store.Catalogue.Application.Product.Command.Create
             cancellationToken.ThrowIfCancellationRequested();
 
             await _productRepository.CreateProductAsync(Domain.Product.Product.Create(
+                Guid.NewGuid(),
                 request.Name, 
                 request.Price, 
                 request.Description));

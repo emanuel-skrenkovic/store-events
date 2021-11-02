@@ -2,5 +2,5 @@ using System;
 
 namespace Store.Catalogue.Domain.Product
 {
-    public record ProductRating(short Rating, DateTime DateRated);
+    public record ProductRating(ushort Rating, DateTime DateRated);
 }

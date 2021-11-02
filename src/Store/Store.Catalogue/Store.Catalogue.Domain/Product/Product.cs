@@ -18,16 +18,17 @@ namespace Store.Catalogue.Domain.Product
 
         public ICollection<Tag> Tags { get; private set; }
 
-        public static Product Create(string name, decimal price, string description = null)
+        public static Product Create(Guid id, string name, decimal price, string description = null)
         {
             Product product = new();
-            product.ApplyEvent(new ProductCreatedEvent(name, price, description));
+            product.ApplyEvent(new ProductCreatedEvent(id, name, price, description)); // TODO: id
 
             return product;
         }
         
         private void Apply(ProductCreatedEvent domainCreatedEvent)
         {
+            Id = domainCreatedEvent.EntityId;
             Name = domainCreatedEvent.Name;
             Price = domainCreatedEvent.Price;
             Description = domainCreatedEvent.Description;
@@ -35,7 +36,7 @@ namespace Store.Catalogue.Domain.Product
 
         public void ChangePrice(decimal newPrice, string reason = null)
         {
-            ApplyEvent(new ProductPriceChangedEvent(newPrice, reason));
+            ApplyEvent(new ProductPriceChangedEvent(Id, newPrice, reason));
         }
 
         private void Apply(ProductPriceChangedEvent domainEvent)
@@ -45,7 +46,7 @@ namespace Store.Catalogue.Domain.Product
 
         public void AddRating(ProductRating productRating)
         {
-            ApplyEvent(new ProductRatedEvent(productRating));
+            ApplyEvent(new ProductRatedEvent(Id, productRating));
         }
 
         private void Apply(ProductRatedEvent domainRatedEvent)
@@ -61,7 +62,7 @@ namespace Store.Catalogue.Domain.Product
                 return;
             }
             
-            ApplyEvent(new ProductTaggedEvent(tag));
+            ApplyEvent(new ProductTaggedEvent(Id, tag));
         }
 
         private void Apply(ProductTaggedEvent domainEvent)

@@ -1,7 +1,7 @@
-using Store.Core.Domain;
+using System;
 using Store.Core.Domain.Event;
 
 namespace Store.Catalogue.Domain.Product.Events
 {
-    public record ProductPriceChangedEvent(decimal NewPrice, string reason = null): IEvent;
+    public record ProductPriceChangedEvent(Guid EntityId, decimal NewPrice, string reason = null): IEvent;
 }

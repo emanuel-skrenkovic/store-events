@@ -1,13 +1,14 @@
+using System;
 using Store.Core.Domain.Event;
 using Xunit;
 
 namespace Store.Core.Domain.Tests
 {
-    public record CreateTestEntityEvent(string Value1, int? Value2) : IEvent;
+    public record CreateTestEntityEvent(Guid EntityId, string Value1, int? Value2) : IEvent;
 
-    public record Value1SetEvent(string Value1) : IEvent;
+    public record Value1SetEvent(Guid EntityId, string Value1) : IEvent;
 
-    public record Value2SetEvent(int Value2) : IEvent;
+    public record Value2SetEvent(Guid EntityId, int Value2) : IEvent;
     
     public class TestEntity : AggregateEntity
     {
@@ -48,13 +49,13 @@ namespace Store.Core.Domain.Tests
         public void AggregateEntity_ShouldApplyChange_WithValidEvents()
         {
             TestEntity entity = new TestEntity();
-            Value1SetEvent event1 = new Value1SetEvent("test");
+            Value1SetEvent event1 = new Value1SetEvent(Guid.Empty, "test");
             entity.SetValue1(event1);
             
             Assert.Equal(entity.TestValue, event1.Value1);
             Assert.Contains(entity.GetUncommittedEvents(), e => e.Equals(event1));
             
-            Value2SetEvent event2 = new Value2SetEvent(3);
+            Value2SetEvent event2 = new Value2SetEvent(Guid.Empty, 3);
             entity.SetValue2(event2);
             
             Assert.Equal(entity.TestValue2, event2.Value2);

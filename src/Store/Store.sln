@@ -6,7 +6,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Store.Cart", "Store.Cart", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Store.Core", "Store.Core", "{9BCFAE85-02D8-492B-B323-B1B93C8F68D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Core.Infrastructure", "Store.Core\Store.Core.Infrastructure\Store.Core.Infrastructure.csproj", "{3D2A6C55-B482-4F44-8BE2-ED0A3E24A26C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Core.Infrastructure.EventStore", "Store.Core\Store.Core.Infrastructure.EventStore\Store.Core.Infrastructure.EventStore.csproj", "{3D2A6C55-B482-4F44-8BE2-ED0A3E24A26C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Core.Domain", "Store.Core\Store.Core.Domain\Store.Core.Domain.csproj", "{EE5F2D00-026A-4817-9063-04E87016015E}"
 EndProject
@@ -22,7 +22,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.CatalogueManagement",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Core.Infrastructure.AspNet", "Store.Core\Store.Core.Infrastructure.AspNet\Store.Core.Infrastructure.AspNet.csproj", "{D7230754-25E5-4431-B7BA-1AFD0D3BAD0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.Infrastructure.Postgres", "Store.Catalogue\Store.Catalogue.Infrastructure.Postgres\Store.Catalogue.Infrastructure.Postgres.csproj", "{F0687FFD-F2D2-4643-99BB-272BAABDC99B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Core.Infrastructure.EntityFramework", "Store.Core\Store.Core.Infrastructure.EntityFramework\Store.Core.Infrastructure.EntityFramework.csproj", "{B58F3321-4B8E-45E0-B7F3-930E475C7DCE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.Infrastructure.EntityFramework", "Store.Catalogue\Store.Catalogue.Infrastructure.EntityFramework\Store.Catalogue.Infrastructure.EntityFramework.csproj", "{7D14346C-7276-4542-8968-9AF335531C7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,7 +39,8 @@ Global
 		{CCEAC299-7978-4112-90AF-ACBAB50D2280} = {EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}
 		{99BBA82C-F86B-4D78-9238-0D5DA9D52E2C} = {EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}
 		{D7230754-25E5-4431-B7BA-1AFD0D3BAD0D} = {9BCFAE85-02D8-492B-B323-B1B93C8F68D0}
-		{F0687FFD-F2D2-4643-99BB-272BAABDC99B} = {EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}
+		{B58F3321-4B8E-45E0-B7F3-930E475C7DCE} = {9BCFAE85-02D8-492B-B323-B1B93C8F68D0}
+		{7D14346C-7276-4542-8968-9AF335531C7F} = {EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{3D2A6C55-B482-4F44-8BE2-ED0A3E24A26C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -72,9 +75,13 @@ Global
 		{D7230754-25E5-4431-B7BA-1AFD0D3BAD0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7230754-25E5-4431-B7BA-1AFD0D3BAD0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7230754-25E5-4431-B7BA-1AFD0D3BAD0D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F0687FFD-F2D2-4643-99BB-272BAABDC99B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F0687FFD-F2D2-4643-99BB-272BAABDC99B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F0687FFD-F2D2-4643-99BB-272BAABDC99B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F0687FFD-F2D2-4643-99BB-272BAABDC99B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B58F3321-4B8E-45E0-B7F3-930E475C7DCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B58F3321-4B8E-45E0-B7F3-930E475C7DCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B58F3321-4B8E-45E0-B7F3-930E475C7DCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B58F3321-4B8E-45E0-B7F3-930E475C7DCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D14346C-7276-4542-8968-9AF335531C7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D14346C-7276-4542-8968-9AF335531C7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D14346C-7276-4542-8968-9AF335531C7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D14346C-7276-4542-8968-9AF335531C7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -25,6 +25,22 @@ services:
     networks:
       - store-network
 
+  store-postgres:
+    container_name: store.postgres
+    image: postgres:14-alpine
+    command: ["postgres"]
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=Store
+    ports:
+      - "5432:5432"
+#    volumes:
+#      - ./infrastructure/postgres/data:/var/lib/postgresql/data
+#      - ./infrastructure/postgres/init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - store-network
+
 #volumes:
 #  evenstore-volume-data
 #  evenstore-volume-logs

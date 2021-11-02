@@ -9,27 +9,22 @@ namespace Store.Core.Domain.Event.InMemory
 {
     public class InMemoryEventBus : IEventBus
     {
-        private readonly IEventSubscriberProvider _eventSubscriberProvider;
+        private readonly IReadOnlyCollection<IEventSubscriber> _subscribers;
 
-        public InMemoryEventBus(IEventSubscriberProvider eventSubscriberProvider)
+        public InMemoryEventBus(IEnumerable<IEventSubscriber> subscribers)
         {
-            _eventSubscriberProvider = eventSubscriberProvider 
-                                       ?? throw new ArgumentNullException(nameof(eventSubscriberProvider));
+            _subscribers = subscribers?.ToImmutableList() ?? throw new ArgumentNullException(nameof(subscribers));
         }
 
-        public Task PublishAsync<TEvent>(TEvent integrationEvent) where TEvent : IEvent
+        public Task PublishAsync<TEvent>(TEvent @event) where TEvent : IEvent
         {
-            IEnumerable<IEventSubscriber<TEvent>> subscribers = _eventSubscriberProvider
-                .GetSubscribers<TEvent>()
-                .ToImmutableArray();
-            
-            if (!subscribers.Any()) return Task.CompletedTask;
+            if (_subscribers?.Any() != true) return Task.CompletedTask;
 
-            foreach (IEventSubscriber<TEvent> sub in subscribers)
+            foreach (IEventSubscriber sub in _subscribers.Where(s => s.Handles(@event.GetType())))
             {
                 try
                 {
-                    sub.HandleEvent(integrationEvent);
+                    sub.Handle(@event);
                 }
                 catch
                 {

@@ -1,6 +1,6 @@
 using EventStore.Client;
 
-namespace Store.Core.Infrastructure
+namespace Store.Core.Infrastructure.EventStore
 {
     public class EventStoreEventTopicConfiguration
     {

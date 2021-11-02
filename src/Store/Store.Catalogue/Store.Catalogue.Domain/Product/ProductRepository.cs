@@ -1,17 +1,16 @@
 using System;
 using System.Threading.Tasks;
 using Store.Core.Domain;
-using Store.Core.Infrastructure;
 
 namespace Store.Catalogue.Domain.Product
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly IRepository _repository;
+        private readonly IAggregateRepository _repository;
         
-        public ProductRepository(IRepository repository)
+        public ProductRepository(IAggregateRepository aggregateRepository)
         {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _repository = aggregateRepository ?? throw new ArgumentNullException(nameof(aggregateRepository));
         }
         
         public Task<Product> GetProductAsync(Guid id)
