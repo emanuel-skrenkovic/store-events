@@ -2,7 +2,7 @@ using EventStore.Client;
 
 namespace Store.Core.Infrastructure.EventStore
 {
-    public class EventStoreEventTopicConfiguration
+    public record EventStoreSubscriptionConfiguration
     {
         public string SubscriptionId { get; set; }
         
