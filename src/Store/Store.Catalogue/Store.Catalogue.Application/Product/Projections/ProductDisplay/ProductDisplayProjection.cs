@@ -12,6 +12,7 @@ namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
             {
                 ProductCreatedEvent productCreatedEvent           => new ProductCreatedOperation(productCreatedEvent).Apply(productDisplayEntity),
                 ProductPriceChangedEvent productPriceChangedEvent => new ProductPriceChangedOperation(productPriceChangedEvent).Apply(productDisplayEntity),
+                ProductRenamedEvent productRenamedEvent           => new ProductRenamedOperation(productRenamedEvent).Apply(productDisplayEntity),
                 _                                                 => productDisplayEntity
             };
     }

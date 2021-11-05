@@ -34,6 +34,18 @@ namespace Store.Catalogue.Domain.Product
             Description = domainCreatedEvent.Description;
         }
 
+        public void Rename(string newName)
+        {
+            if (Name == newName) return;
+
+            ApplyEvent(new ProductRenamedEvent(Id, newName));
+        }
+        
+        private void Apply(ProductRenamedEvent domainEvent)
+        {
+            Name = domainEvent.NewName;
+        }
+
         public void ChangePrice(decimal newPrice, string reason = null)
         {
             ApplyEvent(new ProductPriceChangedEvent(Id, newPrice, reason));
@@ -77,6 +89,7 @@ namespace Store.Catalogue.Domain.Product
             RegisterApplier<ProductRatedEvent>(Apply);
             RegisterApplier<ProductTaggedEvent>(Apply);
             RegisterApplier<ProductPriceChangedEvent>(Apply);
+            RegisterApplier<ProductRenamedEvent>(Apply);
         }
     }
 }

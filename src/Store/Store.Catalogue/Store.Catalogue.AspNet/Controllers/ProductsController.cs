@@ -5,8 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Store.Catalogue.Application.Product;
 using Store.Catalogue.Application.Product.Command.AdjustPrice;
 using Store.Catalogue.Application.Product.Command.Create;
+using Store.Catalogue.Application.Product.Command.Rename;
 using Store.Catalogue.Application.Product.Query.ProductDisplay;
 using Store.Catalogue.AspNet.Models.Product;
+using Store.Core.Domain.Result;
+using Unit = Store.Core.Domain.Functional.Unit;
 
 namespace Store.Catalogue.AspNet.Controllers
 {
@@ -44,6 +47,16 @@ namespace Store.Catalogue.AspNet.Controllers
                 apiModel.NewPrice, 
                 apiModel.Reason));
 
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("{id:guid}/actions/rename")]
+        public async Task<IActionResult> RenameProduct([FromRoute] Guid id, [FromBody] ProductRenameCommand command)
+        {
+            Result<Unit> _ = await _mediator.Send(command with { ProductId = id });
+
+            // TODO: handle errors
             return Ok();
         }
         
