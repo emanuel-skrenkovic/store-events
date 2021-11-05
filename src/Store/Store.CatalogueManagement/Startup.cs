@@ -15,9 +15,6 @@ using Store.Catalogue.Domain.Product;
 using Store.Catalogue.Infrastructure;
 using Store.Catalogue.Infrastructure.Entity;
 using Store.Core.Domain;
-using Store.Core.Domain.Event;
-using Store.Core.Domain.Event.InMemory;
-using Store.Core.Domain.Event.Integration;
 using Store.Core.Domain.Projection;
 using Store.Core.Infrastructure;
 using Store.Core.Infrastructure.EntityFramework;
@@ -58,18 +55,16 @@ namespace Store.CatalogueManagement
             services.AddDbContext<StoreCatalogueDbContext>(
                 options => options.UseNpgsql(Configuration["Postgres:ConnectionString"], b => b.MigrationsAssembly("Store.Catalogue.Infrastructure")));
 
-            services.AddSingleton(_ => new EventStoreEventTopicConfiguration
+            services.AddSingleton(_ => new EventStoreSubscriptionConfiguration
             {
                 SubscriptionId = "projections"
             });
 
             services.AddSingleton<ICheckpointRepository, EventStoreCheckpointRepository>();
-            services.AddSingleton<IEventSubscriber, ProductDisplayProjectionEventSubscriber>();
-            services.AddSingleton<IEventBus, InMemoryEventBus>();
+            services.AddSingleton<IProjectionManager, ProductDisplayProjectionManager>();
             services.AddSingleton<IProjection<ProductDisplayEntity>, ProductDisplayProjection>();
             services.AddSingleton<IProjectionRunner<ProductDisplayEntity>, EfProjectionRunner<ProductDisplayEntity, StoreCatalogueDbContext>>();
-            services.AddSingleton<IEventTopic, EventStoreEventTopic>();
-            services.AddHostedService<EventTopicHostedService>();
+            services.AddHostedService<EventStoreSubscriptionService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
