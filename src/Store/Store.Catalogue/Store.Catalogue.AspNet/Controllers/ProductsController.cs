@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Store.Catalogue.Application.Product;
 using Store.Catalogue.Application.Product.Command.AdjustPrice;
+using Store.Catalogue.Application.Product.Command.Availability;
 using Store.Catalogue.Application.Product.Command.Create;
 using Store.Catalogue.Application.Product.Command.Rename;
 using Store.Catalogue.Application.Product.Query.ProductDisplay;
@@ -57,6 +58,16 @@ namespace Store.Catalogue.AspNet.Controllers
             Result<Unit> _ = await _mediator.Send(command with { ProductId = id });
 
             // TODO: handle errors
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("{id:guid}/actions/set-availability")]
+        public async Task<IActionResult> SetProductAvailability([FromRoute] Guid id, [FromBody] ProductSetAvailabilityCommand command)
+        {
+            Result<Unit> _ = await _mediator.Send(command with { ProductId = id });
+
+            // TODO: handle errors.
             return Ok();
         }
         

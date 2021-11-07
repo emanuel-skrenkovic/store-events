@@ -2,5 +2,5 @@ using System;
 
 namespace Store.Catalogue.Application.Product
 {
-    public record ProductDto(Guid Id, string Name, decimal Price, string Description = null);
+    public record ProductDto(Guid Id, string Name, decimal Price, bool Available, string Description = null);
 }

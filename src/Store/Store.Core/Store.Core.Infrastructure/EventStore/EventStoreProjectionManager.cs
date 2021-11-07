@@ -31,7 +31,7 @@ namespace Store.Core.Infrastructure.EventStore
     
         public async Task StartAsync()
         {
-            ulong checkpoint = await _checkpointRepository.GetAsync(_configuration.SubscriptionId) ?? 0;
+            ulong checkpoint = await _checkpointRepository.GetAsync(_configuration.SubscriptionId);
             await SubscribeAt(checkpoint);
         }
 
@@ -79,14 +79,10 @@ namespace Store.Core.Infrastructure.EventStore
             }
         }
         
-        private async Task SubscribeAt(ulong? checkpoint)
+        private async Task SubscribeAt(ulong checkpoint)
         {
-            Position startPosition = checkpoint == null 
-                ? Position.Start 
-                : new Position(checkpoint.Value, checkpoint.Value);
-            
             await _eventStore.SubscribeToAllAsync(
-                start:                     startPosition,
+                start:                     new Position(0, 0), // TODO
                 eventAppeared:             HandleEventAsync,
                 resolveLinkTos:            false,
                 subscriptionDropped:       HandleSubscriptionDropped,
@@ -100,7 +96,7 @@ namespace Store.Core.Infrastructure.EventStore
         private async Task UpdateCheckpoint()
         {
             // TODO: optimize
-            ulong currentCheckpoint = await _checkpointRepository.GetAsync(_configuration.SubscriptionId) ?? 0;
+            ulong currentCheckpoint = await _checkpointRepository.GetAsync(_configuration.SubscriptionId);
             await _checkpointRepository.SaveAsync(_configuration.SubscriptionId, ++currentCheckpoint);
         }
     }

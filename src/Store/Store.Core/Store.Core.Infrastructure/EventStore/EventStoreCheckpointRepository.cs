@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using EventStore.Client;
@@ -21,10 +22,10 @@ namespace Store.Core.Infrastructure.EventStore
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
         
-        public async Task<ulong?> GetAsync(string subscriptionId)
+        public async Task<ulong> GetAsync(string subscriptionId)
         {
             Guard.IsNotNullOrEmpty(subscriptionId, Guard.CommonMessages.NullOrEmpty(nameof(subscriptionId)));
-            
+        
             EventStoreClient.ReadStreamResult result = _eventStore.ReadStreamAsync(
                 Direction.Backwards, 
                 GenerateCheckpointStreamName(subscriptionId), 
@@ -35,9 +36,11 @@ namespace Store.Core.Infrastructure.EventStore
             {
                 return 0;
             }
-            
+        
             ResolvedEvent finalEvent = await result.FirstOrDefaultAsync();
-            return finalEvent.Deserialize(_serializer) as ulong?;
+            
+            return _serializer.DeserializeFromBytes<ulong>(
+                finalEvent.Event.Data.ToArray());
         }
 
         public Task SaveAsync(string subscriptionId, ulong position)

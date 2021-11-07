@@ -10,9 +10,11 @@ namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
         public ProductDisplayEntity Project(ProductDisplayEntity productDisplayEntity, object receivedEvent) => 
             receivedEvent switch
             {
-                ProductCreatedEvent productCreatedEvent           => new ProductCreatedOperation(productCreatedEvent).Apply(productDisplayEntity),
-                ProductPriceChangedEvent productPriceChangedEvent => new ProductPriceChangedOperation(productPriceChangedEvent).Apply(productDisplayEntity),
-                ProductRenamedEvent productRenamedEvent           => new ProductRenamedOperation(productRenamedEvent).Apply(productDisplayEntity),
+                ProductCreatedEvent @event           => new ProductCreatedOperation(@event).Apply(productDisplayEntity),
+                ProductPriceChangedEvent @event      => new ProductPriceChangedOperation(@event).Apply(productDisplayEntity),
+                ProductRenamedEvent @event           => new ProductRenamedOperation(@event).Apply(productDisplayEntity),
+                ProductMarkedAvailableEvent @event   => new ProductMarkedAvailableOperation(@event).Apply(productDisplayEntity),
+                ProductMarkedUnavailableEvent @event => new ProductMarkedUnavailableOperation(@event).Apply(productDisplayEntity),
                 _                                                 => productDisplayEntity
             };
     }

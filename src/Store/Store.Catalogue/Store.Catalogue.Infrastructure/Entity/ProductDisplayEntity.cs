@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Store.Core.Domain;
 using Store.Core.Infrastructure.EntityFramework;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Store.Catalogue.Infrastructure.Entity
 {
@@ -19,6 +18,8 @@ namespace Store.Catalogue.Infrastructure.Entity
         public string Description { get; set; }
         
         public decimal Price { get; set; }
+        
+        public bool Available { get; set; }
 
         public ICollection<ProductReview> Reviews { get; set; }
 
@@ -36,6 +37,7 @@ namespace Store.Catalogue.Infrastructure.Entity
                 Name,
                 Description,
                 Price,
+                Available,
                 Reviews,
                 Tags
             });
@@ -49,6 +51,7 @@ namespace Store.Catalogue.Infrastructure.Entity
             Name = deserialized.Name;
             Description = deserialized.Description;
             Price = deserialized.Price;
+            Available = deserialized.Available;
             Reviews = deserialized.Reviews;
             Tags = deserialized.Tags;
         }
