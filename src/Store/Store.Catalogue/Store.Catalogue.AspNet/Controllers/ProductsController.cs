@@ -30,9 +30,11 @@ namespace Store.Catalogue.AspNet.Controllers
         [Route("actions/create")]
         public async Task<IActionResult> PostProduct([FromBody] ProductCreateCommand command)
         {
-            await _mediator.Send(command);
+            Result<Guid> createProductResult = await _mediator.Send(command);
 
-            return StatusCode(201); // TODO: check best way
+            return createProductResult.Match<IActionResult>(
+                createdProductId => CreatedAtAction("GetProduct", new { id = createdProductId }, null),
+                _                => BadRequest()); // TODO
         }
 
         [HttpPost]
