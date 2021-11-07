@@ -53,7 +53,9 @@ namespace Store.Core.Infrastructure.EventStore
 
                 // TODO: transaction of some sort?
                 await ProjectEventAsync(@event);
-                await UpdateCheckpoint();
+                await _checkpointRepository.SaveAsync(
+                    _configuration.SubscriptionId, 
+                    resolvedEvent.OriginalPosition?.CommitPosition ?? Position.Start.CommitPosition);
             }
             catch
             {
@@ -91,13 +93,6 @@ namespace Store.Core.Infrastructure.EventStore
                 userCredentials:           _configuration.Credentials,
                 CancellationToken.None
             );
-        }
-
-        private async Task UpdateCheckpoint()
-        {
-            // TODO: optimize
-            ulong currentCheckpoint = await _checkpointRepository.GetAsync(_configuration.SubscriptionId);
-            await _checkpointRepository.SaveAsync(_configuration.SubscriptionId, ++currentCheckpoint);
         }
     }
 }
