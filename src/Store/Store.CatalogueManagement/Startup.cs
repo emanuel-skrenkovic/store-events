@@ -60,7 +60,7 @@ namespace Store.CatalogueManagement
                 SubscriptionId = "projections"
             });
 
-            services.AddSingleton<ICheckpointRepository, EventStoreCheckpointRepository>();
+            services.AddSingleton<ICheckpointRepository, EfCheckpointRepository<StoreCatalogueDbContext>>();
             services.AddSingleton<IProjectionManager, ProductDisplayProjectionManager>();
             services.AddSingleton<IProjection<ProductDisplayEntity>, ProductDisplayProjection>();
             services.AddSingleton<IProjectionRunner<ProductDisplayEntity>, EfProjectionRunner<ProductDisplayEntity, StoreCatalogueDbContext>>();
