@@ -7,6 +7,8 @@ namespace Store.Catalogue.Infrastructure
     {
         public DbSet<ProductDisplayEntity> ProductDisplays { get; set; }
         
+        public DbSet<ProductDisplayEntity> SubscriptionCheckpoint { get; set; }
+        
         public StoreCatalogueDbContext(DbContextOptions<StoreCatalogueDbContext> options) : base(options) { }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
