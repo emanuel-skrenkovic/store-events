@@ -16,10 +16,12 @@ namespace Store.Core.Infrastructure.EntityFramework
             _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
         }
 
-        public async Task<ulong?> GetAsync(string subscriptionId)
+        public async Task<ulong> GetAsync(string subscriptionId)
         {
             using IServiceScope scope = _scopeFactory.CreateScope();
             TContext context = scope.ServiceProvider.GetService<TContext>();
+
+            if (context == null) throw new InvalidOperationException("DbContext is null.");
             
             SubscriptionCheckpointEntity checkpoint = await context
                 .Set<SubscriptionCheckpointEntity>()
@@ -32,6 +34,8 @@ namespace Store.Core.Infrastructure.EntityFramework
         {
             using IServiceScope scope = _scopeFactory.CreateScope();
             TContext context = scope.ServiceProvider.GetService<TContext>();
+            
+            if (context == null) throw new InvalidOperationException("DbContext is null.");
             
             DbSet<SubscriptionCheckpointEntity> set = context.Set<SubscriptionCheckpointEntity>();
             SubscriptionCheckpointEntity entity = await set.FirstOrDefaultAsync(c => c.SubscriptionId == subscriptionId);

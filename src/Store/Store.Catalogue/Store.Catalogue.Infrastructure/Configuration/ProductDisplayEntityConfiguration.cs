@@ -18,6 +18,7 @@ namespace Store.Catalogue.Infrastructure.Configuration
 
             builder.Ignore(p => p.Description);
             builder.Ignore(p => p.Name);
+            builder.Ignore(p => p.Available);
             builder.Ignore(p => p.Price);
             builder.Ignore(p => p.Reviews);
             builder.Ignore(p => p.Tags);

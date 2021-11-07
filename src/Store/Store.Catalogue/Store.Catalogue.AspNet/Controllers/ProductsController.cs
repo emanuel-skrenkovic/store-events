@@ -4,9 +4,12 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Store.Catalogue.Application.Product;
 using Store.Catalogue.Application.Product.Command.AdjustPrice;
+using Store.Catalogue.Application.Product.Command.Availability;
 using Store.Catalogue.Application.Product.Command.Create;
+using Store.Catalogue.Application.Product.Command.Rename;
 using Store.Catalogue.Application.Product.Query.ProductDisplay;
-using Store.Catalogue.AspNet.Models.Product;
+using Store.Core.Domain.Result;
+using Unit = Store.Core.Domain.Functional.Unit;
 
 namespace Store.Catalogue.AspNet.Controllers
 {
@@ -25,25 +28,41 @@ namespace Store.Catalogue.AspNet.Controllers
         
         [HttpPost]
         [Route("actions/create")]
-        public async Task<IActionResult> PostProduct([FromBody] ProductPostApiModel apiModel)
+        public async Task<IActionResult> PostProduct([FromBody] ProductCreateCommand command)
         {
-            await _mediator.Send(new ProductCreateCommand(
-                apiModel.Name, 
-                apiModel.Price, 
-                apiModel.Description));
+            Result<Guid> createProductResult = await _mediator.Send(command);
 
-            return StatusCode(201); // TODO: check best way
+            return createProductResult.Match<IActionResult>(
+                createdProductId => CreatedAtAction("GetProduct", new { id = createdProductId }, null),
+                _                => BadRequest()); // TODO
         }
 
         [HttpPost]
         [Route("{id:guid}/actions/adjust-price")]
-        public async Task<IActionResult> AdjustProductPrice([FromRoute] Guid id, ProductPriceAdjustmentApiModel apiModel)
+        public async Task<IActionResult> AdjustProductPrice([FromRoute] Guid id, ProductAdjustPriceCommand command)
         {
-            await _mediator.Send(new ProductAdjustPriceCommand(
-                id, 
-                apiModel.NewPrice, 
-                apiModel.Reason));
+            await _mediator.Send(command with { ProductId = id });
 
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("{id:guid}/actions/rename")]
+        public async Task<IActionResult> RenameProduct([FromRoute] Guid id, [FromBody] ProductRenameCommand command)
+        {
+            Result<Unit> _ = await _mediator.Send(command with { ProductId = id });
+
+            // TODO: handle errors
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("{id:guid}/actions/set-availability")]
+        public async Task<IActionResult> SetProductAvailability([FromRoute] Guid id, [FromBody] ProductSetAvailabilityCommand command)
+        {
+            Result<Unit> _ = await _mediator.Send(command with { ProductId = id });
+
+            // TODO: handle errors.
             return Ok();
         }
         

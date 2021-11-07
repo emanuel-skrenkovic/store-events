@@ -1,7 +1,7 @@
 using System;
 using Store.Core.Domain.Functional;
 
-namespace Store.Core.Domain
+namespace Store.Core.Domain.Result
 {
     public class Result<T>
     {
