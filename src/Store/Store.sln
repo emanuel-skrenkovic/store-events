@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.Integration
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Cart.Domain", "Store.Cart\Store.Cart.Domain\Store.Cart.Domain.csproj", "{C067D5F3-5820-4526-90B2-BC4463980126}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Cart.Domain.Tests", "Store.Cart\Store.Cart.Domain.Tests\Store.Cart.Domain.Tests.csproj", "{9CA2D62E-8967-4A88-82FD-79B2570A1224}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,7 @@ Global
 		{7D14346C-7276-4542-8968-9AF335531C7F} = {EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}
 		{C319A61F-15A0-4529-89F0-2F429D985508} = {EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}
 		{C067D5F3-5820-4526-90B2-BC4463980126} = {173D1E16-96AD-4DDB-82CF-1EE59AAF7909}
+		{9CA2D62E-8967-4A88-82FD-79B2570A1224} = {173D1E16-96AD-4DDB-82CF-1EE59AAF7909}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE5F2D00-026A-4817-9063-04E87016015E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -83,5 +86,9 @@ Global
 		{C067D5F3-5820-4526-90B2-BC4463980126}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C067D5F3-5820-4526-90B2-BC4463980126}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C067D5F3-5820-4526-90B2-BC4463980126}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CA2D62E-8967-4A88-82FD-79B2570A1224}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CA2D62E-8967-4A88-82FD-79B2570A1224}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CA2D62E-8967-4A88-82FD-79B2570A1224}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CA2D62E-8967-4A88-82FD-79B2570A1224}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

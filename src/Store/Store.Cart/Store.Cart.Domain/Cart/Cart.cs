@@ -10,6 +10,8 @@ namespace Store.Cart.Domain
         public Guid CustomerId { get; private set; }
         
         public List<CartItem> Items { get; private set; }
+        
+        internal Cart() { }
 
         public static Cart Create(Guid id, Guid customerId)
         {
@@ -38,6 +40,7 @@ namespace Store.Cart.Domain
         
         protected override void RegisterAppliers()
         {
+            RegisterApplier<CartCreatedEvent>(Apply);
             RegisterApplier<CartItemAdded>(Apply);
         }
     }
