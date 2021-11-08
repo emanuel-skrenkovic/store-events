@@ -10,6 +10,8 @@ namespace Store.Core.Domain.Tests
 
     public record Value2SetEvent(Guid EntityId, int Value2) : IEvent;
     
+    public record UnsupportedEvent(Guid EntityId, int NotSupported) : IEvent;
+    
     public class TestEntity : AggregateEntity
     {
         public string TestValue { get; private set; }
@@ -60,6 +62,14 @@ namespace Store.Core.Domain.Tests
             
             Assert.Equal(entity.TestValue2, event2.Value2);
             Assert.Contains(entity.GetUncommittedEvents(), e => e.Equals(event2));
+        }
+
+        [Fact]
+        public void AggregateEntity_ShouldThrow_On_UnsupportedEvent()
+        {
+            TestEntity entity = new TestEntity();
+            UnsupportedEvent event1 = new UnsupportedEvent(Guid.Empty, 0);
+            Assert.Throws<InvalidOperationException>(() => entity.ApplyEvent(event1));
         }
     }
 }

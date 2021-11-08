@@ -28,6 +28,16 @@ namespace Store.Core.Domain
         
         public void ApplyEvent(IEvent domainEvent)
         {
+            Type eventType = domainEvent.GetType();
+
+            if (!_eventAppliers.ContainsKey(eventType))
+            {
+                throw new InvalidOperationException(
+                    $@"'Apply' method for event type {eventType.FullName} is not registered in aggregate {GetType().FullName}. 
+Please call the 'RegisterApplier' in the 'RegisterAppliers' method in the aggregate implementation for the relevant event.'");
+            }
+                
+                
             _eventAppliers[domainEvent.GetType()](domainEvent);
             _events.Add(domainEvent);
         }
