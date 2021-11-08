@@ -33,7 +33,7 @@ namespace Store.Order.Domain.Tests
             
             Assert.False(placeOrderResult.IsError);
 
-            placeOrderResult.Match<Unit>(order =>
+            placeOrderResult.Match(order =>
             {
                 Assert.NotNull(order);
                 Assert.Equal(buyer.CustomerNumber, order.CustomerNumber);
@@ -55,7 +55,7 @@ namespace Store.Order.Domain.Tests
             Result<Orders.Order> placeOrderResult = service.PlaceOrder(buyer);
             
             Assert.True(placeOrderResult.IsError);
-            placeOrderResult.Match<Unit>(order => Unit.Value,
+            placeOrderResult.Match(_ => Unit.Value,
             error =>
             {
                 Assert.NotNull(error);
