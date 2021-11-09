@@ -5,10 +5,16 @@ namespace Store.Core.Domain
 {
     public interface IAggregateRepository
     {
-        Task<T> GetAsync<T>(Guid id) where T : AggregateEntity, new();
+        Task<T> GetAsync<T, TKey>(TKey id) 
+            where T : AggregateEntity<TKey>, new()
+            where TKey : struct;
         
-        Task CreateAsync<T>(T entity) where T : AggregateEntity;
+        Task CreateAsync<T, TKey>(T entity) 
+            where T : AggregateEntity<TKey>
+            where TKey : struct;
 
-        Task SaveAsync<T>(T entity) where T : AggregateEntity;
+        Task SaveAsync<T, TKey>(T entity) 
+            where T : AggregateEntity<TKey>
+            where TKey : struct;
     }
 }

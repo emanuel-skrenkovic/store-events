@@ -21,11 +21,13 @@ namespace Store.Core.Infrastructure.EventStore
             _eventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));
         }
         
-        public async Task<T> GetAsync<T>(Guid id) where T : AggregateEntity, new()
+        public async Task<T> GetAsync<T, TKey>(TKey id) 
+            where T : AggregateEntity<TKey>, new()
+            where TKey : struct
         {
             EventStoreClient.ReadStreamResult eventStream = _eventStore.ReadStreamAsync(
                 Direction.Forwards,
-                GenerateStreamName<T>(id),
+                GenerateStreamName<T, TKey>(id),
                 StreamPosition.Start);
             
             IReadOnlyCollection<IEvent> domainEvents = await eventStream
@@ -38,12 +40,16 @@ namespace Store.Core.Infrastructure.EventStore
             return entity;
         }
 
-        public Task CreateAsync<T>(T entity) where T : AggregateEntity
+        public Task CreateAsync<T, TKey>(T entity) 
+            where T : AggregateEntity<TKey> 
+            where TKey : struct
         {
-            return SaveAsync(entity);
+            return SaveAsync<T, TKey>(entity);
         }
 
-        public Task SaveAsync<T>(T entity) where T : AggregateEntity
+        public Task SaveAsync<T, TKey>(T entity) 
+            where T : AggregateEntity<TKey>
+            where TKey : struct
         {
             Guard.IsNotNull(entity, nameof(entity));
 
@@ -52,12 +58,12 @@ namespace Store.Core.Infrastructure.EventStore
                 .ToImmutableList();
 
             return _eventStore.AppendToStreamAsync(
-                GenerateStreamName<T>(entity.Id),
+                GenerateStreamName<T, TKey>(entity.Id),
                 StreamState.Any, 
                 eventsData);
         }
 
-        private string GenerateStreamName<T>(Guid id)
+        private string GenerateStreamName<T, TKey>(TKey id) where TKey : struct
         {
             return $"{typeof(T).FullName}-{id}";
         }
