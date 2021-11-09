@@ -37,7 +37,7 @@ namespace Store.CatalogueManagement
             services.AddControllers()
             .AddJsonOptions(opts =>
             {
-                opts.JsonSerializerOptions.IgnoreNullValues = true;
+                opts.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                 opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
             
