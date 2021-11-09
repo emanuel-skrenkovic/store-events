@@ -12,7 +12,7 @@ namespace Store.Core.Domain.Tests
     
     public record UnsupportedEvent(Guid EntityId, int NotSupported) : IEvent;
     
-    public class TestEntity : AggregateEntity
+    public class TestEntity : AggregateEntity<Guid>
     {
         public string TestValue { get; private set; }
         

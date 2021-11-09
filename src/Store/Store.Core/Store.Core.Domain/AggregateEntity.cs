@@ -6,13 +6,13 @@ using Store.Core.Domain.Event;
 
 namespace Store.Core.Domain
 {
-    public abstract class AggregateEntity
+    public abstract class AggregateEntity<TKey> where TKey : struct
     {
         private readonly Dictionary<Type, Action<IEvent>> _eventAppliers;
 
         private readonly ICollection<IEvent> _events;
         
-        public Guid Id { get; set; }
+        public TKey Id { get; set; }
 
         public int Version { get; private set; }
         
@@ -42,7 +42,7 @@ Please call the 'RegisterApplier' in the 'RegisterAppliers' method in the aggreg
             _events.Add(domainEvent);
         }
 
-        public void Hydrate(Guid id, IReadOnlyCollection<IEvent> domainEvents)
+        public void Hydrate(TKey id, IReadOnlyCollection<IEvent> domainEvents)
         {
             if (domainEvents?.Any() != true) return;
 

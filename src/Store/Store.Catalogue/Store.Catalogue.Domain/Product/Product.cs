@@ -6,7 +6,7 @@ using Store.Core.Domain;
 
 namespace Store.Catalogue.Domain.Product
 {
-    public class Product : AggregateEntity
+    public class Product : AggregateEntity<Guid>
     {
         public string Name { get; private set; }
 
