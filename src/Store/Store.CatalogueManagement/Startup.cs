@@ -15,6 +15,7 @@ using Store.Catalogue.Domain.Product;
 using Store.Catalogue.Infrastructure;
 using Store.Catalogue.Infrastructure.Entity;
 using Store.Core.Domain;
+using Store.Core.Domain.Event;
 using Store.Core.Domain.Projection;
 using Store.Core.Infrastructure;
 using Store.Core.Infrastructure.EntityFramework;
@@ -55,15 +56,16 @@ namespace Store.CatalogueManagement
             services.AddDbContext<StoreCatalogueDbContext>(
                 options => options.UseNpgsql(Configuration["Postgres:ConnectionString"], b => b.MigrationsAssembly("Store.Catalogue.Infrastructure")));
 
-            services.AddSingleton(_ => new EventStoreSubscriptionConfiguration
+            services.AddSingleton(_ => new EventStoreConnectionConfiguration
             {
                 SubscriptionId = "projections"
             });
 
+            services.AddSingleton<IEventSubscriptionFactory, EventStoreSubscriptionFactory>();
+
             services.AddSingleton<ICheckpointRepository, EfCheckpointRepository<StoreCatalogueDbContext>>();
             services.AddSingleton<IProjectionManager, ProductDisplayProjectionManager>();
             services.AddSingleton<IProjection<ProductDisplayEntity>, ProductDisplayProjection>();
-            services.AddSingleton<IProjectionRunner<ProductDisplayEntity>, EfProjectionRunner<ProductDisplayEntity, StoreCatalogueDbContext>>();
             services.AddHostedService<EventStoreSubscriptionService>();
         }
 
