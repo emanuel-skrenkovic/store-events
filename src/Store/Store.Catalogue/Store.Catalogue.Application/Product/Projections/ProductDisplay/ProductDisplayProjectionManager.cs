@@ -6,37 +6,35 @@ using Store.Catalogue.Infrastructure.Entity;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
 using Store.Core.Domain.Projection;
-using Store.Core.Infrastructure.EventStore;
 
 namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
 {
     public class ProductDisplayProjectionManager : IProjectionManager
     {
+        private const string SubscriptionId = nameof(ProductDisplayEntity);
+        
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly IProjection<ProductDisplayEntity> _projection;
+        private readonly IProjection<ProductDisplayEntity, StoreCatalogueDbContext> _projection;
         private readonly IEventSubscriptionFactory _eventSubscriptionFactory;
         private readonly ICheckpointRepository _checkpointRepository;
-        private readonly EventStoreConnectionConfiguration _configuration;
 
         public ProductDisplayProjectionManager(
             IServiceScopeFactory scopeFactory,
-            IProjection<ProductDisplayEntity> projection,
+            IProjection<ProductDisplayEntity, StoreCatalogueDbContext> projection,
             IEventSubscriptionFactory eventSubscriptionFactory,
-            ICheckpointRepository checkpointRepository,
-            EventStoreConnectionConfiguration configuration)
+            ICheckpointRepository checkpointRepository)
         {
             _scopeFactory             = scopeFactory             ?? throw new ArgumentNullException(nameof(scopeFactory));
             _projection               = projection               ?? throw new ArgumentNullException(nameof(projection));
             _eventSubscriptionFactory = eventSubscriptionFactory ?? throw new ArgumentNullException(nameof(eventSubscriptionFactory));
             _checkpointRepository     = checkpointRepository     ?? throw new ArgumentNullException(nameof(checkpointRepository));
-            _configuration            = configuration            ?? throw new ArgumentNullException(nameof(configuration));
         }
         
         public async Task StartAsync()
         {
-            ulong checkpoint = await _checkpointRepository.GetAsync(_configuration.SubscriptionId);
+            ulong checkpoint = await _checkpointRepository.GetAsync(nameof(ProductDisplayEntity));
             await _eventSubscriptionFactory
-                .Create(nameof(ProductDisplayEntity), ProjectEventAsync)
+                .Create(SubscriptionId, ProjectEventAsync)
                 .SubscribeAtAsync(checkpoint);
         }
 
@@ -55,13 +53,13 @@ namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
             StoreCatalogueDbContext context = scope.ServiceProvider.GetRequiredService<StoreCatalogueDbContext>();
             if (context == null) return;
 
-            Func<Task> projectionAction = _projection.Project(@event);
+            Func<Task> projectionAction = _projection.Project(@event, context);
             if (projectionAction == null) return;
 
             // TODO: think about ref model parameter
             await projectionAction();
             // TODO: should be in the same unit of work as the projection changes.
-            await _checkpointRepository.SaveAsync(_configuration.SubscriptionId, eventMetadata.StreamPosition);
+            await _checkpointRepository.SaveAsync(SubscriptionId, eventMetadata.StreamPosition);
             
             await context.SaveChangesAsync();
         }

@@ -1,44 +1,40 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Store.Catalogue.Domain.Product.Events;
 using Store.Catalogue.Infrastructure;
 using Store.Catalogue.Infrastructure.Entity;
+using Store.Core.Domain;
 using Store.Core.Domain.Event;
 using Store.Core.Domain.Projection;
+using Store.Core.Infrastructure.EntityFramework.Extensions;
 
 namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
 {
-    public class ProductDisplayProjection : IProjection<ProductDisplayEntity>
+    public class ProductDisplayProjection : IProjection<ProductDisplayEntity, StoreCatalogueDbContext>
     {
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ISerializer _serializer;
 
-        public ProductDisplayProjection(IServiceScopeFactory scopeFactory)
+        public ProductDisplayProjection(ISerializer serializer)
         {
-            _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
         
-        public Func<Task> Project(IEvent receivedEvent)
+        public Func<Task> Project(IEvent receivedEvent, StoreCatalogueDbContext context)
         {
             return receivedEvent switch
             {
-                ProductCreatedEvent @event           => () => When(@event),
-                ProductPriceChangedEvent @event      => () => When(@event),
-                ProductRenamedEvent @event           => () => When(@event),
-                ProductMarkedAvailableEvent @event   => () => When(@event),
-                ProductMarkedUnavailableEvent @event => () => When(@event),
+                ProductCreatedEvent @event           => () => When(@event, context),
+                ProductPriceChangedEvent @event      => () => When(@event, context),
+                ProductRenamedEvent @event           => () => When(@event, context),
+                ProductMarkedAvailableEvent @event   => () => When(@event, context),
+                ProductMarkedUnavailableEvent @event => () => When(@event, context),
                 _ => null
             };
         }
 
-        private Task When(ProductCreatedEvent @event)
+        private Task When(ProductCreatedEvent @event, StoreCatalogueDbContext context)
         {
-            using IServiceScope scope = _scopeFactory.CreateScope();
-            
-            StoreCatalogueDbContext context = scope.ServiceProvider.GetRequiredService<StoreCatalogueDbContext>();
-            if (context == null) return Task.CompletedTask;
-            
             ProductDisplayEntity productDisplay = new()
             {
                 Id = @event.EntityId,
@@ -46,42 +42,52 @@ namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
                 Price = @event.Price,
                 Description = @event.Description
             };
-
-            context.Set<ProductDisplayEntity>().Add(productDisplay);
+            
+            context.AddProjectionDocument(_serializer, productDisplay);
 
             return Task.CompletedTask;
         }
         
-        private async Task When(ProductPriceChangedEvent @event)
+        private async Task When(ProductPriceChangedEvent @event, StoreCatalogueDbContext context)
         {
-            using IServiceScope scope = _scopeFactory.CreateScope();
-            
-            StoreCatalogueDbContext context = scope.ServiceProvider.GetRequiredService<StoreCatalogueDbContext>();
-            if (context == null) return;
-            
-            DbSet<ProductDisplayEntity> set = context.Set<ProductDisplayEntity>();
-            
-            ProductDisplayEntity productDisplay = await set.FindAsync(@event.EntityId);
+            ProductDisplayEntity productDisplay = 
+                await context.GetProjectionDocumentAsync<ProductDisplayEntity>(_serializer, @event.EntityId);
             if (productDisplay == null) return;
 
             productDisplay.Price = @event.NewPrice;
+            context.UpdateProjectionDocument(_serializer, productDisplay);
+        }
+        
+        private async Task When(ProductRenamedEvent @event, StoreCatalogueDbContext context)
+        {
+            ProductDisplayEntity productDisplay = 
+                await context.GetProjectionDocumentAsync<ProductDisplayEntity>(_serializer, @event.EntityId);
+            if (productDisplay == null) return;
 
-            set.Update(productDisplay);
+            productDisplay.Name = @event.NewName;
+            context.UpdateProjectionDocument(_serializer, productDisplay);
         }
         
-        private Task When(ProductRenamedEvent @event)
+        private async Task When(ProductMarkedAvailableEvent @event, StoreCatalogueDbContext context)
         {
-            throw new NotImplementedException(); 
+            ProductDisplayEntity productDisplay = 
+                await context.GetProjectionDocumentAsync<ProductDisplayEntity>(_serializer, @event.EntityId);
+            if (productDisplay == null) return;
+            
+            productDisplay.Available = true;
+            
+            context.UpdateProjectionDocument(_serializer, productDisplay);
         }
         
-        private Task When(ProductMarkedAvailableEvent @event)
+        private async Task When(ProductMarkedUnavailableEvent @event, StoreCatalogueDbContext context)
         {
-            throw new NotImplementedException();
-        }
-        
-        private Task When(ProductMarkedUnavailableEvent @event)
-        {
-            throw new NotImplementedException();
+            ProductDisplayEntity productDisplay = 
+                await context.GetProjectionDocumentAsync<ProductDisplayEntity>(_serializer, @event.EntityId);
+            if (productDisplay == null) return;
+
+            productDisplay.Available = false;
+            
+            context.UpdateProjectionDocument(_serializer, productDisplay);
         }
     }
 }
