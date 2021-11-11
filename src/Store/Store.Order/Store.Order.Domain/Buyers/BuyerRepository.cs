@@ -20,14 +20,14 @@ namespace Store.Order.Domain.Buyers
             return _repository.GetAsync<Buyer, string>(customerNumber);
         }
 
-        public Task<Result<Unit>> CreateBuyerAsync(Buyer buyer)
+        public Task CreateBuyerAsync(Buyer buyer)
         {
-            throw new NotImplementedException();
+            return _repository.CreateAsync<Buyer, string>(buyer);
         }
 
-        public Task<Result<Unit>> SaveBuyerAsync(Buyer buyer)
+        public Task SaveBuyerAsync(Buyer buyer)
         {
-            throw new NotImplementedException();
+            return _repository.SaveAsync<Buyer, string>(buyer);
         }
     }
 }

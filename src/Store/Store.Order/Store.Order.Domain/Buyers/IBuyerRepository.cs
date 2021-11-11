@@ -8,8 +8,8 @@ namespace Store.Order.Domain.Buyers
     {
         Task<Buyer> GetBuyerAsync(string customerNumber);
         
-        Task<Result<Unit>> CreateBuyerAsync(Buyer buyer);
+        Task CreateBuyerAsync(Buyer buyer);
 
-        Task<Result<Unit>> SaveBuyerAsync(Buyer buyer);
+        Task SaveBuyerAsync(Buyer buyer);
     }
 }

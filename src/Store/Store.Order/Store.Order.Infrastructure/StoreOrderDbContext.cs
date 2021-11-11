@@ -14,7 +14,6 @@ namespace Store.Order.Infrastructure
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            Database.Migrate();
             modelBuilder.HasDefaultSchema("public");
             
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(StoreOrderDbContext).Assembly);
