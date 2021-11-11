@@ -9,7 +9,6 @@ namespace Store.Order.Application.Buyer.Command.AddItemToCart
 {
     public class BuyerAddItemToCartCommandHandler : IRequestHandler<BuyerAddItemToCartCommand, Result<Unit>>
     {
-        
         public Task<Result<Unit>> Handle(BuyerAddItemToCartCommand request, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();

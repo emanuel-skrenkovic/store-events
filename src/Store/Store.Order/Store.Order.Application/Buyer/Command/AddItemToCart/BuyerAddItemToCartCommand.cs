@@ -5,5 +5,5 @@ using Unit = Store.Core.Domain.Functional.Unit;
 
 namespace Store.Order.Application.Buyer.Command.AddItemToCart
 {
-    public record BuyerAddItemToCartCommand(CustomerNumber CustomerNumber, Item Item) : IRequest<Result<Unit>>;
+    public record BuyerAddItemToCartCommand(string CustomerNumber, Item Item) : IRequest<Result<Unit>>;
 }
