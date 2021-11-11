@@ -21,26 +21,13 @@ namespace Store.Order.Application.Buyer.Command.AddItemToCart
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            Domain.Buyers.Buyer buyer = await _buyerRepository.GetBuyerAsync(request.CustomerNumber);
-            bool isNew = buyer == null;
-
-            if (isNew)
-            {
-                buyer = Domain.Buyers.Buyer.Create(request.CustomerNumber);
-            }
+            Domain.Buyers.Buyer buyer = await _buyerRepository.GetBuyerAsync(request.CustomerNumber)
+                ?? Domain.Buyers.Buyer.Create(request.CustomerNumber);
             
             // TODO: check if warning correct.
             buyer.AddCartItem(request.Item);
 
-            // TODO: Should really consolidate these. This is stupid.
-            if (isNew)
-            {
-                await _buyerRepository.CreateBuyerAsync(buyer);
-            }
-            else
-            {
-                await _buyerRepository.SaveBuyerAsync(buyer);
-            }
+            await _buyerRepository.SaveBuyerAsync(buyer);
 
             return Unit.Value;
         }
