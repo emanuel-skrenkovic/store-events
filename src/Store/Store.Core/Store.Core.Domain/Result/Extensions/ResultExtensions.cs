@@ -16,7 +16,9 @@ namespace Store.Core.Domain.Result.Extensions
         {
             return result.Match<Task<Result<TT>>>(
                 correct: async r => await bind(r),
+#pragma warning disable 1998
                 error: async l => l);
+#pragma warning restore 1998
 
         }  
     }

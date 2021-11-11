@@ -17,7 +17,7 @@ namespace Store.Core.Domain.Result
             _either = Either<Error, T>.FromLeft(error);
         }
 
-        public static Result<T> FromValue<T>(T value) => new(value);
+        public static Result<TResult> FromValue<TResult>(TResult value) => new(value);
         
         public static Result<T> FromError(Error error) => new(error);
 

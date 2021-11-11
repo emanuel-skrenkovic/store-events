@@ -15,7 +15,9 @@ namespace Store.Core.Domain.Functional.Extensions
         public static Task<Either<L, RR>> Bind<L, R, RR>(this Either<L, R> either, Func<R, Task<RR>> bind)
         {
             return either.Match<Task<Either<L, RR>>>(
+#pragma warning disable 1998
                 left: async l => l,
+#pragma warning restore 1998
                 right: async r => await bind(r));
             
         }  

@@ -60,6 +60,8 @@ namespace Store.Core.Domain.Tests
                 Assert.Equal(value.ToString(), r);
                 return Unit.Value;
             });
+            
+            Assert.True(rightExecuted);
         }
         
         [Fact]
