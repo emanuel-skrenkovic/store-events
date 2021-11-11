@@ -1,22 +1,23 @@
 using Microsoft.EntityFrameworkCore;
-using Store.Catalogue.Infrastructure.Entity;
 using Store.Core.Infrastructure.EntityFramework.Entity;
+using Store.Order.Infrastructure.Entity;
 
-namespace Store.Catalogue.Infrastructure
+namespace Store.Order.Infrastructure
 {
-    public class StoreCatalogueDbContext : DbContext
+    public class StoreOrderDbContext : DbContext
     {
-        public DbSet<ProductDisplayEntity> ProductDisplays { get; set; }
+        public DbSet<OrderDisplayEntity> ProductDisplays { get; set; }
         
         public DbSet<SubscriptionCheckpointEntity> SubscriptionCheckpoint { get; set; }
-        
-        public StoreCatalogueDbContext(DbContextOptions<StoreCatalogueDbContext> options) : base(options) { }
+
+        public StoreOrderDbContext(DbContextOptions<StoreOrderDbContext> options) : base(options) { }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            Database.Migrate();
             modelBuilder.HasDefaultSchema("public");
             
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(StoreCatalogueDbContext).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(StoreOrderDbContext).Assembly);
             
             base.OnModelCreating(modelBuilder);
         }

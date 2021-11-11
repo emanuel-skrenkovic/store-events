@@ -3,5 +3,5 @@ using Store.Core.Domain.Event;
 
 namespace Store.Order.Domain.Buyers.Events
 {
-    public record BuyerCartItemRemovedEvent(Guid EntityId, Item Item) : IEvent;
+    public record BuyerCartItemRemovedEvent(string EntityId, Item Item) : IEvent;
 }

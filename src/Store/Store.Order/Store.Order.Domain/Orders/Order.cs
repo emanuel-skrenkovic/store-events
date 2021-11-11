@@ -5,9 +5,9 @@ using Store.Order.Domain.Orders.Events;
 
 namespace Store.Order.Domain.Orders
 {
-    public class Order : AggregateEntity
+    public class Order : AggregateEntity<Guid>
     {
-        public CustomerNumber CustomerNumber { get; private set; }
+        public string CustomerNumber { get; private set; }
 
         public ShippingInformation ShippingInformation { get; private set; }
         
@@ -17,7 +17,7 @@ namespace Store.Order.Domain.Orders
         
         private Order() { }
         
-        public static Order Create(Guid id, CustomerNumber customerNumber)
+        public static Order Create(Guid id, string customerNumber)
         {
             Order order = new();
             order.ApplyEvent(new OrderCreatedEvent(id, customerNumber));

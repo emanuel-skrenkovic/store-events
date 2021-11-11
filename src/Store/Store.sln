@@ -28,6 +28,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Order.Domain", "Store
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Order.Domain.Tests", "Store.Order\Store.Order.Domain.Tests\Store.Order.Domain.Tests.csproj", "{29AEEB82-72D0-4AA0-B956-38E7E7F498B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Order.Application", "Store.Order\Store.Order.Application\Store.Order.Application.csproj", "{F8A1D8EB-97D0-4699-ABF9-2A92EFA9A402}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Order.Infrastructure", "Store.Order\Store.Order.Infrastructure\Store.Order.Infrastructure.csproj", "{1CAE3186-235B-4032-AC43-8FB9A76E8D02}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,8 @@ Global
 		{9CA2D62E-8967-4A88-82FD-79B2570A1224} = {173D1E16-96AD-4DDB-82CF-1EE59AAF7909}
 		{D2615163-55D7-4466-8828-FC12378E913F} = {173D1E16-96AD-4DDB-82CF-1EE59AAF7909}
 		{29AEEB82-72D0-4AA0-B956-38E7E7F498B9} = {173D1E16-96AD-4DDB-82CF-1EE59AAF7909}
+		{F8A1D8EB-97D0-4699-ABF9-2A92EFA9A402} = {173D1E16-96AD-4DDB-82CF-1EE59AAF7909}
+		{1CAE3186-235B-4032-AC43-8FB9A76E8D02} = {173D1E16-96AD-4DDB-82CF-1EE59AAF7909}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE5F2D00-026A-4817-9063-04E87016015E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -95,5 +101,13 @@ Global
 		{29AEEB82-72D0-4AA0-B956-38E7E7F498B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{29AEEB82-72D0-4AA0-B956-38E7E7F498B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29AEEB82-72D0-4AA0-B956-38E7E7F498B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8A1D8EB-97D0-4699-ABF9-2A92EFA9A402}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8A1D8EB-97D0-4699-ABF9-2A92EFA9A402}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8A1D8EB-97D0-4699-ABF9-2A92EFA9A402}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8A1D8EB-97D0-4699-ABF9-2A92EFA9A402}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CAE3186-235B-4032-AC43-8FB9A76E8D02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CAE3186-235B-4032-AC43-8FB9A76E8D02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CAE3186-235B-4032-AC43-8FB9A76E8D02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CAE3186-235B-4032-AC43-8FB9A76E8D02}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

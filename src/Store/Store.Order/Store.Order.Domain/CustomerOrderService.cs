@@ -11,14 +11,14 @@ namespace Store.Order.Domain
     {
         public Result<Orders.Order> PlaceOrder(Buyer buyer)
         {
-            Guard.IsNotNull(buyer, nameof(buyer));
+            Ensure.NotNull(buyer, nameof(buyer));
             
             if (!buyer.Cart.Items.Any())
             {
                 return new Error("No items found in cart.");
             }
             
-            Orders.Order order = Orders.Order.Create(Guid.NewGuid(), buyer.CustomerNumber);
+            Orders.Order order = Orders.Order.Create(Guid.NewGuid(), buyer.Id);
             
             foreach ((Item item, uint count) in buyer.Cart.Items)
             {

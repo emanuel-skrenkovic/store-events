@@ -10,7 +10,7 @@ namespace Store.Order.Domain.Tests
         [Fact]
         public void Order_Should_BeCreatedSuccessfully()
         {
-            CustomerNumber customerNumber = new CustomerNumber(Guid.NewGuid().ToString());
+            string customerNumber = Guid.NewGuid().ToString();
             Guid orderId = Guid.NewGuid();
             
             Orders.Order order = Orders.Order.Create(orderId, customerNumber);
@@ -24,7 +24,7 @@ namespace Store.Order.Domain.Tests
         [Fact]
         public void Order_OrderLine_Should_BeAddedSuccessfully()
         {
-            CustomerNumber customerNumber = new CustomerNumber(Guid.NewGuid().ToString());
+            string customerNumber = Guid.NewGuid().ToString();
             Guid orderId = Guid.NewGuid();
             
             Orders.Order order = Orders.Order.Create(orderId, customerNumber);
@@ -42,7 +42,7 @@ namespace Store.Order.Domain.Tests
         [Fact]
         public void Order_ShippingInformation_Should_BeAddedSuccessfully()
         {
-            CustomerNumber customerNumber = new CustomerNumber(Guid.NewGuid().ToString());
+            string customerNumber = Guid.NewGuid().ToString();
             Guid orderId = Guid.NewGuid();
             
             Orders.Order order = Orders.Order.Create(orderId, customerNumber);
@@ -59,7 +59,7 @@ namespace Store.Order.Domain.Tests
         [Fact]
         public void Order_ShippingInformation_Should_BeChangedSuccessfully()
         {
-            CustomerNumber customerNumber = new CustomerNumber(Guid.NewGuid().ToString());
+            string customerNumber = Guid.NewGuid().ToString();
             Guid orderId = Guid.NewGuid();
             
             Orders.Order order = Orders.Order.Create(orderId, customerNumber);

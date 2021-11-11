@@ -6,11 +6,11 @@ using System.Runtime.CompilerServices;
 
 namespace Store.Core.Domain
 {
-    public static class Guard
+    public static class Ensure
     {
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void IsNotNull(object arg, string message)
+        public static void NotNull(object arg, string message)
         {
             if (arg == null)
             {
@@ -20,11 +20,11 @@ namespace Store.Core.Domain
         
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T IsNotNull<T>(T arg, string message) => arg ?? throw new ArgumentNullException(message);
+        public static T NotNull<T>(T arg, string message) => arg ?? throw new ArgumentNullException(message);
         
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void IsNotNullOrEmpty(string arg, string message)
+        public static void NotNullOrEmpty(string arg, string message)
         {
             if (string.IsNullOrWhiteSpace(arg))
             {
@@ -34,7 +34,7 @@ namespace Store.Core.Domain
         
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void IsNotNullOrEmpty<T>(IEnumerable<T> arg, string message)
+        public static void NotNullOrEmpty<T>(IEnumerable<T> arg, string message)
         {
             if (arg?.Any() != true)
             {

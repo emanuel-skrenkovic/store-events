@@ -43,7 +43,8 @@ namespace Store.CatalogueManagement
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "Store.CatalogueManagement", Version = "v1" }); });
 
             services.AddMediatR(typeof(ProductCreateCommand));
-
+            
+          
             services.AddSingleton(_ => new EventStoreClient(EventStoreClientSettings.Create(Configuration["EventStore:ConnectionString"])));
 
             services.AddScoped<IIntegrationEventMapper, CatalogueIntegrationEventMapper>();
@@ -86,6 +87,13 @@ namespace Store.CatalogueManagement
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Store.CatalogueManagement v1"));
+            }
+            
+            // TODO: test if working correctly
+            using (IServiceScope scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = scope.ServiceProvider.GetService<StoreCatalogueDbContext>();
+                context?.Database.Migrate();
             }
 
             app.UseHttpsRedirection();

@@ -10,22 +10,19 @@ namespace Store.Order.Domain.Tests
         [Fact]
         public void Buyer_Should_BeCreatedSuccessfully()
         {
-            CustomerNumber customerNumber = new CustomerNumber(Guid.NewGuid().ToString());
-            Guid buyerId = Guid.NewGuid();
+            string buyerId = Guid.NewGuid().ToString();
             
-            Buyer buyer = Buyer.Create(buyerId, customerNumber);
+            Buyer buyer = Buyer.Create(buyerId);
             
             Assert.NotNull(buyer);
             Assert.Equal(buyerId, buyer.Id);
-            Assert.Equal(customerNumber, buyer.CustomerNumber);
             Assert.Contains(buyer.GetUncommittedEvents(), e => e.GetType() == typeof(BuyerCreatedEvent));
         }
 
         [Fact]
         public void BuyerCartItem_Should_BeAddedSuccessfully()
         {
-            CustomerNumber customerNumber = new CustomerNumber(Guid.NewGuid().ToString());
-            Buyer buyer = Buyer.Create(Guid.NewGuid(), customerNumber);
+            Buyer buyer = Buyer.Create(Guid.NewGuid().ToString());
 
             string itemCatalogueNumber = Guid.NewGuid().ToString();
             Item item = new Item(new CatalogueNumber(itemCatalogueNumber));
@@ -38,7 +35,7 @@ namespace Store.Order.Domain.Tests
         [Fact]
         public void BuyerCartItem_Should_BeAddedSuccessfully_MultipleTimes()
         {
-            Buyer buyer = Buyer.Create(Guid.NewGuid(), new CustomerNumber(Guid.NewGuid().ToString()));
+            Buyer buyer = Buyer.Create(Guid.NewGuid().ToString());
 
             string itemCatalogueNumber = Guid.NewGuid().ToString();
             Item item = new Item(new CatalogueNumber(itemCatalogueNumber));
@@ -56,7 +53,7 @@ namespace Store.Order.Domain.Tests
         [Fact]
         public void BuyerCartItem_Should_Be_SuccessfullyRemoved()
         {
-            Buyer buyer = Buyer.Create(Guid.NewGuid(), new CustomerNumber(Guid.NewGuid().ToString()));
+            Buyer buyer = Buyer.Create(Guid.NewGuid().ToString());
 
            string itemCatalogueNumber = Guid.NewGuid().ToString();
            Item item = new Item(new CatalogueNumber(itemCatalogueNumber));
@@ -69,7 +66,7 @@ namespace Store.Order.Domain.Tests
         [Fact]
         public void BuyerCartItemCount_Should_BeSuccessfullyCalculated_OnRemove()
         {
-            Buyer buyer = Buyer.Create(Guid.NewGuid(), new CustomerNumber(Guid.NewGuid().ToString()));
+            Buyer buyer = Buyer.Create(Guid.NewGuid().ToString());
 
             string itemCatalogueNumber = Guid.NewGuid().ToString();
             Item item = new Item(new CatalogueNumber(itemCatalogueNumber));

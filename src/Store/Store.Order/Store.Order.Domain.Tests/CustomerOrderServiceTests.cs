@@ -21,9 +21,9 @@ namespace Store.Order.Domain.Tests
         {
             ICustomerOrderService service = new CustomerOrderService();
             
-            CustomerNumber customerNumber = new CustomerNumber(Guid.NewGuid().ToString());
+            string customerNumber = Guid.NewGuid().ToString();
             
-            Buyer buyer = Buyer.Create(Guid.NewGuid(), customerNumber);
+            Buyer buyer = Buyer.Create(customerNumber);
             CatalogueNumber itemCatalogueNumber = new CatalogueNumber(Guid.NewGuid().ToString());
             Item item = new Item(itemCatalogueNumber);
             
@@ -36,7 +36,6 @@ namespace Store.Order.Domain.Tests
             placeOrderResult.Match(order =>
             {
                 Assert.NotNull(order);
-                Assert.Equal(buyer.CustomerNumber, order.CustomerNumber);
                 Assert.Contains(order.OrderLines, ol => ol.Key == itemCatalogueNumber);
                 
                 return Unit.Value;
@@ -48,9 +47,9 @@ namespace Store.Order.Domain.Tests
         {
             ICustomerOrderService service = new CustomerOrderService();
             
-            CustomerNumber customerNumber = new CustomerNumber(Guid.NewGuid().ToString());
+            string customerNumber = Guid.NewGuid().ToString();
             
-            Buyer buyer = Buyer.Create(Guid.NewGuid(), customerNumber);
+            Buyer buyer = Buyer.Create(customerNumber);
 
             Result<Orders.Order> placeOrderResult = service.PlaceOrder(buyer);
             

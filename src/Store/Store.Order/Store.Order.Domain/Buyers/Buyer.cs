@@ -1,30 +1,24 @@
-using System;
 using System.Collections.Generic;
 using Store.Core.Domain;
 using Store.Order.Domain.Buyers.Events;
 
 namespace Store.Order.Domain.Buyers
 {
-    public class Buyer : AggregateEntity
+    public class Buyer : AggregateEntity<string>
     { 
-        public CustomerNumber CustomerNumber { get; private set; }
-        
         public Cart Cart { get; private set; }
         
-        private Buyer() { }
-       
-        public static Buyer Create(Guid id, CustomerNumber customerNumber)
+        public static Buyer Create(string customerNumber)
         {
             Buyer buyer = new();
-            buyer.ApplyEvent(new BuyerCreatedEvent(id, customerNumber));
+            buyer.ApplyEvent(new BuyerCreatedEvent(customerNumber));
 
             return buyer;
         }
 
         private void Apply(BuyerCreatedEvent domainEvent)
         {
-            Id = domainEvent.EntityId;
-            CustomerNumber = domainEvent.CustomerNumber;
+            Id = domainEvent.CustomerNumber;
             Cart = new Cart(new Dictionary<Item, uint>()); // TODO: cleaner
         }
 

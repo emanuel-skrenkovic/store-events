@@ -1,4 +1,4 @@
 namespace Store.Order.Domain
 {
-    public record CustomerNumber(string Value);
+    public readonly record struct CustomerNumber(string Value);
 }
