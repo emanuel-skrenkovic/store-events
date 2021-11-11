@@ -1,6 +1,8 @@
 using System;
 using Store.Core.Domain.Functional;
+using Store.Core.Domain.Functional.Extensions;
 using Xunit;
+using Xunit.Sdk;
 
 namespace Store.Core.Domain.Tests
 {
@@ -40,6 +42,42 @@ namespace Store.Core.Domain.Tests
             testEither.Match(l => throw new Exception(), r => rightExecuted = true);
             
             Assert.True(rightExecuted);
+        }
+
+        [Fact]
+        public void Should_BindResult_When_IsRight()
+        {
+            bool rightExecuted = false;
+
+            int value = 2;
+            Either<Unit, int> testEither = Either<Unit, int>.FromRight(value);
+            
+            Either<Unit, string> bindResult = testEither.Bind<Unit, int, string>(i => i.ToString());
+            
+            bindResult.Match(l => throw new Exception(), r =>
+            {
+                rightExecuted = true;
+                Assert.Equal(value.ToString(), r);
+                return Unit.Value;
+            });
+        }
+        
+        [Fact]
+        public void Should_BindError_When_IsLeft()
+        {
+            bool leftExecuted = false;
+
+            Either<Unit, int> testEither = Either<Unit, int>.FromLeft(Unit.Value);
+           
+            Either<Unit, string> bindResult = testEither.Bind<Unit, int, string>(i => i.ToString());
+
+            bindResult.Match(l =>
+            {
+                leftExecuted = true;
+                return Unit.Value;
+            }, r => throw new Exception());
+
+            Assert.True(leftExecuted);
         }
     }
 }
