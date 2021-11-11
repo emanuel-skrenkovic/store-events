@@ -29,6 +29,11 @@ namespace Store.Core.Infrastructure.EventStore
                 Direction.Forwards,
                 GenerateStreamName<T, TKey>(id),
                 StreamPosition.Start);
+
+            if (await eventStream.ReadState == ReadState.StreamNotFound)
+            {
+                return null;
+            }
             
             IReadOnlyCollection<IEvent> domainEvents = await eventStream
                 .Select(e => e.Deserialize(_serializer) as IEvent)
