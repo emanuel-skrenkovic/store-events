@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Store.Core\Store.Core.Infrastructure\Store.Core.Infrastructure.csproj" />
+      <ProjectReference Include="..\Store.Order\Store.Order.Application\Store.Order.Application.csproj" />
+      <ProjectReference Include="..\Store.Order\Store.Order.AspNet\Store.Order.AspNet.csproj" />
+      <ProjectReference Include="..\Store.Order\Store.Order.Infrastructure\Store.Order.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>

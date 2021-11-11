@@ -21,6 +21,7 @@
       <ProjectReference Include="..\Store.Catalogue\Store.Catalogue.Infrastructure\Store.Catalogue.Infrastructure.csproj" />
       <ProjectReference Include="..\Store.Catalogue\Store.Catalogue.Integration\Store.Catalogue.Integration.csproj" />
       <ProjectReference Include="..\Store.Core\Store.Core.Infrastructure\Store.Core.Infrastructure.csproj" />
+      <ProjectReference Include="..\Store.Order\Store.Order.AspNet\Store.Order.AspNet.csproj" />
     </ItemGroup>
 
 </Project>

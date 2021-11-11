@@ -34,6 +34,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Order.Infrastructure"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Order.AspNet", "Store.Order\Store.Order.AspNet\Store.Order.AspNet.csproj", "{B94B19A8-A6BC-4A48-8129-8E9D0EA683E7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Shopping", "Store.Shopping\Store.Shopping.csproj", "{B8502645-C258-463A-8B98-C88312AB91A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -116,5 +118,9 @@ Global
 		{B94B19A8-A6BC-4A48-8129-8E9D0EA683E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B94B19A8-A6BC-4A48-8129-8E9D0EA683E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B94B19A8-A6BC-4A48-8129-8E9D0EA683E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8502645-C258-463A-8B98-C88312AB91A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8502645-C258-463A-8B98-C88312AB91A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8502645-C258-463A-8B98-C88312AB91A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8502645-C258-463A-8B98-C88312AB91A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
