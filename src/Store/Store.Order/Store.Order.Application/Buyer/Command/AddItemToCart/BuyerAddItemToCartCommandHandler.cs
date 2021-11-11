@@ -5,7 +5,7 @@ using MediatR;
 using Store.Core.Domain.Result;
 using Unit = Store.Core.Domain.Functional.Unit;
 
-namespace Store.Order.Application.Buyer.Command
+namespace Store.Order.Application.Buyer.Command.AddItemToCart
 {
     public class BuyerAddItemToCartCommandHandler : IRequestHandler<BuyerAddItemToCartCommand, Result<Unit>>
     {

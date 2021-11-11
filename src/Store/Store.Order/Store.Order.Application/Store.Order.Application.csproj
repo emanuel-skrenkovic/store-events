@@ -7,10 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Order" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\..\Store.Core\Store.Core.Domain\Store.Core.Domain.csproj" />
       <ProjectReference Include="..\Store.Order.Domain\Store.Order.Domain.csproj" />
     </ItemGroup>
