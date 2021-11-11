@@ -9,7 +9,7 @@ namespace Store.Core.Domain.Functional.Extensions
         {
             return either.Match(
                 left: l => l,
-                right: bind);
+                right: bind); // TODO: does NOT work when L and RR are the same type. FIX IT!
         }
 
         public static Task<Either<L, RR>> Bind<L, R, RR>(this Either<L, R> either, Func<R, Task<RR>> bind)
