@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Store.Core.Domain.Functional
 {
@@ -10,14 +11,14 @@ namespace Store.Core.Domain.Functional
         public bool IsLeft { get; }
         public bool IsRight => !IsLeft;
 
-        private Either(TL left)
+        protected Either(TL left)
         {
             IsLeft = true;
             _left = left;
             _right = default;
         }
         
-        private Either(TR right)
+        protected Either(TR right)
         {
             IsLeft = false;
             _right = right;
