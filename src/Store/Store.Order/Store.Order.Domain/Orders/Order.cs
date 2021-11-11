@@ -15,8 +15,6 @@ namespace Store.Order.Domain.Orders
         
         // TODO: needs status
         
-        private Order() { }
-        
         public static Order Create(Guid id, string customerNumber)
         {
             Order order = new();
