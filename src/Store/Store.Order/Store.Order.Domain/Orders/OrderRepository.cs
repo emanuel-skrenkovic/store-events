@@ -18,11 +18,6 @@ namespace Store.Order.Domain.Orders
             return _repository.GetAsync<Order, Guid>(orderId);
         }
 
-        public Task CreateOrderAsync(Order order)
-        {
-            return _repository.CreateAsync<Order, Guid>(order);
-        }
-
         public Task SaveOrderAsync(Order order)
         {
             return _repository.SaveAsync<Order, Guid>(order);

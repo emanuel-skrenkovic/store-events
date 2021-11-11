@@ -39,7 +39,7 @@ namespace Store.Order.Application.Order.Command.PlaceOrder
 
             return await placeOrderResult.Bind<Domain.Orders.Order, Unit>(async order =>
             {
-                await _orderRepository.CreateOrderAsync(order);
+                await _orderRepository.SaveOrderAsync(order);
                 return Unit.Value; 
             });
         }

@@ -20,11 +20,6 @@ namespace Store.Order.Domain.Buyers
             return _repository.GetAsync<Buyer, string>(customerNumber);
         }
 
-        public Task CreateBuyerAsync(Buyer buyer)
-        {
-            return _repository.CreateAsync<Buyer, string>(buyer);
-        }
-
         public Task SaveBuyerAsync(Buyer buyer)
         {
             return _repository.SaveAsync<Buyer, string>(buyer);

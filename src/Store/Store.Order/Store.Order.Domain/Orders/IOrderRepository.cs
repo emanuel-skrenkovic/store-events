@@ -7,8 +7,6 @@ namespace Store.Order.Domain.Orders
     {
         Task<Order> GetOrderAsync(Guid orderId);
 
-        Task CreateOrderAsync(Order order);
-
         Task SaveOrderAsync(Order order);
     }
 }
