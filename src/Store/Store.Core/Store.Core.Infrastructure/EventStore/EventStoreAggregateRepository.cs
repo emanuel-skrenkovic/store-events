@@ -45,13 +45,6 @@ namespace Store.Core.Infrastructure.EventStore
             return entity;
         }
 
-        public Task CreateAsync<T, TKey>(T entity) 
-            where T : AggregateEntity<TKey> 
-            where TKey : struct
-        {
-            return SaveAsync<T, TKey>(entity);
-        }
-
         public Task SaveAsync<T, TKey>(T entity) 
             where T : AggregateEntity<TKey>
             where TKey : struct

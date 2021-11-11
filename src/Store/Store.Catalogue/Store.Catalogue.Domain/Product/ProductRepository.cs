@@ -18,11 +18,6 @@ namespace Store.Catalogue.Domain.Product
             return _repository.GetAsync<Product, Guid>(id);
         }
 
-        public Task CreateProductAsync(Product product)
-        {
-            return _repository.CreateAsync<Product, Guid>(product);
-        }
-
         public Task SaveProductAsync(Product product)
         {
             Guard.IsNotNull(product, nameof(product));

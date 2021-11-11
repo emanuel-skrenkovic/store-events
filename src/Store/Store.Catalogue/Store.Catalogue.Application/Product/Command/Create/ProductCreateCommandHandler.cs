@@ -21,7 +21,7 @@ namespace Store.Catalogue.Application.Product.Command.Create
             cancellationToken.ThrowIfCancellationRequested();
 
             Guid newProductId = Guid.NewGuid(); // TODO
-            await _productRepository.CreateProductAsync(Domain.Product.Product.Create(
+            await _productRepository.SaveProductAsync(Domain.Product.Product.Create(
                 newProductId,
                 request.Name, 
                 request.Price, 

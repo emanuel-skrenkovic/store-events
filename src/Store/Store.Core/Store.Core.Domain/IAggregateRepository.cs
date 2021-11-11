@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 
 namespace Store.Core.Domain
@@ -7,10 +6,6 @@ namespace Store.Core.Domain
     {
         Task<T> GetAsync<T, TKey>(TKey id) 
             where T : AggregateEntity<TKey>, new()
-            where TKey : struct;
-        
-        Task CreateAsync<T, TKey>(T entity) 
-            where T : AggregateEntity<TKey>
             where TKey : struct;
 
         Task SaveAsync<T, TKey>(T entity) 
