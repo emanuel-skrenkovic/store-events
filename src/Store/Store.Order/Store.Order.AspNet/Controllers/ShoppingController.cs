@@ -3,8 +3,10 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Store.Core.Domain.Result;
+using Store.Order.Application.Buyer;
 using Store.Order.Application.Buyer.Commands.AddItemToCart;
 using Store.Order.Application.Buyer.Commands.RemoveItemFromCart;
+using Store.Order.Application.Buyer.Queries.GetCart;
 using Unit = Store.Core.Domain.Functional.Unit;
 
 namespace Store.Order.AspNet.Controllers
@@ -19,6 +21,8 @@ namespace Store.Order.AspNet.Controllers
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
+        
+        #region Actions
         
         [HttpPost]
         [Route("cart/actions/add-item")]
@@ -40,6 +44,22 @@ namespace Store.Order.AspNet.Controllers
             // TODO
             
             return Ok();
+        }
+        
+        #endregion
+
+        [HttpGet]
+        [Route("cart")]
+        public async Task<IActionResult> GetCart()
+        {
+            CartView cart = await _mediator.Send(new BuyerCartGetQuery("1234"));
+
+            if (cart == null)
+            {
+                return NotFound();
+            }
+            
+            return Ok(cart);
         }
     }
 }

@@ -17,7 +17,8 @@ namespace Store.Order.Infrastructure.Configuration
             builder.Ignore(c => c.UpdatedAt);
 
             builder.Ignore(c => c.Items);
-                
+
+            builder.Property(c => c.CustomerNumber).HasColumnName("customer_number");
             builder.Property(c => c.Data).HasColumnName("data").HasColumnType("jsonb");
         }
     }
