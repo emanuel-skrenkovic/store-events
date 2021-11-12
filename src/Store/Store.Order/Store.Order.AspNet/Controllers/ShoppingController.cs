@@ -52,7 +52,9 @@ namespace Store.Order.AspNet.Controllers
         [Route("cart")]
         public async Task<IActionResult> GetCart()
         {
-            CartView cart = await _mediator.Send(new BuyerCartGetQuery("1234"));
+            throw new NotImplementedException();
+            /*
+            CartView cart = await _mediator.Send(new BuyerCartGetQuery());
 
             if (cart == null)
             {
@@ -60,6 +62,7 @@ namespace Store.Order.AspNet.Controllers
             }
             
             return Ok(cart);
+            */
         }
     }
 }
