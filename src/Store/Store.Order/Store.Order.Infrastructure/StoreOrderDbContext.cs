@@ -6,7 +6,9 @@ namespace Store.Order.Infrastructure
 {
     public class StoreOrderDbContext : DbContext
     {
-        public DbSet<OrderDisplayEntity> ProductDisplays { get; set; }
+        public DbSet<OrderDisplayEntity> Orders { get; set; }
+        
+        public DbSet<CartEntity> Carts { get; set; }
         
         public DbSet<SubscriptionCheckpointEntity> SubscriptionCheckpoint { get; set; }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Store.Core.Domain;
@@ -16,9 +17,21 @@ namespace Store.Core.Infrastructure.EntityFramework.Extensions
         public static async Task<T> GetProjectionDocumentAsync<T>(this DbContext context, ISerializer serializer, object id) where T : class, IProjectionDocument
         {
             T model = await context.Set<T>().FindAsync(id);
+            if (model == null) return null;
+            
             model.DeserializeData(serializer);
 
             return model;
+        }
+
+        public static async Task<T> GetProjectionDocumentByAsync<T>(this DbContext context, ISerializer serializer, Expression<Func<T, bool>> predicate) where T : class, IProjectionDocument
+        {
+            T model = await context.Set<T>().FirstOrDefaultAsync(predicate);
+            if (model == null) return null;
+            
+            model.DeserializeData(serializer);
+
+            return model; 
         }
         
         public static void UpdateProjectionDocument<T>(this DbContext context, ISerializer serializer, T model) where T : class, IProjectionDocument

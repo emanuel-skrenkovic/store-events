@@ -20,7 +20,7 @@ namespace Store.Order.Infrastructure.Configuration
             builder.Ignore(o => o.OrderLines);
             builder.Ignore(o => o.ShippingInformation);
                 
-            builder.Property(p => p.Data).HasColumnName("data").HasColumnType("jsonb");
+            builder.Property(o => o.Data).HasColumnName("data").HasColumnType("jsonb");
         }
     }
 }

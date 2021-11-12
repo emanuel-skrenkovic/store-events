@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Store.Order.Infrastructure;
@@ -11,9 +12,10 @@ using Store.Order.Infrastructure;
 namespace Store.Order.Infrastructure.Migrations
 {
     [DbContext(typeof(StoreOrderDbContext))]
-    partial class StoreOrderDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211111192140_subscription_checkpoint_configuration")]
+    partial class subscription_checkpoint_configuration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,25 +45,6 @@ namespace Store.Order.Infrastructure.Migrations
                     b.HasIndex("SubscriptionId");
 
                     b.ToTable("subscription_checkpoint", "public");
-                });
-
-            modelBuilder.Entity("Store.Order.Infrastructure.Entity.CartEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("CustomerNumber")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Data")
-                        .HasColumnType("jsonb")
-                        .HasColumnName("data");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("cart", "public");
                 });
 
             modelBuilder.Entity("Store.Order.Infrastructure.Entity.OrderDisplayEntity", b =>

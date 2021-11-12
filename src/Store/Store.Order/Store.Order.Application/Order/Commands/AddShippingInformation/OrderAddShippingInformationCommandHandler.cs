@@ -6,7 +6,7 @@ using Store.Core.Domain.Result;
 using Store.Order.Domain.Orders;
 using Unit = Store.Core.Domain.Functional.Unit;
 
-namespace Store.Order.Application.Order.Command.AddShippingInformation
+namespace Store.Order.Application.Order.Commands.AddShippingInformation
 {
     public class OrderAddShippingInformationCommandHandler : IRequestHandler<OrderAddShippingInformationCommand, Result<Unit>>
     {

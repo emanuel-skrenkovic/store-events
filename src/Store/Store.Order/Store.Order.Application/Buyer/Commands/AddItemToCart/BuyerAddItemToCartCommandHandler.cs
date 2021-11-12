@@ -6,7 +6,7 @@ using Store.Core.Domain.Result;
 using Store.Order.Domain.Buyers;
 using Unit = Store.Core.Domain.Functional.Unit;
 
-namespace Store.Order.Application.Buyer.Command.AddItemToCart
+namespace Store.Order.Application.Buyer.Commands.AddItemToCart
 {
     public class BuyerAddItemToCartCommandHandler : IRequestHandler<BuyerAddItemToCartCommand, Result<Unit>>
     {

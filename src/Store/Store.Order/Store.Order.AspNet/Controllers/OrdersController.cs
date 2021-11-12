@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Store.Core.Domain.Result;
-using Store.Order.Application.Order.Command.AddShippingInformation;
-using Store.Order.Application.Order.Command.PlaceOrder;
+using Store.Order.Application.Order.Commands.AddShippingInformation;
+using Store.Order.Application.Order.Commands.PlaceOrder;
 using Unit = Store.Core.Domain.Functional.Unit;
 
 namespace Store.Order.AspNet.Controllers

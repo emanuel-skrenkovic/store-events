@@ -10,7 +10,7 @@ using Store.Order.Domain.Buyers;
 using Store.Order.Domain.Orders;
 using Unit = Store.Core.Domain.Functional.Unit;
 
-namespace Store.Order.Application.Order.Command.PlaceOrder
+namespace Store.Order.Application.Order.Commands.PlaceOrder
 {
     public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Result<Unit>>
     {

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Store.Order.Infrastructure;
@@ -11,9 +12,10 @@ using Store.Order.Infrastructure;
 namespace Store.Order.Infrastructure.Migrations
 {
     [DbContext(typeof(StoreOrderDbContext))]
-    partial class StoreOrderDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211112102353_cart")]
+    partial class cart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,9 +53,6 @@ namespace Store.Order.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    b.Property<string>("CustomerNumber")
-                        .HasColumnType("text");
 
                     b.Property<string>("Data")
                         .HasColumnType("jsonb")
