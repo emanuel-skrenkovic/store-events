@@ -48,7 +48,7 @@ namespace Store.Order.AspNet.Controllers
 
         [HttpGet]
         [Route("cart")]
-        public async Task<IActionResult> GetCart()
+        public Task<IActionResult> GetCart()
         {
             throw new NotImplementedException();
             /*
