@@ -63,7 +63,6 @@ namespace Store.CatalogueManagement
 
             services.AddSingleton<IEventSubscriptionFactory, EventStoreSubscriptionFactory>();
 
-            services.AddSingleton<ICheckpointRepository, EfCheckpointRepository<StoreCatalogueDbContext>>();
             services.AddSingleton<IProjectionManager, ProductDisplayProjectionManager>();
             services.AddSingleton<IProjection<ProductDisplayEntity, StoreCatalogueDbContext>, ProductDisplayProjection>();
             services.AddHostedService<EventStoreSubscriptionService>();
