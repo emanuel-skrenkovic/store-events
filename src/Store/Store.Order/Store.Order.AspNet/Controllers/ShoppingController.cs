@@ -3,10 +3,8 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Store.Core.Domain.Result;
-using Store.Order.Application.Buyer;
 using Store.Order.Application.Buyer.Commands.AddItemToCart;
 using Store.Order.Application.Buyer.Commands.RemoveItemFromCart;
-using Store.Order.Application.Buyer.Queries.GetCart;
 using Unit = Store.Core.Domain.Functional.Unit;
 
 namespace Store.Order.AspNet.Controllers
