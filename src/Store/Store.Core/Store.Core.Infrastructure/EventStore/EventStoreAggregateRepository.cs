@@ -57,7 +57,7 @@ namespace Store.Core.Infrastructure.EventStore
 
             return _eventStore.AppendToStreamAsync(
                 GenerateStreamName<T, TKey>(entity.Id),
-                StreamState.Any, 
+                StreamState.Any, // TODO: fix this
                 eventsData);
         }
 

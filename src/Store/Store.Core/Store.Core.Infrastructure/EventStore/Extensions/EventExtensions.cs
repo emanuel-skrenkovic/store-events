@@ -17,7 +17,7 @@ namespace Store.Core.Infrastructure.EventStore.Extensions
                 Type.GetType(record.EventType));
         }
 
-        public static EventData ToEventData<T>(this T domainEvent, ISerializer serializer) where T : IEvent
+        public static EventData ToEventData<T>(this T domainEvent, ISerializer serializer) 
         {
             Type eventType = domainEvent.GetType();
             
