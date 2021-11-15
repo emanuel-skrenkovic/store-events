@@ -14,6 +14,7 @@ using Store.Catalogue.Application.Product.Projections.ProductDisplay;
 using Store.Catalogue.Domain.Product;
 using Store.Catalogue.Infrastructure;
 using Store.Catalogue.Infrastructure.Entity;
+using Store.Catalogue.Integration;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
 using Store.Core.Domain.Projection;
@@ -47,8 +48,21 @@ namespace Store.CatalogueManagement
             services.AddMediatR(typeof(ProductCreateCommand));
 
             services.AddSingleton(_ => new EventStoreClient(EventStoreClientSettings.Create(Configuration["EventStore:ConnectionString"])));
+
+            services.AddScoped<IIntegrationEventMapper, CatalogueIntegrationEventMapper>();
+
+            services.AddScoped(_ => new EventStoreEventDispatcherConfiguration
+            {
+                IntegrationStreamName = "catalogue-integration"
+            });
+            services.AddScoped<IEventDispatcher, EventStoreEventDispatcher>();
             
-            services.AddScoped<IAggregateRepository, EventStoreAggregateRepository>();
+            services.AddScoped<EventStoreAggregateRepository>();
+            services.AddScoped<IAggregateRepository>(provider => new IntegrationAggregateRepository(
+                provider.GetRequiredService<EventStoreAggregateRepository>(),
+                provider.GetRequiredService<IIntegrationEventMapper>(),
+                provider.GetRequiredService<IEventDispatcher>()));
+            
             services.AddScoped<IProductRepository, ProductRepository>();
 
             services.AddSingleton<ISerializer, JsonSerializer>();
