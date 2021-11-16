@@ -1,5 +1,7 @@
 using System;
 using Store.Core.Domain;
+using Store.Core.Domain.Functional;
+using Store.Core.Domain.Result;
 using Store.Order.Domain.Payment.Events;
 
 namespace Store.Order.Domain.Payment
@@ -18,7 +20,12 @@ namespace Store.Order.Domain.Payment
         
         public decimal Amount { get; private set; }
 
-        public static Payment Create(IPaymentNumberGenerator paymentNumberGenerator, Guid id, string customerNumber, string orderNumber)
+        public static Payment Create(
+            IPaymentNumberGenerator paymentNumberGenerator, 
+            Guid id, 
+            string customerNumber, 
+            string orderNumber,
+            decimal amount)
         {
             // TODO: think about returning Error.
             Ensure.NotNull(paymentNumberGenerator, nameof(paymentNumberGenerator));
@@ -31,7 +38,8 @@ namespace Store.Order.Domain.Payment
                 paymentNumberGenerator.Generate(), 
                 customerNumber, 
                 orderNumber, 
-                PaymentStatus.Pending));
+                amount,
+                PaymentStatus.Approved));
 
             return payment;
         }
@@ -42,12 +50,45 @@ namespace Store.Order.Domain.Payment
             PaymentNumber = domainEvent.PaymentNumber;
             CustomerNumber = domainEvent.CustomerNumber;
             OrderNumber = domainEvent.OrderNumber;
+            Amount = domainEvent.Amount;
             Status = domainEvent.Status;
         }
+
+        public Result<Unit> Complete()
+        {
+            if (Status != PaymentStatus.Approved) return new Error("Cannot complete unapproved payment.");
+            
+            ApplyEvent(new PaymentCompletedEvent(Id));
+            return Unit.Value;
+        }
+
+        private void Apply(PaymentCompletedEvent _)
+        {
+            Status = PaymentStatus.Completed;
+        }
+
+        public Result<Unit> Cancel()
+        {
+            if (Status == PaymentStatus.Completed) return new Error("Payment was already completed.");
+            
+            ApplyEvent(new PaymentCanceledEvent(Id));
+            return Unit.Value;
+        }
+
+        private void Apply(PaymentCanceledEvent _)
+        {
+            Status = PaymentStatus.Canceled;
+        }
+        
+        #region Wiring
         
         protected override void RegisterAppliers()
         {
             RegisterApplier<PaymentCreatedEvent>(Apply);
+            RegisterApplier<PaymentCompletedEvent>(Apply);
+            RegisterApplier<PaymentCanceledEvent>(Apply);
         }
+        
+        #endregion
     }
 }

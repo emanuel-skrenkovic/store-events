@@ -8,5 +8,6 @@ namespace Store.Order.Domain.Payment.Events
         string PaymentNumber, 
         string CustomerNumber, 
         string OrderNumber,
+        decimal Amount,
         PaymentStatus Status) : IEvent;
 }

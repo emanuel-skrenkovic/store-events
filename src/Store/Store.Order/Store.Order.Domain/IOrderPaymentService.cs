@@ -1,7 +1,9 @@
+using Store.Core.Domain.Result;
+
 namespace Store.Order.Domain
 {
     public interface IOrderPaymentService
     {
-        Payment.Payment CreateOrderPayment(Orders.Order order);
+        Result<Payment.Payment> CreateOrderPayment(Orders.Order order);
     }
 }

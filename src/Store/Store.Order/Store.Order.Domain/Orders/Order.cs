@@ -11,9 +11,7 @@ namespace Store.Order.Domain.Orders
 
         public ShippingInformation ShippingInformation { get; private set; }
         
-        public PaymentDetails PaymentDetails { get; private set; }
-        
-        public ICollection<Domain.Payment.Payment> Payments { get; private set; }
+        public decimal Amount { get; private set; }
         
         public Dictionary<CatalogueNumber, OrderLine> OrderLines { get; private set; }
         
@@ -70,24 +68,12 @@ namespace Store.Order.Domain.Orders
             Status = OrderStatus.ShippingInformationAdded;
         }
 
-        public void AddPaymentDetails(PaymentDetails paymentDetails)
-        {
-            ApplyEvent(new OrderPaymentDetailsAdded(Id, paymentDetails));
-        }
-
-        private void Apply(OrderPaymentDetailsAdded domainEvent)
-        {
-            PaymentDetails = domainEvent.PaymentDetails;
-            Status = OrderStatus.PaymentDetailsAdded;
-        }
-
         protected override void RegisterAppliers()
         {
             RegisterApplier<OrderCreatedEvent>(Apply);
             RegisterApplier<OrderOrderLineAddedEvent>(Apply);
             RegisterApplier<OrderShippingInformationAddedEvent>(Apply);
             RegisterApplier<OrderShippingInformationChangedEvent>(Apply);
-            RegisterApplier<OrderPaymentDetailsAdded>(Apply);
         }
     }
 }
