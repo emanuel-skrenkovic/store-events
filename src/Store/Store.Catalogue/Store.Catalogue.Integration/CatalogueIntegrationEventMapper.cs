@@ -9,7 +9,7 @@ namespace Store.Catalogue.Integration
     // TODO: think about how to model the integration events.
     public class CatalogueIntegrationEventMapper : IIntegrationEventMapper
     {
-        public bool TryMap(IEvent domainEvent, out IIntegrationEvent integrationEvent)
+        public bool TryMap(IEvent domainEvent, out IEvent integrationEvent)
         {
             integrationEvent = domainEvent switch
             {

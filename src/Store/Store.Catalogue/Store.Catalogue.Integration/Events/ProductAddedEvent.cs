@@ -7,5 +7,5 @@ namespace Store.Catalogue.Integration.Events
         Guid ProductId, 
         string Name, 
         string Description, 
-        decimal Price) : IIntegrationEvent;
+        decimal Price) : IEvent;
 }

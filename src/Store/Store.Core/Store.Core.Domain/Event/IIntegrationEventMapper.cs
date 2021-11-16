@@ -2,6 +2,6 @@ namespace Store.Core.Domain.Event
 {
     public interface IIntegrationEventMapper
     {
-        bool TryMap(IEvent domainEvent, out IIntegrationEvent integrationEvent);
+        bool TryMap(IEvent domainEvent, out IEvent integrationEvent);
     }
 }

@@ -32,17 +32,16 @@ namespace Store.Core.Domain.Event
             List<IEvent> events = new(entity.GetUncommittedEvents());
             
             await _repository.SaveAsync<T, TKey>(entity);
-
-            List<Task> dispatchTasks = new();
+           
+            // TODO: think about how concurrency might mess up
+            // temporal stream of events.
             foreach (IEvent @event in events)
             {
-                if (_integrationEventMapper.TryMap(@event, out IIntegrationEvent integrationEvent))
+                if (_integrationEventMapper.TryMap(@event, out IEvent integrationEvent))
                 {
-                    dispatchTasks.Add(_eventDispatcher.DispatchAsync(integrationEvent));
+                    await _eventDispatcher.DispatchAsync(integrationEvent);
                 }
             }
-
-            await Task.WhenAll(dispatchTasks);
         }
     }
 }
