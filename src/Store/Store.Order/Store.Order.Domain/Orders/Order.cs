@@ -11,9 +11,13 @@ namespace Store.Order.Domain.Orders
 
         public ShippingInformation ShippingInformation { get; private set; }
         
+        public PaymentDetails PaymentDetails { get; private set; }
+        
+        public ICollection<Domain.Payment.Payment> Payments { get; private set; }
+        
         public Dictionary<CatalogueNumber, OrderLine> OrderLines { get; private set; }
         
-        // TODO: needs status
+        public OrderStatus Status { get; private set; }
         
         public static Order Create(Guid id, string customerNumber)
         {
@@ -28,6 +32,7 @@ namespace Store.Order.Domain.Orders
             Id = domainEvent.EntityId;
             CustomerNumber = domainEvent.CustomerNumber;
             OrderLines = new();
+            Status = OrderStatus.Created;
         }
 
         public void AddOrderLine(OrderLine orderLine)
@@ -56,11 +61,24 @@ namespace Store.Order.Domain.Orders
         private void Apply(OrderShippingInformationAddedEvent domainEvent)
         {
             ShippingInformation = domainEvent.ShippingInformation;
+            Status = OrderStatus.ShippingInformationAdded;
         }
 
         private void Apply(OrderShippingInformationChangedEvent domainEvent)
         {
             ShippingInformation = domainEvent.ShippingInformation;
+            Status = OrderStatus.ShippingInformationAdded;
+        }
+
+        public void AddPaymentDetails(PaymentDetails paymentDetails)
+        {
+            ApplyEvent(new OrderPaymentDetailsAdded(Id, paymentDetails));
+        }
+
+        private void Apply(OrderPaymentDetailsAdded domainEvent)
+        {
+            PaymentDetails = domainEvent.PaymentDetails;
+            Status = OrderStatus.PaymentDetailsAdded;
         }
 
         protected override void RegisterAppliers()
@@ -69,6 +87,7 @@ namespace Store.Order.Domain.Orders
             RegisterApplier<OrderOrderLineAddedEvent>(Apply);
             RegisterApplier<OrderShippingInformationAddedEvent>(Apply);
             RegisterApplier<OrderShippingInformationChangedEvent>(Apply);
+            RegisterApplier<OrderPaymentDetailsAdded>(Apply);
         }
     }
 }

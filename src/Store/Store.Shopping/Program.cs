@@ -12,6 +12,7 @@ using Store.Core.Infrastructure;
 using Store.Core.Infrastructure.EventStore;
 using Store.Order.Application.Buyer.Projections.Cart;
 using Store.Order.Application.Order.Commands.PlaceOrder;
+using Store.Order.Application.Product.Projections;
 using Store.Order.Domain;
 using Store.Order.Domain.Buyers;
 using Store.Order.Domain.Orders;
@@ -59,6 +60,9 @@ builder.Services.AddSingleton(_ => new EventStoreConnectionConfiguration
 builder.Services.AddSingleton<IEventSubscriptionFactory, EventStoreSubscriptionFactory>();
 builder.Services.AddSingleton<IProjection<CartEntity, StoreOrderDbContext>, CartProjection>();
 builder.Services.AddSingleton<IProjectionManager, CartProjectionManager>();
+
+builder.Services.AddSingleton<IProjection<ProductInfoEntity, StoreOrderDbContext>, ProductInfoProjection>();
+builder.Services.AddSingleton<IProjectionManager, ProductInfoProjectionManager>();
 
 builder.Services.AddHostedService<EventStoreSubscriptionService>();
 

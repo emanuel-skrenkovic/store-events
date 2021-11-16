@@ -20,12 +20,12 @@ namespace Store.Core.Domain.Event
             _eventDispatcher = eventDispatcher ?? throw new ArgumentNullException(nameof(eventDispatcher));
         }
         
-        public Task<T> GetAsync<T, TKey>(TKey id) where T : AggregateEntity<TKey>, new() where TKey : struct
+        public Task<T> GetAsync<T, TKey>(TKey id) where T : AggregateEntity<TKey>, new()
         {
             return _repository.GetAsync<T, TKey>(id);
         }
 
-        public async Task SaveAsync<T, TKey>(T entity) where T : AggregateEntity<TKey> where TKey : struct
+        public async Task SaveAsync<T, TKey>(T entity) where T : AggregateEntity<TKey>
         {
             // Copy the events before commit to be able to translate
             // them to integration events after they are submitted.

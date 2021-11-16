@@ -10,6 +10,8 @@ namespace Store.Order.Infrastructure
         
         public DbSet<CartEntity> Carts { get; set; }
         
+        public DbSet<ProductInfoEntity> Products { get; set; }
+        
         public DbSet<SubscriptionCheckpointEntity> SubscriptionCheckpoint { get; set; }
 
         public StoreOrderDbContext(DbContextOptions<StoreOrderDbContext> options) : base(options) { }
@@ -17,7 +19,8 @@ namespace Store.Order.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("public");
-            
+
+            modelBuilder.Ignore<CartEntryEntity>();
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(StoreOrderDbContext).Assembly);
             
             base.OnModelCreating(modelBuilder);
