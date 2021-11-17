@@ -1,11 +1,10 @@
-using System;
 using System.Threading.Tasks;
 using Store.Core.Domain.Event;
 
 namespace Store.Core.Domain.Projection
 {
-    public interface IProjection<T, TContext>
+    public interface IProjection
     { 
-        Func<Task> Project(IEvent receivedEvent, TContext context);
+        Task ProjectAsync(IEvent receivedEvent, EventMetadata eventMetadata);
     }
 }

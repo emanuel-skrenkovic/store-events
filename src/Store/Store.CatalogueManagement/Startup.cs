@@ -13,13 +13,10 @@ using Store.Catalogue.Application.Product.Command.Create;
 using Store.Catalogue.Application.Product.Projections.ProductDisplay;
 using Store.Catalogue.Domain.Product;
 using Store.Catalogue.Infrastructure;
-using Store.Catalogue.Infrastructure.Entity;
 using Store.Catalogue.Integration;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
-using Store.Core.Domain.Projection;
 using Store.Core.Infrastructure;
-using Store.Core.Infrastructure.EntityFramework;
 using Store.Core.Infrastructure.EventStore;
 
 namespace Store.CatalogueManagement
@@ -77,8 +74,7 @@ namespace Store.CatalogueManagement
 
             services.AddSingleton<IEventSubscriptionFactory, EventStoreSubscriptionFactory>();
 
-            services.AddSingleton<IProjectionManager, ProductDisplayProjectionManager>();
-            services.AddSingleton<IProjection<ProductDisplayEntity, StoreCatalogueDbContext>, ProductDisplayProjection>();
+            services.AddSingleton<IEventListener, ProductDisplayProjection>();
             services.AddHostedService<EventStoreSubscriptionService>();
         }
 
