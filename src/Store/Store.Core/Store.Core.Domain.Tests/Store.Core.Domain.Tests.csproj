@@ -27,11 +27,17 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Helpers\Csv\simpleCsvTestData.csv">
+      <None Update="TestCases\Email\ValidEmailAddresses.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="TestCases\Csv\objectCsvTestData.csv">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Helpers\Csv\objectCsvTestData.csv">
+      <None Update="TestCases\Csv\simpleCsvTestData.csv">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="TestCases\Email\InvalidEmailAddresses.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
 
