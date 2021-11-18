@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Store.Catalogue.Domain.Product.Events;
 using Store.Catalogue.Infrastructure;
 using Store.Catalogue.Infrastructure.Entity;
@@ -11,18 +11,62 @@ using Store.Core.Infrastructure.EntityFramework.Extensions;
 
 namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
 {
-    public class ProductDisplayProjection : IProjection<ProductDisplayEntity, StoreCatalogueDbContext>
+    public class ProductDisplayProjection : IEventListener, IProjection
     {
+        private const string SubscriptionId = nameof(ProductDisplayEntity);
+        
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ISerializer _serializer;
+        private readonly IEventSubscriptionFactory _eventSubscriptionFactory;
 
-        public ProductDisplayProjection(ISerializer serializer)
+        public ProductDisplayProjection(
+            IServiceScopeFactory scopeFactory,
+            ISerializer serializer,
+            IEventSubscriptionFactory eventSubscriptionFactory)
         {
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _scopeFactory             = scopeFactory             ?? throw new ArgumentNullException(nameof(scopeFactory));
+            _serializer               = serializer               ?? throw new ArgumentNullException(nameof(serializer));
+            _eventSubscriptionFactory = eventSubscriptionFactory ?? throw new ArgumentNullException(nameof(eventSubscriptionFactory));
         }
         
-        public Func<Task> Project(IEvent receivedEvent, StoreCatalogueDbContext context)
+        #region EventListener
+        
+        public async Task StartAsync()
         {
-            return receivedEvent switch
+            using IServiceScope scope = _scopeFactory.CreateScope();
+
+            StoreCatalogueDbContext context = scope.ServiceProvider.GetRequiredService<StoreCatalogueDbContext>();
+
+            if (context == null)
+            {
+                throw new InvalidOperationException($"Context cannot be null on {nameof(ProductDisplayProjection)} startup.");
+            }
+            
+            ulong checkpoint = await context.GetSubscriptionCheckpoint(SubscriptionId);
+            
+            await _eventSubscriptionFactory
+                .Create(SubscriptionId, ProjectAsync)
+                .SubscribeAtAsync(checkpoint);
+        }
+
+        public Task StopAsync()
+        {
+            // TODO: nothing needed
+            return Task.CompletedTask;
+        }
+
+        #endregion
+        
+        #region Projection
+
+        public async Task ProjectAsync(IEvent receivedEvent, EventMetadata eventMetadata)
+        {
+            using IServiceScope scope = _scopeFactory.CreateScope();
+
+            StoreCatalogueDbContext context = scope.ServiceProvider.GetRequiredService<StoreCatalogueDbContext>();
+            if (context == null) return; // TODO: error or log?
+                
+            Func<Task> projectionAction = receivedEvent switch
             {
                 ProductCreatedEvent @event           => () => When(@event, context),
                 ProductPriceChangedEvent @event      => () => When(@event, context),
@@ -31,8 +75,15 @@ namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
                 ProductMarkedUnavailableEvent @event => () => When(@event, context),
                 _ => null
             };
-        }
 
+            if (projectionAction == null) return;
+
+            await projectionAction();
+            await context.AddOrUpdateSubscriptionCheckpoint(SubscriptionId, eventMetadata.StreamPosition);
+            
+            await context.SaveChangesAsync();
+        }
+        
         private Task When(ProductCreatedEvent @event, StoreCatalogueDbContext context)
         {
             ProductDisplayEntity productDisplay = new()
@@ -89,5 +140,7 @@ namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
             
             context.UpdateProjectionDocument(_serializer, productDisplay);
         }
+        
+        #endregion
     }
 }

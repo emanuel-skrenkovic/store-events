@@ -4,15 +4,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
-using Store.Core.Domain.Projection;
+using Store.Core.Domain.Event;
 
 namespace Store.Core.Infrastructure
 {
     public class EventStoreSubscriptionService : IHostedService
     {
-        private readonly IEnumerable<IProjectionManager> _projectionManagers;
+        private readonly IEnumerable<IEventListener> _projectionManagers;
         
-        public EventStoreSubscriptionService(IEnumerable<IProjectionManager> projectionManagers)
+        public EventStoreSubscriptionService(IEnumerable<IEventListener> projectionManagers)
         {
             _projectionManagers = projectionManagers ?? throw new ArgumentNullException(nameof(projectionManagers));
         }

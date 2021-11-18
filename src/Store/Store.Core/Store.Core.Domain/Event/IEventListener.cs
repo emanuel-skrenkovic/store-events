@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 
-namespace Store.Core.Domain.Projection
+namespace Store.Core.Domain.Event
 {
-    public interface IProjectionManager
+    public interface IEventListener
     {
         Task StartAsync();
 
