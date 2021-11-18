@@ -6,7 +6,7 @@ namespace Store.Core.Domain.Tests
     public class CsvFileDataAttributeTests
     {
         [Theory]
-        [CsvFileData("./Helpers/Csv/simpleCsvTestData.csv", ",")]
+        [CsvFileData("./TestCases/Csv/simpleCsvTestData.csv", ",")]
         public void TestSimpleCsvDataAttribute(string csvValue)
         {
             Assert.NotNull(csvValue);
@@ -20,7 +20,7 @@ namespace Store.Core.Domain.Tests
         }
 
         [Theory]
-        [CsvFileData("./Helpers/Csv/objectCsvTestData.csv", ",", typeof(TestData))]
+        [CsvFileData("./TestCases/Csv/objectCsvTestData.csv", ",", typeof(TestData))]
         public void TestObjectCsvDataAttribute(TestData testData)
         {
             Assert.NotNull(testData);
