@@ -1,80 +1,222 @@
 using System;
-using Store.Core.Domain.Functional;
-using Store.Core.Domain.Result;
-using Store.Core.Domain.Result.Extensions;
+using System.Threading.Tasks;
+using Store.Core.Domain.ErrorHandling;
 using Xunit;
 
 namespace Store.Core.Domain.Tests
 {
     public class ResultTests
     {
+        private Result<string> ValidResult() => Result.Ok("test_value");
+
+        private Result<string> ErrorResult() => Result.Error<string>(new Error("error_message"));
+        
         [Fact]
-        public void Should_MatchValue_When_NoError()
+        private void Result_CreatedSuccessfully_WithValidValue()
         {
-            bool correctExecuted = false;
-
-            int value = 2;
-
-            Result<int> testResult = Result<int>.FromValue(value);
-            testResult.Match(val =>
-            {
-                Assert.Equal(value, val);
-                return correctExecuted = true;
-            }, _ => throw new Exception());
+            Result<string> result = ValidResult();
+            Assert.NotNull(result);
             
-            Assert.True(correctExecuted);
+            Assert.True(result.IsOk);
+            Assert.False(result.IsError);
         }
         
         [Fact]
-        public void Should_MatchRight_When_IsRight()
+        private void Result_CreatedSuccessfully_WithNoValue()
         {
-            bool errorExecuted = false;
-
-            string errorMessage = "test_message";
-            Error error = new Error(errorMessage);
-
-            Result<int> testResult = Result<int>.FromError(error);
-            testResult.Match(_ => throw new Exception(), err =>
-            {
-                Assert.Equal(errorMessage, err.Message);
-                return errorExecuted = true;
-            });
+            Result result = Result.Ok();
+            Assert.NotNull(result);
             
-            Assert.True(errorExecuted);
-        }
-
-        [Fact]
-        public void Should_BindValue_When_IsSuccess()
-        {
-            int value = 2;
-
-            Result<int> testResult = Result<int>.FromValue(value);
-            Result<string> bindResult = testResult.Bind<int, string>(i => i.ToString());
-            
-            bindResult.Match(val =>
-            {
-                Assert.Equal(value.ToString(), val);
-                return Unit.Value;
-            }, _ => throw new Exception());
+            Assert.True(result.IsOk);
+            Assert.False(result.IsError);
         }
         
         [Fact]
-        public void Should_BindError_When_IsError()
+        private void Result_CreatedSuccessfully_WithValidError()
         {
-            bool errorPropagated = false;
+            Result<string> stringErrorResult = ErrorResult();
+            Assert.NotNull(stringErrorResult);
             
-            Result<int> testResult = Result<int>.FromError(new Error("error_message"));
-            Result<string> bindResult = testResult.Bind<int, string>(i => i.ToString());
+            Assert.True(stringErrorResult.IsError);
+            Assert.False(stringErrorResult.IsOk);
+        }
+        
+        [Fact]
+        private void Result_CreatedSuccessfully_WithValidError_WithNoValue()
+        {
+            Result errorResult = Result.Error(new Error("error_message"));
+            Assert.NotNull(errorResult);
             
-            bindResult.Match(val => throw new Exception(),
-                err => 
-            {
-                Assert.NotNull(err);
-                errorPropagated = true;
-                return Unit.Value;
-            });
-            
-            Assert.True(errorPropagated);
+            Assert.True(errorResult.IsError);
+            Assert.False(errorResult.IsOk);
+        }
+
+
+        [Fact]
+        private void Result_ShouldUnwrapSuccessfully_WithValidValue()
+        {
+            Result<string> validResult = ValidResult();
+            string value = validResult.Unwrap();
+            Assert.NotNull(value);
+            Assert.NotEmpty(value);
+        }
+
+        [Fact]
+        private void Result_ShouldThrow_On_Unwrap_WithErrorValue()
+        {
+            Result<string> errorResult = ErrorResult();
+            Assert.Throws<InvalidOperationException>(errorResult.Unwrap);
+        }
+        
+        [Fact]
+        private void Result_ShouldThrow_WithProvidedMessage_OnExpect_WithErrorValue()
+        {
+            Result<string> errorResult = ErrorResult();
+            string customErrorMessage = "test_error_message";
+            InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() => errorResult.Expect(customErrorMessage));
+            Assert.Equal(customErrorMessage, exception.Message);
+        }
+
+
+        [Fact]
+        private void Result_ShouldReturnDefault_On_UnwrapOrDefault_WithErrorValue_WithoutProvidedDefaultValue()
+        {
+            Result<string> errorResult = ErrorResult();
+            string value = errorResult.UnwrapOrDefault();
+            Assert.Equal(default, value);
+        }
+        
+        [Fact]
+        private void Result_ShouldReturnProvidedValue_On_UnwrapOrDefault_WithErrorValue_WithProvidedDefaultValue()
+        {
+            Result<string> errorResult = ErrorResult();
+            string defaultValue = "test";
+            string value = errorResult.UnwrapOrDefault(defaultValue);
+            Assert.Equal(defaultValue, value);
+        }
+        
+        [Fact]
+        private void Result_ShouldOnlyRunOkAction_On_Match_WithValidResult_WithoutValue()
+        {
+            Result validResult = Result.Ok();
+
+            bool validRan = false;
+            validResult.Match(() => validRan = true, _ => throw new Exception());
+            Assert.True(validRan);
+        }
+
+        [Fact]
+        private async Task Result_ShouldOnlyRunOkAsyncAction_on_Match_WithValidResult_WithoutValue()
+        {
+            Result validResult = Result.Ok();
+
+            bool validRan = false;
+            await validResult.Match(
+                async () =>
+                {
+                    await Task.Delay(1);
+                    validRan = true;
+                }, 
+                _ => throw new Exception());
+            Assert.True(validRan);
+        }
+        
+        [Fact]
+        private void Result_ShouldOnlyRunErrorAction_On_Match_WithErrorValue()
+        {
+            Result errorResult = Result.Error(new Error("error_message"));
+
+            bool errorRan = false;
+            errorResult.Match(() => throw new Exception(), _ => errorRan = true);
+            Assert.True(errorRan);
+        }
+
+        [Fact]
+        private async Task Result_ShouldOnlyRunErrorAsyncAction_On_Match_WithErrorValue()
+        {
+            Result errorResult = Result.Error(new Error("error_message"));
+
+            bool errorRan = false;
+            await errorResult.Match(
+                () => throw new Exception(), 
+                async _ =>
+                {
+                    await Task.Delay(1);
+                    errorRan = true;
+                });
+            Assert.True(errorRan); 
+        }
+
+        [Fact]
+        private void ResultT_ShouldOnlyRunOkAction_On_Match_WithValidValue()
+        {
+            Result<string> validResult = ValidResult();
+
+            bool validRan = false;
+            validResult.Match(_ => validRan = true, _ => throw new Exception());
+            Assert.True(validRan);
+        }
+
+        [Fact]
+        private async Task ResultT_ShouldOnlyRunOkAsyncAction_On_Match_WithValidValue()
+        {
+            Result<string> validResult = ValidResult();
+
+            bool validRan = false;
+            await validResult.Match(
+                async _ =>
+                {
+                    await Task.Delay(1);
+                    validRan = true;
+                }, _ => throw new Exception());
+            Assert.True(validRan);
+        }
+        
+        [Fact]
+        private void ResultT_ShouldOnlyRunErrorAction_On_Match_WithErrorValue()
+        {
+            Result<string> errorResult = ErrorResult();
+
+            bool errorRan = false;
+            errorResult.Match(_ => throw new Exception(), _ => errorRan = true);
+            Assert.True(errorRan);
+        }
+        
+        [Fact]
+        private async Task ResultT_ShouldOnlyRunErrorAsyncAction_On_Match_WithErrorValue()
+        {
+            Result<string> errorResult = ErrorResult();
+
+            bool errorRan = false;
+            await errorResult.Match(
+                _ => throw new Exception(), 
+                async _ =>
+                {
+                    await Task.Delay(1);
+                    errorRan = true;
+                });
+            Assert.True(errorRan); 
+        }
+
+        [Fact]
+        private void Result_ShouldReturnNewValidResult_OnThen_WithValidValue()
+        {
+            Result<string> validResult = ValidResult();
+
+            int newValue = 2;
+            Result<int> newValidResult = validResult.Then(_ => newValue);
+            Assert.True(newValidResult.IsOk);
+            Assert.Equal(newValue, newValidResult.Unwrap());
+        }
+        
+        [Fact]
+        private void Result_ShouldReturnNewErrorResult_OnThen_WithErrorValue()
+        {
+            Result<string> validResult = ErrorResult();
+
+            int newValue = 2;
+            Result<int> newValidResult = validResult.Then(_ => newValue);
+            Assert.True(newValidResult.IsError);
         }
     }
 }

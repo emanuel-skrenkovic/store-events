@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Store.Catalogue.Domain.Product;
-using Store.Core.Domain.Result;
+using Store.Core.Domain.ErrorHandling;
 
 namespace Store.Catalogue.Application.Product.Command.Create
 {

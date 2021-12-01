@@ -1,5 +1,6 @@
 using System;
 using System.Net.Mail;
+using Store.Core.Domain.ErrorHandling;
 
 namespace Store.Core.Domain.Email
 {
