@@ -1,6 +1,6 @@
 using System;
 using MediatR;
-using Store.Core.Domain.Result;
+using Store.Core.Domain.ErrorHandling;
 using Unit = Store.Core.Domain.Functional.Unit;
 
 namespace Store.Catalogue.Application.Product.Command.Availability

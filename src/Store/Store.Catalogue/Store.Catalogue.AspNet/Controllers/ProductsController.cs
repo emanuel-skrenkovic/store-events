@@ -8,7 +8,7 @@ using Store.Catalogue.Application.Product.Command.Availability;
 using Store.Catalogue.Application.Product.Command.Create;
 using Store.Catalogue.Application.Product.Command.Rename;
 using Store.Catalogue.Application.Product.Query.ProductDisplay;
-using Store.Core.Domain.Result;
+using Store.Core.Domain.ErrorHandling;
 using Unit = Store.Core.Domain.Functional.Unit;
 
 namespace Store.Catalogue.AspNet.Controllers

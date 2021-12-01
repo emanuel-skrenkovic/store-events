@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Store.Catalogue.Domain.Product;
-using Store.Core.Domain.Result;
+using Store.Core.Domain.ErrorHandling;
 using Unit = Store.Core.Domain.Functional.Unit;
 
 namespace Store.Catalogue.Application.Product.Command.Rename

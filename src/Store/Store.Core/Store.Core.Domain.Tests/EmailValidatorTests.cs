@@ -1,4 +1,5 @@
 using Store.Core.Domain.Email;
+using Store.Core.Domain.ErrorHandling;
 using Store.Core.Domain.Tests.Helpers.Csv;
 using Xunit;
 
