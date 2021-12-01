@@ -12,6 +12,8 @@ namespace Store.Order.Infrastructure.Entity
         
         public DateTime UpdatedAt { get; set; }
         
+        public string CatalogueNumber { get; set; }
+        
         public string Name { get; set; }
         
         public decimal Price { get; set; }
@@ -24,6 +26,7 @@ namespace Store.Order.Infrastructure.Entity
             Data = serializer.Serialize(new
             {
                 Id,
+                CatalogueNumber,
                 Name,
                 Price,
                 Available
@@ -35,6 +38,7 @@ namespace Store.Order.Infrastructure.Entity
             ProductInfoEntity deserialized = serializer.Deserialize<ProductInfoEntity>(Data);
             
             Id = deserialized.Id;
+            CatalogueNumber = deserialized.CatalogueNumber;
             Name = deserialized.Name;
             Price = deserialized.Price;
             Available = deserialized.Available;

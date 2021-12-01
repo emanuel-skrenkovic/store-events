@@ -2,10 +2,9 @@ using System;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Store.Core.Domain.Result;
+using Store.Core.Domain.ErrorHandling;
 using Store.Order.Application.Order.Commands.AddShippingInformation;
 using Store.Order.Application.Order.Commands.PlaceOrder;
-using Unit = Store.Core.Domain.Functional.Unit;
 
 namespace Store.Order.AspNet.Controllers
 {
@@ -26,7 +25,7 @@ namespace Store.Order.AspNet.Controllers
         [Route("actions/place-order")]
         public async Task<IActionResult> PlaceOrderAsync([FromBody] OrderPlaceCommand command)
         {
-            Result<Unit> placeOrderResult = await _mediator.Send(command);
+            Result placeOrderResult = await _mediator.Send(command);
 
             // TODO: need to return either 201 if created, or 200 if already exists.
             return Ok();
@@ -36,7 +35,7 @@ namespace Store.Order.AspNet.Controllers
         [Route("{orderId:guid}/actions/set-shipping-information")] // TODO route
         public async Task<IActionResult> SetOrderShippingInformation([FromRoute] Guid orderId, [FromBody] OrderAddShippingInformationCommand command)
         {
-            Result<Unit> placeOrderResult = await _mediator.Send(command with { OrderNumber = orderId });
+            Result placeOrderResult = await _mediator.Send(command with { OrderId = orderId });
 
             return Ok();
         }

@@ -1,10 +1,9 @@
 using System;
 using MediatR;
-using Store.Core.Domain.Result;
+using Store.Core.Domain.ErrorHandling;
 using Store.Order.Domain.Orders;
-using Unit = Store.Core.Domain.Functional.Unit;
 
 namespace Store.Order.Application.Order.Commands.AddShippingInformation
 {
-    public record OrderAddShippingInformationCommand(Guid OrderNumber, ShippingInformation ShippingInformation) : IRequest<Result<Unit>>;
+    public record OrderAddShippingInformationCommand(Guid OrderId, ShippingInformation ShippingInformation) : IRequest<Result>;
 }

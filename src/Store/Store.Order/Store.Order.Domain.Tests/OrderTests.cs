@@ -1,68 +1,67 @@
 using System;
 using Store.Order.Domain.Orders;
 using Store.Order.Domain.Orders.Events;
+using Store.Order.Domain.Orders.ValueObjects;
+using Store.Order.Domain.ValueObjects;
 using Xunit;
 
 namespace Store.Order.Domain.Tests
 {
     public class OrderTests
     {
+        private Orders.Order CreateValidOrder()
+        {
+            CustomerNumber customerNumber = new(Guid.NewGuid().ToString());
+            OrderNumber orderNumber = new(Guid.NewGuid());
+
+            OrderLines orderLines = new(new []
+            {
+                new OrderLine(Guid.NewGuid().ToString(), 12, 2),
+                new OrderLine(Guid.NewGuid().ToString(), 38, 4)
+            });
+
+            return Orders.Order.Create(orderNumber, customerNumber, orderLines);
+        }
+        
         [Fact]
         public void Order_Should_BeCreatedSuccessfully()
         {
-            string customerNumber = Guid.NewGuid().ToString();
-            Guid orderId = Guid.NewGuid();
+            CustomerNumber customerNumber = new(Guid.NewGuid().ToString());
+            OrderNumber orderNumber = new(Guid.NewGuid());
             
-            Orders.Order order = Orders.Order.Create(orderId, customerNumber);
+            OrderLines orderLines = new(new []
+            {
+                new OrderLine(Guid.NewGuid().ToString(), 12, 2),
+                new OrderLine(Guid.NewGuid().ToString(), 38, 4)
+            });
+
+            
+            Orders.Order order = Orders.Order.Create(orderNumber, customerNumber, orderLines);
             Assert.NotNull(order);
-            Assert.Equal(orderId, order.Id);
-            Assert.Equal(customerNumber, order.CustomerNumber);
+            Assert.Equal(orderNumber.Value, order.Id);
+            Assert.Equal(customerNumber.Value, order.CustomerNumber);
+            Assert.NotEmpty(order.OrderLines);
             
             Assert.Contains(order.GetUncommittedEvents(), e => e.GetType() == typeof(OrderCreatedEvent));
-        }
-
-        [Fact]
-        public void Order_OrderLine_Should_BeAddedSuccessfully()
-        {
-            string customerNumber = Guid.NewGuid().ToString();
-            Guid orderId = Guid.NewGuid();
-            
-            Orders.Order order = Orders.Order.Create(orderId, customerNumber);
-
-            CatalogueNumber catalogueNumber = new CatalogueNumber(Guid.NewGuid().ToString());
-            Item item = new Item(catalogueNumber);
-            OrderLine orderLine = new OrderLine(item, 1);
-            
-            order.AddOrderLine(orderLine);
-
-            Assert.Contains(order.OrderLines, o => o.Key == catalogueNumber);
-            Assert.Contains(order.GetUncommittedEvents(), e => e.GetType() == typeof(OrderOrderLineAddedEvent));
         }
         
         [Fact]
         public void Order_ShippingInformation_Should_BeAddedSuccessfully()
         {
-            string customerNumber = Guid.NewGuid().ToString();
-            Guid orderId = Guid.NewGuid();
-            
-            Orders.Order order = Orders.Order.Create(orderId, customerNumber);
+            Orders.Order order = CreateValidOrder();
             
             ShippingInformation shippingInformation = new ShippingInformation(
                 1, "Test Full Name", "Street Address 1", "MadeUp City", "TotallyFakeProvince", "NonExistantPostcode", "CallMe");
             
             order.SetShippingInformation(shippingInformation);
             Assert.Equal(shippingInformation, order.ShippingInformation);
-            Assert.Contains(order.GetUncommittedEvents(), e => e.GetType() == typeof(OrderShippingInformationAddedEvent));
-            Assert.DoesNotContain(order.GetUncommittedEvents(), e => e.GetType() == typeof(OrderShippingInformationChangedEvent));
+            Assert.Contains(order.GetUncommittedEvents(), e => e.GetType() == typeof(OrderShippingInformationSetEvent));
         }
         
         [Fact]
         public void Order_ShippingInformation_Should_BeChangedSuccessfully()
         {
-            string customerNumber = Guid.NewGuid().ToString();
-            Guid orderId = Guid.NewGuid();
-            
-            Orders.Order order = Orders.Order.Create(orderId, customerNumber);
+            Orders.Order order = CreateValidOrder();
             
             ShippingInformation shippingInformation = new ShippingInformation(
                 1, "Test Full Name", "Street Address 1", "MadeUp City", "TotallyFakeProvince", "NonExistantPostcode", "CallMe");
@@ -70,14 +69,13 @@ namespace Store.Order.Domain.Tests
             order.SetShippingInformation(shippingInformation);
             
             Assert.Equal(shippingInformation, order.ShippingInformation);
-            Assert.Contains(order.GetUncommittedEvents(), e => e.GetType() == typeof(OrderShippingInformationAddedEvent));
-            Assert.DoesNotContain(order.GetUncommittedEvents(), e => e.GetType() == typeof(OrderShippingInformationChangedEvent));
+            Assert.Contains(order.GetUncommittedEvents(), e => e.GetType() == typeof(OrderShippingInformationSetEvent));
 
             ShippingInformation changedShippingInformation = shippingInformation with { Postcode = "TotallyCorrectPostCodeNow" };
             order.SetShippingInformation(changedShippingInformation);
             
             Assert.Equal(changedShippingInformation, order.ShippingInformation);
-            Assert.Contains(order.GetUncommittedEvents(), e => e.GetType() == typeof(OrderShippingInformationChangedEvent));
+            Assert.Contains(order.GetUncommittedEvents(), e => e.GetType() == typeof(OrderShippingInformationSetEvent));
         }
     }
 }

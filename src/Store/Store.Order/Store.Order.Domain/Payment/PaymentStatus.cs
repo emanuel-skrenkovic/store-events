@@ -5,7 +5,7 @@ namespace Store.Order.Domain.Payment
         Approved, 
         Pending, 
         Completed, 
-        Canceled, 
+        Cancelled, 
         Failed 
     }
 }

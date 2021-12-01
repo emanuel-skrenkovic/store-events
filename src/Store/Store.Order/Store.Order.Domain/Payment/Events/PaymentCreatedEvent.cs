@@ -4,10 +4,9 @@ using Store.Core.Domain.Event;
 namespace Store.Order.Domain.Payment.Events
 {
     public record PaymentCreatedEvent(
-        Guid EntityId, 
-        string PaymentNumber, 
+        Guid PaymentId, 
         string CustomerNumber, 
-        string OrderNumber,
+        Guid OrderId,
         decimal Amount,
         PaymentStatus Status) : IEvent;
 }

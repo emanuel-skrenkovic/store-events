@@ -24,11 +24,11 @@ namespace Store.Core.Domain
         
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotNullOrEmpty(string arg, string message)
+        public static void NotNullOrEmpty(string arg, string argName)
         {
             if (string.IsNullOrWhiteSpace(arg))
             {
-                throw new ArgumentException(message);
+                throw new ArgumentException(CommonMessages.NullOrEmpty(argName));
             }
         }
         
@@ -42,7 +42,7 @@ namespace Store.Core.Domain
             }
         }
         
-        public static class CommonMessages
+        private static class CommonMessages
         {
             [DebuggerHidden]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

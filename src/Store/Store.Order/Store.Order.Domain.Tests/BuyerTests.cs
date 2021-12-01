@@ -1,88 +1,95 @@
 using System;
 using Store.Order.Domain.Buyers;
 using Store.Order.Domain.Buyers.Events;
+using Store.Order.Domain.Buyers.ValueObjects;
 using Xunit;
 
 namespace Store.Order.Domain.Tests
 {
     public class BuyerTests
     {
+        private Buyer CreateValidBuyer()
+        {
+            string customerNumber = Guid.NewGuid().ToString();
+            string sessionId = Guid.NewGuid().ToString();
+            BuyerIdentifier buyerId = new(customerNumber, sessionId);
+            return Buyer.Create(buyerId);
+        }
+        
         [Fact]
         public void Buyer_Should_BeCreatedSuccessfully()
         {
-            string buyerId = Guid.NewGuid().ToString();
-            
+            string customerNumber = Guid.NewGuid().ToString();
+            string sessionId = Guid.NewGuid().ToString();
+            BuyerIdentifier buyerId = new(customerNumber, sessionId);
+
             Buyer buyer = Buyer.Create(buyerId);
             
             Assert.NotNull(buyer);
-            Assert.Equal(buyerId, buyer.Id);
+            Assert.Equal(customerNumber, buyer.CustomerNumber);
             Assert.Contains(buyer.GetUncommittedEvents(), e => e.GetType() == typeof(BuyerCreatedEvent));
         }
 
         [Fact]
         public void BuyerCartItem_Should_BeAddedSuccessfully()
         {
-            Buyer buyer = Buyer.Create(Guid.NewGuid().ToString());
+            Buyer buyer = CreateValidBuyer();
 
             string itemCatalogueNumber = Guid.NewGuid().ToString();
-            Item item = new Item(new CatalogueNumber(itemCatalogueNumber));
-            buyer.AddCartItem(item);
+            buyer.AddCartItem(new CatalogueNumber(itemCatalogueNumber));
             
-            Assert.True(buyer.Cart.Items.ContainsKey(item));
+            Assert.True(buyer.CartItems.ContainsKey(itemCatalogueNumber));
             Assert.Contains(buyer.GetUncommittedEvents(), e => e.GetType() == typeof(BuyerCartItemAddedEvent));
         }
         
         [Fact]
         public void BuyerCartItem_Should_BeAddedSuccessfully_MultipleTimes()
         {
-            Buyer buyer = Buyer.Create(Guid.NewGuid().ToString());
+            Buyer buyer = CreateValidBuyer();
 
             string itemCatalogueNumber = Guid.NewGuid().ToString();
-            Item item = new Item(new CatalogueNumber(itemCatalogueNumber));
-            buyer.AddCartItem(item);
+            buyer.AddCartItem(new CatalogueNumber(itemCatalogueNumber));
             
-            Assert.True(buyer.Cart.Items.ContainsKey(item));
+            Assert.True(buyer.CartItems.ContainsKey(itemCatalogueNumber));
             Assert.Contains(buyer.GetUncommittedEvents(), e => e.GetType() == typeof(BuyerCartItemAddedEvent));
             
-            buyer.AddCartItem(item);
-            Assert.True(buyer.Cart.Items.ContainsKey(item));
+            buyer.AddCartItem(new CatalogueNumber(itemCatalogueNumber));
+            Assert.True(buyer.CartItems.ContainsKey(itemCatalogueNumber));
             Assert.Contains(buyer.GetUncommittedEvents(), e => e.GetType() == typeof(BuyerCartItemAddedEvent));
-            Assert.Equal(2u, buyer.Cart.Items[item]);
+            Assert.Equal(2u, buyer.CartItems[itemCatalogueNumber]);
         }
 
         [Fact]
         public void BuyerCartItem_Should_Be_SuccessfullyRemoved()
         {
-            Buyer buyer = Buyer.Create(Guid.NewGuid().ToString());
+            Buyer buyer = CreateValidBuyer();
 
            string itemCatalogueNumber = Guid.NewGuid().ToString();
-           Item item = new Item(new CatalogueNumber(itemCatalogueNumber));
-           buyer.AddCartItem(item);
+           buyer.AddCartItem(new CatalogueNumber(itemCatalogueNumber));
 
-           buyer.RemoveCartItem(item);
-           Assert.DoesNotContain(buyer.Cart.Items, c => c.Key == item);
+           buyer.RemoveCartItem(new CatalogueNumber(itemCatalogueNumber));
+           Assert.DoesNotContain(buyer.CartItems, c => c.Key == itemCatalogueNumber);
         }
         
         [Fact]
         public void BuyerCartItemCount_Should_BeSuccessfullyCalculated_OnRemove()
         {
-            Buyer buyer = Buyer.Create(Guid.NewGuid().ToString());
+            Buyer buyer = CreateValidBuyer();
 
             string itemCatalogueNumber = Guid.NewGuid().ToString();
-            Item item = new Item(new CatalogueNumber(itemCatalogueNumber));
-            buyer.AddCartItem(item);
+            buyer.AddCartItem(new CatalogueNumber(itemCatalogueNumber));
             
-            Assert.True(buyer.Cart.Items.ContainsKey(item));
+            Assert.True(buyer.CartItems.ContainsKey(itemCatalogueNumber));
             Assert.Contains(buyer.GetUncommittedEvents(), e => e.GetType() == typeof(BuyerCartItemAddedEvent));
             
-            buyer.AddCartItem(item);
-            Assert.True(buyer.Cart.Items.ContainsKey(item));
+            buyer.AddCartItem(new CatalogueNumber(itemCatalogueNumber));
+            Assert.True(buyer.CartItems.ContainsKey(itemCatalogueNumber));
             Assert.Contains(buyer.GetUncommittedEvents(), e => e.GetType() == typeof(BuyerCartItemAddedEvent));
-            Assert.Equal(2u, buyer.Cart.Items[item]);
+            Assert.Equal(2u, buyer.CartItems[itemCatalogueNumber]);
             
-            buyer.RemoveCartItem(item);
-            Assert.Contains(buyer.Cart.Items, c => c.Key == item);
-            Assert.Equal(1u, buyer.Cart.Items[item]);
+            buyer.RemoveCartItem(new CatalogueNumber(itemCatalogueNumber));
+            Assert.Contains(buyer.CartItems, c => c.Key == itemCatalogueNumber);
+            Assert.Equal(1u, buyer.CartItems[itemCatalogueNumber]);
         }
     }
 }

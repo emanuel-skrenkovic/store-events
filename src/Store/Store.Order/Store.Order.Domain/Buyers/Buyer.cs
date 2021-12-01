@@ -1,66 +1,65 @@
 using System.Collections.Generic;
 using Store.Core.Domain;
 using Store.Order.Domain.Buyers.Events;
+using Store.Order.Domain.Buyers.ValueObjects;
 
 namespace Store.Order.Domain.Buyers
 {
     public class Buyer : AggregateEntity<string>
     { 
-        public Cart Cart { get; private set; }
+        public string CustomerNumber { get; private set; }
         
-        public static Buyer Create(string customerNumber)
+        public string SessionId { get; private set; }
+        
+        public Dictionary<string, uint> CartItems { get; private set; }
+        
+        public static Buyer Create(BuyerIdentifier buyerIdentifier)
         {
             Buyer buyer = new();
-            buyer.ApplyEvent(new BuyerCreatedEvent(customerNumber));
+            buyer.ApplyEvent(new BuyerCreatedEvent(
+                buyerIdentifier.CustomerNumber, 
+                buyerIdentifier.SessionId));
 
             return buyer;
         }
 
         private void Apply(BuyerCreatedEvent domainEvent)
         {
-            Id = domainEvent.CustomerNumber;
-            Cart = new Cart(new Dictionary<Item, uint>()); // TODO: cleaner
+            Id = $"{domainEvent.CustomerNumber}-{domainEvent.SessionId}";
+            CustomerNumber = domainEvent.CustomerNumber;
+            SessionId = domainEvent.SessionId;
+            CartItems = new();
         }
 
-        public void AddCartItem(Item item)
-        {
-            ApplyEvent(new BuyerCartItemAddedEvent(Id, item));
-        }
+        public void AddCartItem(CatalogueNumber catalogueNumber) => ApplyEvent(new BuyerCartItemAddedEvent(Id, catalogueNumber.Value));
 
         private void Apply(BuyerCartItemAddedEvent domainEvent)
         {
-            Dictionary<Item, uint> cartItems = Cart.Items;
-
-            Item item = domainEvent.Item;
+            string catalogueNumber = domainEvent.ItemCatalogueNumber;
             
-            if (cartItems.ContainsKey(item))
+            if (CartItems.ContainsKey(catalogueNumber))
             {
-                cartItems[item]++;
+                CartItems[catalogueNumber]++;
             }
             else
             {
-                Cart.Items.Add(item, 1);
+                CartItems.Add(catalogueNumber, 1);
             }            
         }
 
-        public void RemoveCartItem(Item item)
+        public void RemoveCartItem(CatalogueNumber catalogueNumber)
         {
-            if (!Cart.Items.ContainsKey(item)) return;
-            ApplyEvent(new BuyerCartItemRemovedEvent(Id, item));
+            if (!CartItems.ContainsKey(catalogueNumber.Value)) return;
+            ApplyEvent(new BuyerCartItemRemovedEvent(Id, catalogueNumber.Value));
         }
 
         private void Apply(BuyerCartItemRemovedEvent domainEvent)
         {
-            Dictionary<Item, uint> cartItems = Cart.Items;
-
-            Item item = domainEvent.Item;
-
-            if (!cartItems.ContainsKey(item))
-                return;
+            string catalogueNumber = domainEvent.ItemCatalogueNumber;
             
-            if (--cartItems[item] == 0)
+            if (--CartItems[catalogueNumber] == 0)
             {
-                cartItems.Remove(item);
+                CartItems.Remove(catalogueNumber);
             }
         }
        

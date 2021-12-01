@@ -1,9 +1,7 @@
 using MediatR;
-using Store.Core.Domain.Result;
-using Store.Order.Domain;
-using Unit = Store.Core.Domain.Functional.Unit;
+using Store.Core.Domain.ErrorHandling;
 
 namespace Store.Order.Application.Buyer.Commands.AddItemToCart
 {
-    public record BuyerAddItemToCartCommand(string CustomerNumber, Item Item) : IRequest<Result<Unit>>;
+    public record BuyerAddItemToCartCommand(string CustomerNumber, string SessionId, string ItemCatalogueNumber) : IRequest<Result>;
 }

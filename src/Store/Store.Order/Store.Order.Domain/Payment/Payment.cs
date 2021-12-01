@@ -1,43 +1,38 @@
 using System;
 using Store.Core.Domain;
-using Store.Core.Domain.Functional;
-using Store.Core.Domain.Result;
+using Store.Core.Domain.ErrorHandling;
+using Store.Order.Domain.Orders.ValueObjects;
 using Store.Order.Domain.Payment.Events;
+using Store.Order.Domain.Payment.ValueObjects;
+using Store.Order.Domain.ValueObjects;
 
 namespace Store.Order.Domain.Payment
 {
     public class Payment : AggregateEntity<Guid>
     {
-        public string PaymentNumber { get; private set; }
-        
-        public string OrderNumber { get; private set; }
+        public Guid OrderId { get; private set; }
         
         public string CustomerNumber { get; private set; }
         
-        public PaymentStatus Status { get; private set; }
+        public string BuyerEmailAddress { get; private set; }
         
-        public BillingAddress BillingAddress { get; private set; }
+        public string BillingAddress { get; private set; }
+        
+        public PaymentStatus Status { get; private set; }
         
         public decimal Amount { get; private set; }
 
         public static Payment Create(
-            IPaymentNumberGenerator paymentNumberGenerator, 
-            Guid id, 
-            string customerNumber, 
-            string orderNumber,
+            PaymentNumber paymentNumber, 
+            CustomerNumber customerNumber, 
+            OrderNumber orderNumber,
             decimal amount)
         {
-            // TODO: think about returning Error.
-            Ensure.NotNull(paymentNumberGenerator, nameof(paymentNumberGenerator));
-            Ensure.NotNullOrEmpty(customerNumber, Ensure.CommonMessages.NullOrEmpty(nameof(customerNumber)));
-            Ensure.NotNullOrEmpty(orderNumber, Ensure.CommonMessages.NullOrEmpty(nameof(orderNumber)));
-            
             Payment payment = new();
             payment.ApplyEvent(new PaymentCreatedEvent(
-                id, 
-                paymentNumberGenerator.Generate(), 
-                customerNumber, 
-                orderNumber, 
+                paymentNumber.Value, 
+                customerNumber.Value, 
+                orderNumber.Value, 
                 amount,
                 PaymentStatus.Approved));
 
@@ -46,39 +41,34 @@ namespace Store.Order.Domain.Payment
 
         private void Apply(PaymentCreatedEvent domainEvent)
         {
-            Id = domainEvent.EntityId;
-            PaymentNumber = domainEvent.PaymentNumber;
+            Id = domainEvent.PaymentId;
             CustomerNumber = domainEvent.CustomerNumber;
-            OrderNumber = domainEvent.OrderNumber;
+            OrderId = domainEvent.OrderId;
             Amount = domainEvent.Amount;
             Status = domainEvent.Status;
         }
 
-        public Result<Unit> Complete()
+        public Result Complete()
         {
             if (Status != PaymentStatus.Approved) return new Error("Cannot complete unapproved payment.");
+            ApplyEvent(new PaymentCompletedEvent(Id, PaymentStatus.Completed));
             
-            ApplyEvent(new PaymentCompletedEvent(Id));
-            return Unit.Value;
+            return Result.Ok();
         }
 
-        private void Apply(PaymentCompletedEvent _)
-        {
-            Status = PaymentStatus.Completed;
-        }
+        private void Apply(PaymentCompletedEvent domainEvent)
+            => Status = domainEvent.Status;
 
-        public Result<Unit> Cancel()
+        public Result Cancel()
         {
             if (Status == PaymentStatus.Completed) return new Error("Payment was already completed.");
             
-            ApplyEvent(new PaymentCanceledEvent(Id));
-            return Unit.Value;
+            ApplyEvent(new PaymentCanceledEvent(Id, PaymentStatus.Cancelled));
+            return Result.Ok();
         }
 
-        private void Apply(PaymentCanceledEvent _)
-        {
-            Status = PaymentStatus.Canceled;
-        }
+        private void Apply(PaymentCanceledEvent domainEvent)
+            => Status = domainEvent.Status;
         
         #region Wiring
         

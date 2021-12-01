@@ -1,8 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Store.Core.Domain;
-using Store.Core.Domain.Functional;
-using Store.Core.Domain.Result;
+using Store.Order.Domain.Buyers.ValueObjects;
 
 namespace Store.Order.Domain.Buyers
 {
@@ -15,9 +14,9 @@ namespace Store.Order.Domain.Buyers
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
         
-        public Task<Buyer> GetBuyerAsync(string customerNumber)
+        public Task<Buyer> GetBuyerAsync(BuyerIdentifier buyerId)
         {
-            return _repository.GetAsync<Buyer, string>(customerNumber);
+            return _repository.GetAsync<Buyer, string>(buyerId.ToString());
         }
 
         public Task SaveBuyerAsync(Buyer buyer)

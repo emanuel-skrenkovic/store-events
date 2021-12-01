@@ -6,12 +6,11 @@ using Store.Catalogue.Infrastructure;
 using Store.Catalogue.Infrastructure.Entity;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
-using Store.Core.Domain.Projection;
 using Store.Core.Infrastructure.EntityFramework.Extensions;
 
 namespace Store.Catalogue.Application.Product.Projections.ProductDisplay
 {
-    public class ProductDisplayProjection : IEventListener, IProjection
+    public class ProductDisplayProjection : IEventListener
     {
         private const string SubscriptionId = nameof(ProductDisplayEntity);
         

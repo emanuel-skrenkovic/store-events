@@ -1,70 +1,56 @@
 using System;
+using Store.Order.Domain.Orders.ValueObjects;
 using Store.Order.Domain.Payment;
 using Store.Order.Domain.Payment.Events;
+using Store.Order.Domain.Payment.ValueObjects;
+using Store.Order.Domain.ValueObjects;
 using Xunit;
 
 namespace Store.Order.Domain.Tests
 {
     public class PaymentTests
     {
-        private class TestPaymentNumberGenerator : IPaymentNumberGenerator
+        private Payment.Payment CreateValidPayment()
         {
-            private readonly string _testValue;
+            CustomerNumber customerNumber = new(Guid.NewGuid().ToString());
+            OrderNumber orderId = new(Guid.NewGuid());
+            PaymentNumber paymentNumber = new(Guid.NewGuid());
 
-            public TestPaymentNumberGenerator(string value)
-            {
-                _testValue = value;
-            }
+            decimal amount = 15;
 
-            public string Generate() => _testValue;
+            return Payment.Payment.Create(
+                paymentNumber,
+                customerNumber, 
+                orderId, 
+                amount);
         }
         
         [Fact]
         public void Payment_Should_BeCreatedSuccessfully()
         {
-            string customerNumber = Guid.NewGuid().ToString();
-            string orderNumber = Guid.NewGuid().ToString();
-            string paymentNumber = Guid.NewGuid().ToString();
+            CustomerNumber customerNumber = new(Guid.NewGuid().ToString());
+            OrderNumber orderId = new(Guid.NewGuid());
+            PaymentNumber paymentNumber = new(Guid.NewGuid());
 
-            Guid paymentId = Guid.NewGuid();
             decimal amount = 15;
 
             Payment.Payment payment = Payment.Payment.Create(
-                new TestPaymentNumberGenerator(paymentNumber), 
-                paymentId, 
+                paymentNumber,
                 customerNumber, 
-                orderNumber, 
+                orderId, 
                 amount);
+            
             Assert.NotNull(payment);
-            
-            Assert.Equal(paymentId, payment.Id);
-            Assert.Equal(customerNumber, payment.CustomerNumber);
-            Assert.Equal(orderNumber, payment.OrderNumber);
-            
-            Assert.NotEmpty(payment.PaymentNumber);
-            Assert.NotNull(payment.PaymentNumber);
-
+            Assert.Equal(customerNumber.Value, payment.CustomerNumber);
+            Assert.Equal(orderId.Value, payment.OrderId);
             Assert.Equal(PaymentStatus.Approved, payment.Status);
-            
             Assert.Contains(payment.GetUncommittedEvents(), e => e.GetType() == typeof(PaymentCreatedEvent));
         }
 
         [Fact]
         public void Payment_ShouldComplete_WhenApproved()
         {
-            string customerNumber = Guid.NewGuid().ToString();
-            string orderNumber = Guid.NewGuid().ToString();
-            string paymentNumber = Guid.NewGuid().ToString();
-
-            Guid paymentId = Guid.NewGuid();
-            decimal amount = 15;
-
-            Payment.Payment payment = Payment.Payment.Create(
-                new TestPaymentNumberGenerator(paymentNumber), 
-                paymentId, 
-                customerNumber, 
-                orderNumber, 
-                amount);
+            Payment.Payment payment = CreateValidPayment();
 
             payment.Complete();
             Assert.Contains(payment.GetUncommittedEvents(), e => e.GetType() == typeof(PaymentCompletedEvent));
@@ -73,65 +59,29 @@ namespace Store.Order.Domain.Tests
         [Fact]
         public void Payment_ShouldCancel_WhenApproved()
         {
-            string customerNumber = Guid.NewGuid().ToString();
-            string orderNumber = Guid.NewGuid().ToString();
-            string paymentNumber = Guid.NewGuid().ToString();
-
-            Guid paymentId = Guid.NewGuid();
-            decimal amount = 15;
-
-            Payment.Payment payment = Payment.Payment.Create(
-                new TestPaymentNumberGenerator(paymentNumber), 
-                paymentId, 
-                customerNumber, 
-                orderNumber, 
-                amount);
+            Payment.Payment payment = CreateValidPayment();
 
             payment.Cancel();
-            Assert.Equal(PaymentStatus.Canceled, payment.Status);
+            Assert.Equal(PaymentStatus.Cancelled, payment.Status);
             Assert.Contains(payment.GetUncommittedEvents(), e => e.GetType() == typeof(PaymentCanceledEvent));
         }
         
         [Fact]
         public void Payment_ShouldNotComplete_WhenCanceled()
         {
-            string customerNumber = Guid.NewGuid().ToString();
-            string orderNumber = Guid.NewGuid().ToString();
-            string paymentNumber = Guid.NewGuid().ToString();
-
-            Guid paymentId = Guid.NewGuid();
-            decimal amount = 15;
-
-            Payment.Payment payment = Payment.Payment.Create(
-                new TestPaymentNumberGenerator(paymentNumber), 
-                paymentId, 
-                customerNumber, 
-                orderNumber, 
-                amount);
+            Payment.Payment payment = CreateValidPayment();
 
             payment.Cancel();
             payment.Complete();
             
-            Assert.Equal(PaymentStatus.Canceled, payment.Status);
+            Assert.Equal(PaymentStatus.Cancelled, payment.Status);
             Assert.DoesNotContain(payment.GetUncommittedEvents(), e => e.GetType() == typeof(PaymentCompletedEvent));
         }
         
         [Fact]
         public void Payment_ShouldNotCancel_WhenComplete()
         {
-            string customerNumber = Guid.NewGuid().ToString();
-            string orderNumber = Guid.NewGuid().ToString();
-            string paymentNumber = Guid.NewGuid().ToString();
-
-            Guid paymentId = Guid.NewGuid();
-            decimal amount = 15;
-
-            Payment.Payment payment = Payment.Payment.Create(
-                new TestPaymentNumberGenerator(paymentNumber), 
-                paymentId, 
-                customerNumber, 
-                orderNumber, 
-                amount);
+            Payment.Payment payment = CreateValidPayment();
 
             payment.Complete();
             payment.Cancel();

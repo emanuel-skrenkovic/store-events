@@ -2,46 +2,41 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Store.Core.Domain;
-using Store.Core.Domain.Result;
-using Store.Core.Domain.Result.Extensions;
+using Store.Core.Domain.ErrorHandling;
 using Store.Order.Domain;
 using Store.Order.Domain.Buyers;
+using Store.Order.Domain.Buyers.ValueObjects;
 using Store.Order.Domain.Orders;
-using Unit = Store.Core.Domain.Functional.Unit;
 
 namespace Store.Order.Application.Order.Commands.PlaceOrder
 {
-    public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Result<Unit>>
+    public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Result>
     {
         private readonly IBuyerRepository _buyerRepository;
         private readonly IOrderRepository _orderRepository;
-        private readonly ICustomerOrderService _customerOrderService;
+        private readonly IBuyerOrderService _buyerOrderService;
 
         public OrderPlaceCommandHandler(
             IBuyerRepository buyerRepository, 
             IOrderRepository orderRepository,
-            ICustomerOrderService customerOrderService)
+            IBuyerOrderService buyerOrderService)
         {
             _buyerRepository = buyerRepository ?? throw new ArgumentNullException(nameof(buyerRepository));
             _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-            _customerOrderService = customerOrderService ?? throw new ArgumentNullException(nameof(customerOrderService));
+            _buyerOrderService = buyerOrderService ?? throw new ArgumentNullException(nameof(buyerOrderService));
         }
         
-        public async Task<Result<Unit>> Handle(OrderPlaceCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(OrderPlaceCommand request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            Domain.Buyers.Buyer buyer = await _buyerRepository.GetBuyerAsync(request.CustomerNumber);
+            Domain.Buyers.Buyer buyer = await _buyerRepository.GetBuyerAsync(
+                new BuyerIdentifier(request.CustomerNumber, request.SessionId));
             if (buyer == null) return new Error($"Customer with customer number {request.CustomerNumber} not found.");
 
-            Result<Domain.Orders.Order> placeOrderResult = _customerOrderService.PlaceOrder(buyer);
+            Result<Domain.Orders.Order> placeOrderResult = await _buyerOrderService.PlaceOrderAsync(buyer);
 
-            return await placeOrderResult.Bind<Domain.Orders.Order, Unit>(async order =>
-            {
-                await _orderRepository.SaveOrderAsync(order);
-                return Unit.Value; 
-            });
+            return placeOrderResult.Then(order => _orderRepository.SaveOrderAsync(order));
         }
     }
 }

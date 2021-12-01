@@ -2,10 +2,9 @@ using System;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Store.Core.Domain.Result;
+using Store.Core.Domain.ErrorHandling;
 using Store.Order.Application.Buyer.Commands.AddItemToCart;
 using Store.Order.Application.Buyer.Commands.RemoveItemFromCart;
-using Unit = Store.Core.Domain.Functional.Unit;
 
 namespace Store.Order.AspNet.Controllers
 {
@@ -26,7 +25,7 @@ namespace Store.Order.AspNet.Controllers
         [Route("cart/actions/add-item")]
         public async Task<IActionResult> AddItemToCart(BuyerAddItemToCartCommand command)
         {
-            Result<Unit> addItemToCartResult = await _mediator.Send(command); // TODO: need to pick up the user id from token or something.
+            Result addItemToCartResult = await _mediator.Send(command); // TODO: need to pick up the user id from token or something.
             
             // TODO
             
@@ -37,7 +36,7 @@ namespace Store.Order.AspNet.Controllers
         [Route("cart/actions/remove-item")]
         public async Task<IActionResult> RemoveItemFromCart(BuyerRemoveItemFromCartCommand command)
         {
-            Result<Unit> removeItemFromCartResult = await _mediator.Send(command); // TODO: need to pick up the user id from token or something.
+            Result removeItemFromCartResult = await _mediator.Send(command); // TODO: need to pick up the user id from token or something.
             
             // TODO
             

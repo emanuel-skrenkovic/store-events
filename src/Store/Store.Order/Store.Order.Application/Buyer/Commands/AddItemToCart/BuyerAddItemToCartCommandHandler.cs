@@ -2,13 +2,14 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Store.Core.Domain.Result;
+using Store.Core.Domain.ErrorHandling;
+using Store.Order.Domain;
 using Store.Order.Domain.Buyers;
-using Unit = Store.Core.Domain.Functional.Unit;
+using Store.Order.Domain.Buyers.ValueObjects;
 
 namespace Store.Order.Application.Buyer.Commands.AddItemToCart
 {
-    public class BuyerAddItemToCartCommandHandler : IRequestHandler<BuyerAddItemToCartCommand, Result<Unit>>
+    public class BuyerAddItemToCartCommandHandler : IRequestHandler<BuyerAddItemToCartCommand, Result>
     {
         private readonly IBuyerRepository _buyerRepository;
 
@@ -17,19 +18,20 @@ namespace Store.Order.Application.Buyer.Commands.AddItemToCart
             _buyerRepository = buyerRepository ?? throw new ArgumentNullException(nameof(buyerRepository));
         }
         
-        public async Task<Result<Unit>> Handle(BuyerAddItemToCartCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(BuyerAddItemToCartCommand request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            Domain.Buyers.Buyer buyer = await _buyerRepository.GetBuyerAsync(request.CustomerNumber)
-                ?? Domain.Buyers.Buyer.Create(request.CustomerNumber);
+            BuyerIdentifier buyerId = new(request.CustomerNumber, request.SessionId);
+            Domain.Buyers.Buyer buyer = 
+                await _buyerRepository.GetBuyerAsync(buyerId) ?? Domain.Buyers.Buyer.Create(buyerId);
             
             // TODO: check if warning correct.
-            buyer.AddCartItem(request.Item);
+            buyer.AddCartItem(new CatalogueNumber(request.ItemCatalogueNumber));
 
             await _buyerRepository.SaveBuyerAsync(buyer);
 
-            return Unit.Value;
+            return Result.Ok();
         }
    }
 }

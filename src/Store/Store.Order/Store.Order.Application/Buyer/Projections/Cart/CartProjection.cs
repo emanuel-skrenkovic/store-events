@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
-using Store.Core.Domain.Projection;
 using Store.Core.Infrastructure.EntityFramework.Extensions;
 using Store.Order.Domain.Buyers.Events;
 using Store.Order.Infrastructure;
@@ -12,31 +12,72 @@ using Store.Order.Infrastructure.Entity;
 
 namespace Store.Order.Application.Buyer.Projections.Cart
 {
-    public class CartProjection : IProjection<CartEntity, StoreOrderDbContext>
+    public class CartProjection : IEventListener
     {
-        private readonly ISerializer _serializer;
+        private const string SubscriptionId = nameof(CartEntity);
 
-        public CartProjection(ISerializer serializer)
+        private readonly ISerializer _serializer;
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IEventSubscriptionFactory _eventSubscriptionFactory;
+
+        public CartProjection(
+            ISerializer serializer,
+            IServiceScopeFactory scopeFactory,
+            IEventSubscriptionFactory eventSubscriptionFactory)
         {
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+            _eventSubscriptionFactory = eventSubscriptionFactory ?? throw new ArgumentNullException(nameof(eventSubscriptionFactory));
         }
         
-        public Func<Task> Project(IEvent receivedEvent, StoreOrderDbContext context)
+        public async Task StartAsync()
         {
-            return receivedEvent switch
+            using IServiceScope scope = _scopeFactory.CreateScope();
+
+            StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
+            if (context == null)
+            {
+                throw new InvalidOperationException($"Context cannot be null on {nameof(CartProjection)} startup.");
+            }
+            
+            ulong checkpoint = await context.GetSubscriptionCheckpoint(SubscriptionId);
+            
+            await _eventSubscriptionFactory
+                .Create(SubscriptionId, HandleEventAsync)
+                .SubscribeAtAsync(checkpoint);
+        }
+
+        public Task StopAsync() => Task.CompletedTask;
+        
+        public async Task HandleEventAsync(IEvent receivedEvent, EventMetadata eventMetadata)
+        {
+            Ensure.NotNull(receivedEvent, nameof(receivedEvent));
+
+            using IServiceScope scope = _scopeFactory.CreateScope();
+
+            StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
+            if (context == null) return;
+
+            Func<Task> projectionAction = receivedEvent switch
             {
                 BuyerCartItemAddedEvent   @event => () => When(@event, context),
                 BuyerCartItemRemovedEvent @event => () => When(@event, context),
                 // TODO: order confirmed -> remove cart
                 _ => null
             };
-        }
+            if (projectionAction == null) return;
 
+            await projectionAction();
+            await context.AddOrUpdateSubscriptionCheckpoint(SubscriptionId, eventMetadata.StreamPosition);
+            
+            await context.SaveChangesAsync();
+        }
+        
         private async Task When(BuyerCartItemAddedEvent @event, StoreOrderDbContext context)
         {
             CartEntity cart = await context.GetProjectionDocumentByAsync<CartEntity>(
                 _serializer, 
-                c => c.CustomerNumber == @event.EntityId);
+                c => c.CustomerNumber == @event.BuyerId);
 
             bool notFound = cart == null;
             if (notFound)
@@ -44,14 +85,14 @@ namespace Store.Order.Application.Buyer.Projections.Cart
                 cart = new()
                 {
                     Id = Guid.NewGuid(), 
-                    CustomerNumber = @event.EntityId
+                    CustomerNumber = @event.BuyerId
                 };
             }
 
             cart.Items ??= new Dictionary<string, CartEntryEntity>();
 
             Dictionary<string, CartEntryEntity> items = cart.Items;
-            string newItemCatalogueNumber = @event.Item.CatalogueNumber.Value;
+            string newItemCatalogueNumber = @event.ItemCatalogueNumber;
             
             if (items.ContainsKey(newItemCatalogueNumber))
             {
@@ -61,7 +102,7 @@ namespace Store.Order.Application.Buyer.Projections.Cart
             {
                 cart.Items.Add(newItemCatalogueNumber, new CartEntryEntity
                 {
-                    CatalogueNumber = @event.Item.CatalogueNumber.Value,
+                    CatalogueNumber = newItemCatalogueNumber,
                     Quantity = 1
                 });
             }
@@ -78,7 +119,7 @@ namespace Store.Order.Application.Buyer.Projections.Cart
 
         private async Task When(BuyerCartItemRemovedEvent @event, StoreOrderDbContext context)
         {
-            CartEntity cart = await context.GetProjectionDocumentByAsync<CartEntity>(_serializer, c => c.CustomerNumber == @event.EntityId);
+            CartEntity cart = await context.GetProjectionDocumentByAsync<CartEntity>(_serializer, c => c.CustomerNumber == @event.BuyerId);
 
             if (cart?.Items.Any() != true)
             {
@@ -86,7 +127,8 @@ namespace Store.Order.Application.Buyer.Projections.Cart
             }
 
             var cartItems = cart.Items;
-            string itemCatalogueNumber = @event.Item.CatalogueNumber.Value;
+            string itemCatalogueNumber = @event.ItemCatalogueNumber;
+            
             if (!cart.Items.ContainsKey(itemCatalogueNumber))
                 return;
             
