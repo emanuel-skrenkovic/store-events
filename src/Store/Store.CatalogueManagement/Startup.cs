@@ -89,13 +89,16 @@ namespace Store.CatalogueManagement
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Store.CatalogueManagement v1"));
             }
             
-            // TODO: test if working correctly
+            #if DEBUG
+            
             using (IServiceScope scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 var context = scope.ServiceProvider.GetService<StoreCatalogueDbContext>();
                 context?.Database.Migrate();
             }
-
+            
+            #endif
+            
             app.UseHttpsRedirection();
 
             app.UsePathBase(new PathString("/catalogue"));

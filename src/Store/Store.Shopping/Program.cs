@@ -12,10 +12,12 @@ using Store.Core.Infrastructure.EventStore;
 using Store.Order.Application;
 using Store.Order.Application.Buyer.Projections.Cart;
 using Store.Order.Application.Order.Commands.PlaceOrder;
+using Store.Order.Application.Product;
 using Store.Order.Application.Product.Projections;
 using Store.Order.Domain;
 using Store.Order.Domain.Buyers;
 using Store.Order.Domain.Orders;
+using Store.Order.Domain.Payment;
 using Store.Order.Infrastructure;
 
 #region Services
@@ -41,8 +43,11 @@ builder.Services.AddSingleton(_ => new EventStoreClient(EventStoreClientSettings
 builder.Services.AddScoped<IAggregateRepository, EventStoreAggregateRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IBuyerRepository, BuyerRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
+builder.Services.AddScoped<ProductInfoService>();
 builder.Services.AddScoped<IBuyerOrderService, BuyerOrderService>();
+builder.Services.AddScoped<IOrderPaymentService, OrderPaymentService>();
 
 builder.Services.AddSingleton<ISerializer, JsonSerializer>();
             
@@ -74,6 +79,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+#if DEBUG
+
+using (IServiceScope scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+{
+    var context = scope.ServiceProvider.GetService<StoreOrderDbContext>();
+    context?.Database.Migrate();
+}
+
+#endif
 
 app.UseHttpsRedirection();
 
