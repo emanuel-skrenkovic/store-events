@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Store.Catalogue.Application.Product.Command.Create;
-using Store.Catalogue.Application.Product.Projections.ProductDisplay;
+using Store.Catalogue.Application.Product.Projections;
 using Store.Catalogue.Domain.Product;
 using Store.Catalogue.Infrastructure;
 using Store.Catalogue.Integration;
@@ -75,7 +75,7 @@ namespace Store.CatalogueManagement
 
             services.AddSingleton<IEventSubscriptionFactory, EventStoreSubscriptionFactory>();
 
-            services.AddSingleton<IEventListener, ProductDisplayProjection>();
+            services.AddSingleton<IEventListener, ProductProjection>();
             services.AddHostedService<EventStoreSubscriptionService>();
         }
 

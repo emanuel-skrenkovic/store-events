@@ -6,11 +6,13 @@ namespace Store.Order.Infrastructure
 {
     public class StoreOrderDbContext : DbContext
     {
-        public DbSet<OrderDisplayEntity> Orders { get; set; }
+        public DbSet<OrderEntity> Orders { get; set; }
         
-        public DbSet<CartEntity> Carts { get; set; }
+        public DbSet<OrderLineEntity> OrderLines { get; set; }
         
-        public DbSet<ProductInfoEntity> Products { get; set; }
+        public DbSet<CartEntryEntity> CartEntries { get; set; }
+        
+        public DbSet<ProductEntity> Products { get; set; }
         
         public DbSet<SubscriptionCheckpointEntity> SubscriptionCheckpoint { get; set; }
 
@@ -20,7 +22,6 @@ namespace Store.Order.Infrastructure
         {
             modelBuilder.HasDefaultSchema("public");
 
-            modelBuilder.Ignore<CartEntryEntity>();
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(StoreOrderDbContext).Assembly);
             
             base.OnModelCreating(modelBuilder);

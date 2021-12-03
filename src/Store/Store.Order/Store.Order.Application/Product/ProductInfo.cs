@@ -1,6 +1,6 @@
 namespace Store.Order.Application.Product
 {
-    public class ProductDto
+    public class ProductInfo
     {
         public string CatalogueNumber { get; set; }
         

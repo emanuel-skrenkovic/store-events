@@ -7,35 +7,58 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Store.Catalogue.Infrastructure;
 
+#nullable disable
+
 namespace Store.Catalogue.Infrastructure.Migrations
 {
     [DbContext(typeof(StoreCatalogueDbContext))]
-    [Migration("20211107144852_subscription_checkpoint_table")]
-    partial class subscription_checkpoint_table
+    [Migration("20211203165205_product")]
+    partial class product
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("public")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.11")
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("Store.Catalogue.Infrastructure.Entity.ProductDisplayEntity", b =>
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Store.Catalogue.Infrastructure.Entity.ProductEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("Data")
-                        .HasColumnType("jsonb")
-                        .HasColumnName("data");
+                    b.Property<bool>("Available")
+                        .HasColumnType("boolean")
+                        .HasColumnName("available");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric")
+                        .HasColumnName("price");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id");
 
-                    b.ToTable("product_display");
+                    b.ToTable("product", "public");
                 });
 
             modelBuilder.Entity("Store.Core.Infrastructure.EntityFramework.Entity.SubscriptionCheckpointEntity", b =>
@@ -57,7 +80,7 @@ namespace Store.Catalogue.Infrastructure.Migrations
 
                     b.HasIndex("SubscriptionId");
 
-                    b.ToTable("subscription_checkpoint");
+                    b.ToTable("subscription_checkpoint", "public");
                 });
 #pragma warning restore 612, 618
         }

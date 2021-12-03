@@ -23,7 +23,7 @@ namespace Store.Order.Application
         {
             Ensure.NotNull(buyer, nameof(buyer));
 
-            IEnumerable<ProductDto> productsInfo = await _productInfoService.GetProductsInfoAsync(buyer
+            IEnumerable<ProductInfo> productsInfo = await _productInfoService.GetProductsInfoAsync(buyer
                 .CartItems
                 .Select(kv => kv.Key)
                 .ToArray());

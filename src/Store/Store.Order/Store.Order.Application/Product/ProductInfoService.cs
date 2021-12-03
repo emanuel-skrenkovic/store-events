@@ -6,7 +6,7 @@ namespace Store.Order.Application.Product
 {
     public class ProductInfoService
     {
-        public Task<IEnumerable<ProductDto>> GetProductsInfoAsync(params string[] catalogueNumbers)
+        public Task<IEnumerable<ProductInfo>> GetProductsInfoAsync(params string[] catalogueNumbers)
         {
             throw new NotImplementedException();
         }

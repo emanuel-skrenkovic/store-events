@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Store.Core.Domain.ErrorHandling;
+using Store.Core.Infrastructure.AspNet;
 using Store.Order.Application.Buyer.Commands.AddItemToCart;
 using Store.Order.Application.Buyer.Commands.RemoveItemFromCart;
 
@@ -26,10 +27,7 @@ namespace Store.Order.AspNet.Controllers
         public async Task<IActionResult> AddItemToCart(BuyerAddItemToCartCommand command)
         {
             Result addItemToCartResult = await _mediator.Send(command); // TODO: need to pick up the user id from token or something.
-            
-            // TODO
-            
-            return Ok();
+            return addItemToCartResult.Match(Ok, this.HandleError);
         }
 
         [HttpPost]
@@ -37,29 +35,16 @@ namespace Store.Order.AspNet.Controllers
         public async Task<IActionResult> RemoveItemFromCart(BuyerRemoveItemFromCartCommand command)
         {
             Result removeItemFromCartResult = await _mediator.Send(command); // TODO: need to pick up the user id from token or something.
-            
-            // TODO
-            
-            return Ok();
+            return removeItemFromCartResult.Match(Ok, this.HandleError);
         }
         
         #endregion
 
         [HttpGet]
         [Route("cart")]
-        public Task<IActionResult> GetCart()
+        public Task<IActionResult> GetCart([FromQuery] string customerId, [FromQuery] string sessionId) // TODO: need to pick up the user id and sessionId from token or something.
         {
             throw new NotImplementedException();
-            /*
-            CartView cart = await _mediator.Send(new BuyerCartGetQuery());
-
-            if (cart == null)
-            {
-                return NotFound();
-            }
-            
-            return Ok(cart);
-            */
         }
     }
 }

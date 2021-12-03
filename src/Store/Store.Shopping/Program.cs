@@ -63,7 +63,7 @@ builder.Services.AddSingleton(_ => new EventStoreConnectionConfiguration
 
 builder.Services.AddSingleton<IEventSubscriptionFactory, EventStoreSubscriptionFactory>();
 builder.Services.AddSingleton<IEventListener, CartProjection>();
-builder.Services.AddSingleton<IEventListener, ProductInfoProjection>();
+builder.Services.AddSingleton<IEventListener, ProductProjection>();
 
 builder.Services.AddHostedService<EventStoreSubscriptionService>();
 

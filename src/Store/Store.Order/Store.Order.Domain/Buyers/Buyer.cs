@@ -25,7 +25,7 @@ namespace Store.Order.Domain.Buyers
 
         private void Apply(BuyerCreatedEvent domainEvent)
         {
-            Id = $"{domainEvent.CustomerNumber}-{domainEvent.SessionId}";
+            Id = new BuyerIdentifier(domainEvent.CustomerNumber, domainEvent.SessionId).ToString();
             CustomerNumber = domainEvent.CustomerNumber;
             SessionId = domainEvent.SessionId;
             CartItems = new();
@@ -35,7 +35,7 @@ namespace Store.Order.Domain.Buyers
 
         private void Apply(BuyerCartItemAddedEvent domainEvent)
         {
-            string catalogueNumber = domainEvent.ItemCatalogueNumber;
+            string catalogueNumber = domainEvent.ProductCatalogueNumber;
             
             if (CartItems.ContainsKey(catalogueNumber))
             {
@@ -55,7 +55,7 @@ namespace Store.Order.Domain.Buyers
 
         private void Apply(BuyerCartItemRemovedEvent domainEvent)
         {
-            string catalogueNumber = domainEvent.ItemCatalogueNumber;
+            string catalogueNumber = domainEvent.ProductCatalogueNumber;
             
             if (--CartItems[catalogueNumber] == 0)
             {

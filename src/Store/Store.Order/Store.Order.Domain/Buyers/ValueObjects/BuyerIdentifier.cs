@@ -17,6 +17,13 @@ namespace Store.Order.Domain.Buyers.ValueObjects
             CustomerNumber = customerNumber;
             SessionId = sessionId;
         }
+
+        public static BuyerIdentifier FromString(string buyerId)
+        {
+            Ensure.NotNullOrEmpty(buyerId, nameof(buyerId));
+            string[] parts = buyerId.Split(':');
+            return new(parts[0], parts[1]);
+        }
         
         protected override IEnumerable<object> GetEqualityComponents()
         {
@@ -24,6 +31,6 @@ namespace Store.Order.Domain.Buyers.ValueObjects
             yield return SessionId;
         }
 
-        public override string ToString() => $"{CustomerNumber}-{SessionId}"; // TODO: think about splitter char.
+        public override string ToString() => $"{CustomerNumber}:{SessionId}"; // TODO: think about splitter char.
     }
 }

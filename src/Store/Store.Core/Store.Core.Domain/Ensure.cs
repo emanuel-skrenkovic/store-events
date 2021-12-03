@@ -34,11 +34,11 @@ namespace Store.Core.Domain
         
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotNullOrEmpty<T>(IEnumerable<T> arg, string message)
+        public static void NotNullOrEmpty<T>(IEnumerable<T> arg, string argName)
         {
             if (arg?.Any() != true)
             {
-                throw new ArgumentException(message);
+                throw new ArgumentException(CommonMessages.NullOrEmpty(argName));
             }
         }
         

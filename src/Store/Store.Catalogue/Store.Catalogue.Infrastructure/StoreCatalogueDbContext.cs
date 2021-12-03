@@ -6,7 +6,7 @@ namespace Store.Catalogue.Infrastructure
 {
     public class StoreCatalogueDbContext : DbContext
     {
-        public DbSet<ProductDisplayEntity> ProductDisplays { get; set; }
+        public DbSet<ProductEntity> ProductDisplays { get; set; }
         
         public DbSet<SubscriptionCheckpointEntity> SubscriptionCheckpoint { get; set; }
         

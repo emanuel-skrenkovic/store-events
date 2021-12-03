@@ -4,28 +4,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Store.Catalogue.Integration.Events;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
-using Store.Core.Domain.Projection;
 using Store.Core.Infrastructure.EntityFramework.Extensions;
 using Store.Order.Infrastructure;
 using Store.Order.Infrastructure.Entity;
 
 namespace Store.Order.Application.Product.Projections
 {
-    public class ProductInfoProjection : IEventListener
+    public class ProductProjection : IEventListener
     {
-         private const string SubscriptionId = nameof(ProductInfoEntity);
+         private const string SubscriptionId = nameof(ProductEntity);
         
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly ISerializer _serializer;
         private readonly IEventSubscriptionFactory _eventSubscriptionFactory;
 
-        public ProductInfoProjection(
+        public ProductProjection(
             IServiceScopeFactory scopeFactory,
-            ISerializer serializer,
             IEventSubscriptionFactory eventSubscriptionFactory)
         {
             _scopeFactory             = scopeFactory             ?? throw new ArgumentNullException(nameof(scopeFactory));
-            _serializer               = serializer               ?? throw new ArgumentNullException(nameof(serializer));
             _eventSubscriptionFactory = eventSubscriptionFactory ?? throw new ArgumentNullException(nameof(eventSubscriptionFactory));
         }
         
@@ -37,7 +33,7 @@ namespace Store.Order.Application.Product.Projections
 
             if (context == null)
             {
-                throw new InvalidOperationException($"Context cannot be null on {nameof(ProductInfoProjection)} startup.");
+                throw new InvalidOperationException($"Context cannot be null on {nameof(ProductProjection)} startup.");
             }
             
             ulong checkpoint = await context.GetSubscriptionCheckpoint(SubscriptionId);
@@ -53,7 +49,7 @@ namespace Store.Order.Application.Product.Projections
             return Task.CompletedTask;
         }
         
-        public async Task ProjectAsync(IEvent receivedEvent, EventMetadata eventMetadata)
+        private async Task ProjectAsync(IEvent receivedEvent, EventMetadata eventMetadata)
         {
             Ensure.NotNull(receivedEvent, nameof(receivedEvent));
 
@@ -81,58 +77,56 @@ namespace Store.Order.Application.Product.Projections
         
         private Task When(ProductAddedEvent @event, StoreOrderDbContext context)
         {
-            ProductInfoEntity product = new()
+            ProductEntity productEntity = new()
             {
-                Id = @event.ProductId,
+                CatalogueNumber = @event.ProductId.ToString(),
                 Name = @event.Name,
                 Price = @event.Price
             };
             
-            context.AddProjectionDocument(_serializer, product);
+            context.Add(productEntity);
 
             return Task.CompletedTask;
         }
         
         private async Task When(ProductPriceChangedEvent @event, StoreOrderDbContext context)
         {
-            ProductInfoEntity product =
-                await context.GetProjectionDocumentAsync<ProductInfoEntity>(_serializer, @event.ProductId);
-            if (product == null) return;
+            ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
+            if (productEntity == null) return;
 
-            product.Price = @event.NewPrice;
-            context.UpdateProjectionDocument(_serializer, product);
+            productEntity.Price = @event.NewPrice;
+            
+            context.Update(productEntity);
         }
         
         private async Task When(ProductRenamedEvent @event, StoreOrderDbContext context)
         {
-            ProductInfoEntity product =
-                await context.GetProjectionDocumentAsync<ProductInfoEntity>(_serializer, @event.ProductId);
-            if (product == null) return;
+            ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
+            if (productEntity == null) return;
 
-            product.Name = @event.NewName;
-            context.UpdateProjectionDocument(_serializer, product);
+            productEntity.Name = @event.NewName;
+            
+            context.Update(productEntity);
         }
         
         private async Task When(ProductAvailableEvent @event, StoreOrderDbContext context)
         {
-            ProductInfoEntity product =
-                await context.GetProjectionDocumentAsync<ProductInfoEntity>(_serializer, @event.ProductId);
-            if (product == null) return;
+            ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
+            if (productEntity == null) return;
             
-            product.Available = true;
+            productEntity.Available = true;
             
-            context.UpdateProjectionDocument(_serializer, product);
+            context.Update(productEntity);
         }
         
         private async Task When(ProductUnavailableEvent @event, StoreOrderDbContext context)
         {
-            ProductInfoEntity product = 
-                await context.GetProjectionDocumentAsync<ProductInfoEntity>(_serializer, @event.ProductId);
-            if (product == null) return;
+            ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
+            if (productEntity == null) return;
 
-            product.Available = false;
+            productEntity.Available = false;
             
-            context.UpdateProjectionDocument(_serializer, product);
+            context.Update(productEntity);
         }
     }
 }
