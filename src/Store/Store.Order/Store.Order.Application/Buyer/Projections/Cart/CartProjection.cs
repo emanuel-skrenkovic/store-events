@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
@@ -73,13 +74,10 @@ namespace Store.Order.Application.Buyer.Projections.Cart
         {
             BuyerIdentifier buyerId = BuyerIdentifier.FromString(@event.BuyerId);
 
-            CartEntryEntity cartEntry = await context.FindAsync<CartEntryEntity>(
-                new
-                {
-                    buyerId.CustomerNumber,
-                    buyerId.SessionId,
-                    @event.ProductCatalogueNumber
-                });
+            CartEntryEntity cartEntry = await context.CartEntries.SingleOrDefaultAsync(
+                c => c.CustomerNumber == buyerId.CustomerNumber
+                     && c.SessionId == buyerId.SessionId
+                     && c.ProductCatalogueNumber == @event.ProductCatalogueNumber);
             
             if (cartEntry == null)
             {
@@ -105,13 +103,10 @@ namespace Store.Order.Application.Buyer.Projections.Cart
         {
             BuyerIdentifier buyerId = BuyerIdentifier.FromString(@event.BuyerId);
             
-            CartEntryEntity cartEntry = await context.FindAsync<CartEntryEntity>(
-                new
-                {
-                    buyerId.CustomerNumber,
-                    buyerId.SessionId,
-                    @event.ProductCatalogueNumber
-                });
+            CartEntryEntity cartEntry = await context.CartEntries.SingleOrDefaultAsync(
+                c => c.CustomerNumber == buyerId.CustomerNumber
+                     && c.SessionId == buyerId.SessionId
+                     && c.ProductCatalogueNumber == @event.ProductCatalogueNumber);
             
             if (cartEntry == null) return;
 
