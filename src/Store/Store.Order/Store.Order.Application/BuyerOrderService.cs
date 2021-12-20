@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Store.Core.Domain;
 using Store.Core.Domain.ErrorHandling;
 using Store.Order.Application.Product;
 using Store.Order.Domain;
-using Store.Order.Domain.Orders;
 using Store.Order.Domain.Orders.ValueObjects;
 using Store.Order.Domain.ValueObjects;
 using Store.Order.Infrastructure.Entity;
