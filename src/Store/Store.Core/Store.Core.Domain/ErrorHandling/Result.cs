@@ -16,7 +16,7 @@ namespace Store.Core.Domain.ErrorHandling
 
         private protected Result(Error error)
         {
-            Guard.IsNotNull(error, nameof(error));
+            Ensure.NotNull(error, nameof(error));
             _error = error;
             IsOk = false;
         }
@@ -44,7 +44,7 @@ namespace Store.Core.Domain.ErrorHandling
 
         public static Result<T> Ok<T>(T value)
         {
-            Guard.IsNotNull(value, nameof(value));
+            Ensure.NotNull(value, nameof(value));
             return new(value);
         }
 
@@ -54,7 +54,7 @@ namespace Store.Core.Domain.ErrorHandling
 
         public static Result<T> Error<T>(Error error)
         {
-            Guard.IsNotNull(error, nameof(error));
+            Ensure.NotNull(error, nameof(error));
             return new(error);
         }
 
@@ -67,7 +67,7 @@ namespace Store.Core.Domain.ErrorHandling
 
         internal Result(T value)
         {
-            Guard.IsNotNull(value, nameof(value));
+            Ensure.NotNull(value, nameof(value));
             _value = value;
         }
 
