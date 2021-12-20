@@ -352,3 +352,5 @@ MigrationBackup/
 # Custom
 
 .idea
+
+.metadata

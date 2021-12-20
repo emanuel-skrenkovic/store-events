@@ -23,7 +23,6 @@ namespace Store.Core.Infrastructure.EventStore
         
         public async Task<T> GetAsync<T, TKey>(TKey id) 
             where T : AggregateEntity<TKey>, new()
-            where TKey : struct
         {
             EventStoreClient.ReadStreamResult eventStream = _eventStore.ReadStreamAsync(
                 Direction.Forwards,
@@ -47,9 +46,8 @@ namespace Store.Core.Infrastructure.EventStore
 
         public Task SaveAsync<T, TKey>(T entity) 
             where T : AggregateEntity<TKey>
-            where TKey : struct
         {
-            Guard.IsNotNull(entity, nameof(entity));
+            Ensure.NotNull(entity, nameof(entity));
 
             IReadOnlyCollection<EventData> eventsData = entity.GetUncommittedEvents()
                 .Select(domainEvent => domainEvent.ToEventData(_serializer))
@@ -61,7 +59,7 @@ namespace Store.Core.Infrastructure.EventStore
                 eventsData);
         }
 
-        private string GenerateStreamName<T, TKey>(TKey id) where TKey : struct
+        private string GenerateStreamName<T, TKey>(TKey id)
         {
             return $"{typeof(T).FullName}-{id}";
         }

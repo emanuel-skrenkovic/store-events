@@ -6,7 +6,7 @@ using Store.Core.Domain.Event;
 
 namespace Store.Core.Domain
 {
-    public abstract class AggregateEntity<TKey> where TKey : struct
+    public abstract class AggregateEntity<TKey>
     {
         private readonly Dictionary<Type, Action<IEvent>> _eventAppliers;
 

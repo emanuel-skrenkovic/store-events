@@ -25,7 +25,7 @@ namespace Store.Core.Infrastructure.EventStore
         
         public Task DispatchAsync(object @event)
         {
-            Guard.IsNotNull(@event, nameof(@event));
+            Ensure.NotNull(@event, nameof(@event));
 
             return _eventStore.AppendToStreamAsync(
                 _configuration.IntegrationStreamName,

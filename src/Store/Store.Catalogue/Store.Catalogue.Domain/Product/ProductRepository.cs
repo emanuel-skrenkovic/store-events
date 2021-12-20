@@ -20,7 +20,7 @@ namespace Store.Catalogue.Domain.Product
 
         public Task SaveProductAsync(Product product)
         {
-            Guard.IsNotNull(product, nameof(product));
+            Ensure.NotNull(product, nameof(product));
             
             return _repository.SaveAsync<Product, Guid>(product);
         }
