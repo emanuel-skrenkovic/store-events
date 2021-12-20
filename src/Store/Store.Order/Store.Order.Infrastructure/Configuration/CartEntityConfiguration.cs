@@ -4,32 +4,31 @@ using Store.Order.Infrastructure.Entity;
 
 namespace Store.Order.Infrastructure.Configuration
 {
-    public class CartEntryEntityConfiguration : IEntityTypeConfiguration<CartEntryEntity>
+    public class CartEntityConfiguration : IEntityTypeConfiguration<CartEntity>
     {
-        public void Configure(EntityTypeBuilder<CartEntryEntity> builder)
+        public void Configure(EntityTypeBuilder<CartEntity> builder)
         {
-            builder.ToTable("cart_entry");
+            builder.ToTable("cart");
 
-            builder.HasKey(c => new { c.CustomerNumber, c.SessionId });
+            builder.HasKey(c => c.Id);
+            builder.Property(c => c.Id).ValueGeneratedOnAdd();
             
             builder.Property(c => c.CustomerNumber)
                 .HasColumnName("customer_number")
                 .IsRequired();
+            
             builder.Property(c => c.SessionId)
                 .HasColumnName("session_id")
                 .IsRequired();
             
+            builder.HasIndex(c => new { c.CustomerNumber, c.SessionId });
+            
             builder.Property(c => c.CreatedAt).HasColumnName("created_at");
             builder.Property(c => c.UpdatedAt).HasColumnName("updated_at");
 
-            builder.Property(c => c.ProductCatalogueNumber)
-                .HasColumnName("product_catalogue_number")
-                .IsRequired();
-            builder.HasOne(c => c.Product)
-                .WithMany()
-                .HasForeignKey(c => c.ProductCatalogueNumber);
-            
-            builder.Property(c => c.Quantity).HasColumnName("quantity");
+            builder.Property(c => c.Data)
+                .HasColumnName("data")
+                .HasColumnType("jsonb");
         }
     }
 }

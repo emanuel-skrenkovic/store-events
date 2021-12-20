@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Store.Order.Infrastructure.Entity;
 
 namespace Store.Order.Application.Product
 {

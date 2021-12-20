@@ -1,8 +1,6 @@
-using System;
-
 namespace Store.Order.Infrastructure.Entity
 {
-    public class ShippingInformationEntity
+    public class ShippingInformation
     {
         public int Id { get; set; }
         

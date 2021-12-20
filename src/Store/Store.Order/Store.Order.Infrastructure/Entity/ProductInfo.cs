@@ -1,4 +1,4 @@
-namespace Store.Order.Application.Product
+namespace Store.Order.Infrastructure.Entity
 {
     public class ProductInfo
     {

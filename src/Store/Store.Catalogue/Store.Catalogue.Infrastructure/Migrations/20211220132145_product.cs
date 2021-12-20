@@ -11,7 +11,7 @@ namespace Store.Catalogue.Infrastructure.Migrations
         {
             migrationBuilder.EnsureSchema(
                 name: "public");
-
+                
             migrationBuilder.CreateTable(
                 name: "product",
                 schema: "public",

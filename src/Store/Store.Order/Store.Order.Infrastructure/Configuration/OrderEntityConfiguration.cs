@@ -17,15 +17,7 @@ namespace Store.Order.Infrastructure.Configuration
             builder.Property(o => o.UpdatedAt).HasColumnName("updated_at");
 
             builder.Property(o => o.CustomerNumber).HasColumnName("customer_number");
-            builder.Property(o => o.TotalAmount).HasColumnName("total_amount");
-
-            builder.HasMany(o => o.OrderLines)
-                .WithOne(ol => ol.OrderEntity)
-                .HasForeignKey(ol => ol.OrderId);
-
-            builder.HasOne(o => o.ShippingInformation)
-                .WithOne()
-                .HasForeignKey<ShippingInformationEntity>(si => si.OrderId);
+            builder.Property(o => o.Data).HasColumnName("data").HasColumnType("jsonb");
         }
     }
 }

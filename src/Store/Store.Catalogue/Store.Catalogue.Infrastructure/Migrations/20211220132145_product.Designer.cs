@@ -12,7 +12,7 @@ using Store.Catalogue.Infrastructure;
 namespace Store.Catalogue.Infrastructure.Migrations
 {
     [DbContext(typeof(StoreCatalogueDbContext))]
-    [Migration("20211203165205_product")]
+    [Migration("20211220132145_product")]
     partial class product
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -7,10 +7,11 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Store.Core.Domain;
 using Store.Order.Infrastructure;
+using Store.Order.Infrastructure.Entity;
 
 namespace Store.Order.Application.Buyer.Queries.GetCart
 {
-    public class BuyerCartGetQueryHandler : IRequestHandler<BuyerCartGetQuery, CartView>
+    public class BuyerCartGetQueryHandler : IRequestHandler<BuyerCartGetQuery, Cart>
     {
         private readonly ISerializer _serializer;
         private readonly StoreOrderDbContext _context;
@@ -21,7 +22,7 @@ namespace Store.Order.Application.Buyer.Queries.GetCart
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
         
-        public async Task<CartView> Handle(BuyerCartGetQuery request, CancellationToken cancellationToken)
+        public async Task<Cart> Handle(BuyerCartGetQuery request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -39,7 +40,7 @@ namespace Store.Order.Application.Buyer.Queries.GetCart
                 return null;
             }
 
-            return _serializer.Deserialize<CartView>(data);
+            return _serializer.Deserialize<Cart>(data);
         }
     }
 }

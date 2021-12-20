@@ -8,9 +8,7 @@ namespace Store.Order.Infrastructure
     {
         public DbSet<OrderEntity> Orders { get; set; }
         
-        public DbSet<OrderLineEntity> OrderLines { get; set; }
-        
-        public DbSet<CartEntryEntity> CartEntries { get; set; }
+        public DbSet<CartEntity> Carts { get; set; }
         
         public DbSet<ProductEntity> Products { get; set; }
         

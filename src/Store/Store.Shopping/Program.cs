@@ -10,7 +10,7 @@ using Store.Core.Domain.Event;
 using Store.Core.Infrastructure;
 using Store.Core.Infrastructure.EventStore;
 using Store.Order.Application;
-using Store.Order.Application.Buyer.Projections.Cart;
+using Store.Order.Application.Buyer.Projections;
 using Store.Order.Application.Order.Commands.PlaceOrder;
 using Store.Order.Application.Product;
 using Store.Order.Application.Product.Projections;

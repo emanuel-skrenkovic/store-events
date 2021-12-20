@@ -9,6 +9,8 @@ using Store.Order.Domain;
 using Store.Order.Domain.Orders;
 using Store.Order.Domain.Orders.ValueObjects;
 using Store.Order.Domain.ValueObjects;
+using Store.Order.Infrastructure.Entity;
+using OrderLine = Store.Order.Domain.Orders.OrderLine;
 
 namespace Store.Order.Application
 {

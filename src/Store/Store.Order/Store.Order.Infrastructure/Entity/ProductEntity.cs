@@ -1,5 +1,3 @@
-using System;
-
 namespace Store.Order.Infrastructure.Entity
 {
     public class ProductEntity
