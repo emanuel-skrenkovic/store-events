@@ -1,46 +1,23 @@
-using System;
-using System.Data;
-using System.Threading;
-using System.Threading.Tasks;
-using Dapper;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Store.Core.Domain;
-using Store.Order.Infrastructure;
+using Store.Core.Domain.ErrorHandling;
 using Store.Order.Infrastructure.Entity;
 
 namespace Store.Order.Application.Buyer.Queries.GetCart
 {
-    public class BuyerCartGetQueryHandler : IRequestHandler<BuyerCartGetQuery, Cart>
+    public class BuyerCartGetQueryHandler : IRequestHandler<BuyerCartGetQuery, Result<Cart>>
     {
-        private readonly ISerializer _serializer;
-        private readonly StoreOrderDbContext _context;
+        private readonly CartReadService _cartReadService;
 
-        public BuyerCartGetQueryHandler(ISerializer serializer, StoreOrderDbContext context)
-        {
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-        }
-        
-        public async Task<Cart> Handle(BuyerCartGetQuery request, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
+        public BuyerCartGetQueryHandler(CartReadService cartReadService)
+            => _cartReadService = cartReadService ?? throw new ArgumentNullException(nameof(cartReadService));
 
-            IDbConnection db = _context.Database.GetDbConnection();
-            
-            string query = 
-                @"SELECT c.data 
-                  FROM public.cart c
-                  WHERE c.customer_number = @CustomerNumber;";
+        public async Task<Result<Cart>> Handle(BuyerCartGetQuery request, CancellationToken cancellationToken)
+        { 
+            Cart cart = await _cartReadService.GetCartAsync(request.BuyerId);
 
-            string data = await db.QueryFirstOrDefaultAsync<string>(query, new { request.CustomerNumber });
+            if (cart == null) return new NotFoundError("Buyer's cart was not found.");
 
-            if (string.IsNullOrWhiteSpace(data))
-            {
-                return null;
-            }
-
-            return _serializer.Deserialize<Cart>(data);
+            return cart;
         }
     }
 }

@@ -10,6 +10,7 @@ using Store.Core.Domain.Event;
 using Store.Core.Infrastructure;
 using Store.Core.Infrastructure.EventStore;
 using Store.Order.Application;
+using Store.Order.Application.Buyer;
 using Store.Order.Application.Buyer.Projections;
 using Store.Order.Application.Order.Commands.PlaceOrder;
 using Store.Order.Application.Product;
@@ -48,6 +49,7 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<ProductInfoService>();
 builder.Services.AddScoped<IBuyerOrderService, BuyerOrderService>();
 builder.Services.AddScoped<IOrderPaymentService, OrderPaymentService>();
+builder.Services.AddScoped<CartReadService>();
 
 builder.Services.AddSingleton<ISerializer, JsonSerializer>();
             

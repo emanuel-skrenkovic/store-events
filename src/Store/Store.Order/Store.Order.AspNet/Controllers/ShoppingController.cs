@@ -6,6 +6,9 @@ using Store.Core.Domain.ErrorHandling;
 using Store.Core.Infrastructure.AspNet;
 using Store.Order.Application.Buyer.Commands.AddItemToCart;
 using Store.Order.Application.Buyer.Commands.RemoveItemFromCart;
+using Store.Order.Application.Buyer.Queries.GetCart;
+using Store.Order.Domain.Buyers.ValueObjects;
+using Store.Order.Infrastructure.Entity;
 
 namespace Store.Order.AspNet.Controllers
 {
@@ -42,9 +45,10 @@ namespace Store.Order.AspNet.Controllers
 
         [HttpGet]
         [Route("cart")]
-        public Task<IActionResult> GetCart([FromQuery] string customerId, [FromQuery] string sessionId) // TODO: need to pick up the user id and sessionId from token or something.
+        public async Task<IActionResult> GetCart([FromQuery] string customerId, [FromQuery] string sessionId) // TODO: need to pick up the user id and sessionId from token or something.
         {
-            throw new NotImplementedException();
+            Result<Cart> cartResult = await _mediator.Send(new BuyerCartGetQuery(new BuyerIdentifier(customerId, sessionId)));
+            return cartResult.Match<IActionResult>(Ok, this.HandleError);
         }
     }
 }
