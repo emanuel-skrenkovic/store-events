@@ -1,7 +1,6 @@
-namespace Store.Catalogue.Domain
+namespace Store.Catalogue.Domain;
+
+public class Tag
 {
-    public class Tag
-    {
-        public string Value { get; set; }
-    }
+    public string Value { get; set; }
 }

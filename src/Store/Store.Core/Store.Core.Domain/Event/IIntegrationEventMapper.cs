@@ -1,7 +1,6 @@
-namespace Store.Core.Domain.Event
+namespace Store.Core.Domain.Event;
+
+public interface IIntegrationEventMapper
 {
-    public interface IIntegrationEventMapper
-    {
-        bool TryMap(IEvent domainEvent, out IEvent integrationEvent);
-    }
+    bool TryMap(IEvent domainEvent, out IEvent integrationEvent);
 }

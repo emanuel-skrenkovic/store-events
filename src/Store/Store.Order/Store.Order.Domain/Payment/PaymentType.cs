@@ -1,7 +1,6 @@
-namespace Store.Order.Domain.Payment
+namespace Store.Order.Domain.Payment;
+
+public enum PaymentType
 {
-    public enum PaymentType
-    {
-        DebitCard
-    }
+    DebitCard
 }

@@ -1,7 +1,6 @@
-namespace Store.Core.Infrastructure.EventStore
+namespace Store.Core.Infrastructure.EventStore;
+
+public class EventStoreEventDispatcherConfiguration
 {
-    public class EventStoreEventDispatcherConfiguration
-    {
-        public string IntegrationStreamName { get; set; }
-    }
+    public string IntegrationStreamName { get; set; }
 }

@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 
-namespace Store.Core.Domain.Event
+namespace Store.Core.Domain.Event;
+
+public interface IEventDispatcher
 {
-    public interface IEventDispatcher
-    {
-        Task DispatchAsync(object @event);
-    }
+    Task DispatchAsync(object @event);
 }

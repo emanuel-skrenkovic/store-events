@@ -1,9 +1,8 @@
 using Store.Core.Domain.ErrorHandling;
 
-namespace Store.Order.Domain
+namespace Store.Order.Domain;
+
+public interface IOrderPaymentService
 {
-    public interface IOrderPaymentService
-    {
-        Result<Payment.Payment> CreateOrderPayment(Orders.Order order);
-    }
+    Result<Payment.Payment> CreateOrderPayment(Orders.Order order);
 }

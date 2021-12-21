@@ -1,9 +1,8 @@
-namespace Store.Core.Domain.Functional
-{
-    public class Unit
-    {
-        private Unit() { }
+namespace Store.Core.Domain.Functional;
 
-        public static Unit Value = new Unit();
-    }
+public class Unit
+{
+    private Unit() { }
+
+    public static Unit Value = new Unit();
 }

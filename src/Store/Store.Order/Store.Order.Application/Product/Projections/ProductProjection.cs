@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Store.Catalogue.Integration.Events;
 using Store.Core.Domain;
@@ -8,125 +6,124 @@ using Store.Core.Infrastructure.EntityFramework.Extensions;
 using Store.Order.Infrastructure;
 using Store.Order.Infrastructure.Entity;
 
-namespace Store.Order.Application.Product.Projections
+namespace Store.Order.Application.Product.Projections;
+
+public class ProductProjection : IEventListener
 {
-    public class ProductProjection : IEventListener
+    private const string SubscriptionId = nameof(ProductEntity);
+        
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IEventSubscriptionFactory _eventSubscriptionFactory;
+
+    public ProductProjection(
+        IServiceScopeFactory scopeFactory,
+        IEventSubscriptionFactory eventSubscriptionFactory)
     {
-         private const string SubscriptionId = nameof(ProductEntity);
+        _scopeFactory             = scopeFactory             ?? throw new ArgumentNullException(nameof(scopeFactory));
+        _eventSubscriptionFactory = eventSubscriptionFactory ?? throw new ArgumentNullException(nameof(eventSubscriptionFactory));
+    }
         
-        private readonly IServiceScopeFactory _scopeFactory;
-        private readonly IEventSubscriptionFactory _eventSubscriptionFactory;
+    public async Task StartAsync()
+    {
+        using IServiceScope scope = _scopeFactory.CreateScope();
 
-        public ProductProjection(
-            IServiceScopeFactory scopeFactory,
-            IEventSubscriptionFactory eventSubscriptionFactory)
+        StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
+
+        if (context == null)
         {
-            _scopeFactory             = scopeFactory             ?? throw new ArgumentNullException(nameof(scopeFactory));
-            _eventSubscriptionFactory = eventSubscriptionFactory ?? throw new ArgumentNullException(nameof(eventSubscriptionFactory));
+            throw new InvalidOperationException($"Context cannot be null on {nameof(ProductProjection)} startup.");
         }
+            
+        ulong checkpoint = await context.GetSubscriptionCheckpoint(SubscriptionId);
+            
+        await _eventSubscriptionFactory
+            .Create(SubscriptionId, ProjectAsync)
+            .SubscribeAtAsync(checkpoint);
+    }
+
+    public Task StopAsync()
+    {
+        // TODO: nothing needed
+        return Task.CompletedTask;
+    }
         
-        public async Task StartAsync()
+    private async Task ProjectAsync(IEvent receivedEvent, EventMetadata eventMetadata)
+    {
+        Ensure.NotNull(receivedEvent, nameof(receivedEvent));
+
+        using IServiceScope scope = _scopeFactory.CreateScope();
+
+        StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
+        if (context == null) return;
+
+        Func<Task> projectionAction = receivedEvent switch
         {
-            using IServiceScope scope = _scopeFactory.CreateScope();
+            ProductAddedEvent @event        => () => When(@event, context),
+            ProductPriceChangedEvent @event => () => When(@event, context),
+            ProductRenamedEvent @event      => () => When(@event, context),
+            ProductAvailableEvent @event    => () => When(@event, context),
+            ProductUnavailableEvent @event  => () => When(@event, context),
+            _ => null
+        };
+        if (projectionAction == null) return;
 
-            StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
+        await projectionAction();
+        await context.AddOrUpdateSubscriptionCheckpoint(SubscriptionId, eventMetadata.StreamPosition);
 
-            if (context == null)
-            {
-                throw new InvalidOperationException($"Context cannot be null on {nameof(ProductProjection)} startup.");
-            }
-            
-            ulong checkpoint = await context.GetSubscriptionCheckpoint(SubscriptionId);
-            
-            await _eventSubscriptionFactory
-                .Create(SubscriptionId, ProjectAsync)
-                .SubscribeAtAsync(checkpoint);
-        }
-
-        public Task StopAsync()
-        {
-            // TODO: nothing needed
-            return Task.CompletedTask;
-        }
+        await context.SaveChangesAsync();
+    }
         
-        private async Task ProjectAsync(IEvent receivedEvent, EventMetadata eventMetadata)
+    private Task When(ProductAddedEvent @event, StoreOrderDbContext context)
+    {
+        ProductEntity productEntity = new()
         {
-            Ensure.NotNull(receivedEvent, nameof(receivedEvent));
+            CatalogueNumber = @event.ProductId.ToString(),
+            Name = @event.Name,
+            Price = @event.Price
+        };
+            
+        context.Add(productEntity);
 
-            using IServiceScope scope = _scopeFactory.CreateScope();
-
-            StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
-            if (context == null) return;
-
-            Func<Task> projectionAction = receivedEvent switch
-            {
-                ProductAddedEvent @event        => () => When(@event, context),
-                ProductPriceChangedEvent @event => () => When(@event, context),
-                ProductRenamedEvent @event      => () => When(@event, context),
-                ProductAvailableEvent @event    => () => When(@event, context),
-                ProductUnavailableEvent @event  => () => When(@event, context),
-                _ => null
-            };
-            if (projectionAction == null) return;
-
-            await projectionAction();
-            await context.AddOrUpdateSubscriptionCheckpoint(SubscriptionId, eventMetadata.StreamPosition);
-
-            await context.SaveChangesAsync();
-        }
+        return Task.CompletedTask;
+    }
         
-        private Task When(ProductAddedEvent @event, StoreOrderDbContext context)
-        {
-            ProductEntity productEntity = new()
-            {
-                CatalogueNumber = @event.ProductId.ToString(),
-                Name = @event.Name,
-                Price = @event.Price
-            };
-            
-            context.Add(productEntity);
+    private async Task When(ProductPriceChangedEvent @event, StoreOrderDbContext context)
+    {
+        ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
+        if (productEntity == null) return;
 
-            return Task.CompletedTask;
-        }
+        productEntity.Price = @event.NewPrice;
+            
+        context.Update(productEntity);
+    }
         
-        private async Task When(ProductPriceChangedEvent @event, StoreOrderDbContext context)
-        {
-            ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
-            if (productEntity == null) return;
+    private async Task When(ProductRenamedEvent @event, StoreOrderDbContext context)
+    {
+        ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
+        if (productEntity == null) return;
 
-            productEntity.Price = @event.NewPrice;
+        productEntity.Name = @event.NewName;
             
-            context.Update(productEntity);
-        }
+        context.Update(productEntity);
+    }
         
-        private async Task When(ProductRenamedEvent @event, StoreOrderDbContext context)
-        {
-            ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
-            if (productEntity == null) return;
+    private async Task When(ProductAvailableEvent @event, StoreOrderDbContext context)
+    {
+        ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
+        if (productEntity == null) return;
+            
+        productEntity.Available = true;
+            
+        context.Update(productEntity);
+    }
+        
+    private async Task When(ProductUnavailableEvent @event, StoreOrderDbContext context)
+    {
+        ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
+        if (productEntity == null) return;
 
-            productEntity.Name = @event.NewName;
+        productEntity.Available = false;
             
-            context.Update(productEntity);
-        }
-        
-        private async Task When(ProductAvailableEvent @event, StoreOrderDbContext context)
-        {
-            ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
-            if (productEntity == null) return;
-            
-            productEntity.Available = true;
-            
-            context.Update(productEntity);
-        }
-        
-        private async Task When(ProductUnavailableEvent @event, StoreOrderDbContext context)
-        {
-            ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
-            if (productEntity == null) return;
-
-            productEntity.Available = false;
-            
-            context.Update(productEntity);
-        }
+        context.Update(productEntity);
     }
 }

@@ -5,54 +5,53 @@ using Store.Order.Domain.Orders.Events;
 using Store.Order.Domain.Orders.ValueObjects;
 using Store.Order.Domain.ValueObjects;
 
-namespace Store.Order.Domain.Orders
+namespace Store.Order.Domain.Orders;
+
+public class Order : AggregateEntity<Guid>
 {
-    public class Order : AggregateEntity<Guid>
+    public string CustomerNumber { get; private set; }
+
+    public ShippingInformation ShippingInformation { get; private set; }
+        
+    public decimal Total { get; private set; }
+        
+    public IReadOnlyCollection<OrderLine> OrderLines { get; private set; }
+        
+    public OrderStatus Status { get; private set; }
+        
+    public static Order Create(OrderNumber orderNumber, CustomerNumber customerNumber, OrderLines orderLines)
     {
-        public string CustomerNumber { get; private set; }
+        Order order = new();
+        order.ApplyEvent(new OrderCreatedEvent(
+            orderNumber.Value, 
+            customerNumber.Value, 
+            orderLines.Value));
 
-        public ShippingInformation ShippingInformation { get; private set; }
-        
-        public decimal Total { get; private set; }
-        
-        public IReadOnlyCollection<OrderLine> OrderLines { get; private set; }
-        
-        public OrderStatus Status { get; private set; }
-        
-        public static Order Create(OrderNumber orderNumber, CustomerNumber customerNumber, OrderLines orderLines)
-        {
-            Order order = new();
-            order.ApplyEvent(new OrderCreatedEvent(
-                orderNumber.Value, 
-                customerNumber.Value, 
-                orderLines.Value));
+        return order;
+    }
 
-            return order;
-        }
-
-        private void Apply(OrderCreatedEvent domainEvent)
-        {
-            Id = domainEvent.OrderId;
-            CustomerNumber = domainEvent.CustomerNumber;
-            OrderLines = domainEvent.OrderLines;
-            Status = OrderStatus.Created;
-        }
+    private void Apply(OrderCreatedEvent domainEvent)
+    {
+        Id = domainEvent.OrderId;
+        CustomerNumber = domainEvent.CustomerNumber;
+        OrderLines = domainEvent.OrderLines;
+        Status = OrderStatus.Created;
+    }
         
-        public void SetShippingInformation(ShippingInformation shippingInformation)
-        {
-            ApplyEvent(new OrderShippingInformationSetEvent(Id, shippingInformation));
-        }
+    public void SetShippingInformation(ShippingInformation shippingInformation)
+    {
+        ApplyEvent(new OrderShippingInformationSetEvent(Id, shippingInformation));
+    }
 
-        private void Apply(OrderShippingInformationSetEvent domainEvent)
-        {
-            ShippingInformation = domainEvent.ShippingInformation;
-            Status = OrderStatus.ShippingInformationAdded;
-        }
+    private void Apply(OrderShippingInformationSetEvent domainEvent)
+    {
+        ShippingInformation = domainEvent.ShippingInformation;
+        Status = OrderStatus.ShippingInformationAdded;
+    }
 
-        protected override void RegisterAppliers()
-        {
-            RegisterApplier<OrderCreatedEvent>(Apply);
-            RegisterApplier<OrderShippingInformationSetEvent>(Apply);
-        }
+    protected override void RegisterAppliers()
+    {
+        RegisterApplier<OrderCreatedEvent>(Apply);
+        RegisterApplier<OrderShippingInformationSetEvent>(Apply);
     }
 }

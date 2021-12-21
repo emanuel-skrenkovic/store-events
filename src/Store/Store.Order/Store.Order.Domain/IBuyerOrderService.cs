@@ -2,10 +2,9 @@ using System.Threading.Tasks;
 using Store.Core.Domain.ErrorHandling;
 using Store.Order.Domain.Buyers;
 
-namespace Store.Order.Domain
+namespace Store.Order.Domain;
+
+public interface IBuyerOrderService
 {
-    public interface IBuyerOrderService
-    {
-        Task<Result<Orders.Order>> PlaceOrderAsync(Buyer buyer);
-    }
+    Task<Result<Orders.Order>> PlaceOrderAsync(Buyer buyer);
 }

@@ -1,14 +1,13 @@
-namespace Store.Order.Domain.Orders
+namespace Store.Order.Domain.Orders;
+
+// TODO: think if this is required
+public enum OrderStatus
 {
-    // TODO: think if this is required
-    public enum OrderStatus
-    {
-        Created,
-        ShippingInformationAdded,
-        PaymentDetailsAdded, // TODO
-        PaymentCreated,
-        PaymentConfirmed,
-        Shipped,
-        Delivered
-    }
+    Created,
+    ShippingInformationAdded,
+    PaymentDetailsAdded, // TODO
+    PaymentCreated,
+    PaymentConfirmed,
+    Shipped,
+    Delivered
 }

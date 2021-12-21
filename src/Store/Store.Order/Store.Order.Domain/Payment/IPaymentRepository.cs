@@ -1,12 +1,11 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Store.Order.Domain.Payment
-{
-    public interface IPaymentRepository
-    {
-        Task<Payment> GetPaymentAsync(Guid paymentId);
+namespace Store.Order.Domain.Payment;
 
-        Task SavePaymentAsync(Payment payment);
-    }
+public interface IPaymentRepository
+{
+    Task<Payment> GetPaymentAsync(Guid paymentId);
+
+    Task SavePaymentAsync(Payment payment);
 }

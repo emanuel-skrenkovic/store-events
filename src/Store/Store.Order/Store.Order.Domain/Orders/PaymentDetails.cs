@@ -1,8 +1,7 @@
-namespace Store.Order.Domain.Orders
+namespace Store.Order.Domain.Orders;
+
+// Value object
+public class PaymentDetails
 {
-    // Value object
-    public class PaymentDetails
-    {
-        // TODO
-    }
+    // TODO
 }

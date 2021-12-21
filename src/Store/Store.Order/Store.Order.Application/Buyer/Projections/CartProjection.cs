@@ -8,132 +8,96 @@ using Store.Order.Domain.Buyers.ValueObjects;
 using Store.Order.Infrastructure;
 using Store.Order.Infrastructure.Entity;
 
-namespace Store.Order.Application.Buyer.Projections
+namespace Store.Order.Application.Buyer.Projections;
+
+public class CartProjection : IEventListener
 {
-    public class CartProjection : IEventListener
+    private const string SubscriptionId = nameof(CartEntity);
+
+    private readonly ISerializer _serializer;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IEventSubscriptionFactory _eventSubscriptionFactory;
+
+    public CartProjection(
+        ISerializer serializer,
+        IServiceScopeFactory scopeFactory,
+        IEventSubscriptionFactory eventSubscriptionFactory)
     {
-        private const string SubscriptionId = nameof(CartEntity);
-
-        private readonly ISerializer _serializer;
-        private readonly IServiceScopeFactory _scopeFactory;
-        private readonly IEventSubscriptionFactory _eventSubscriptionFactory;
-
-        public CartProjection(
-            ISerializer serializer,
-            IServiceScopeFactory scopeFactory,
-            IEventSubscriptionFactory eventSubscriptionFactory)
-        {
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-            _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
-            _eventSubscriptionFactory = eventSubscriptionFactory ?? throw new ArgumentNullException(nameof(eventSubscriptionFactory));
-        }
+        _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+        _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+        _eventSubscriptionFactory = eventSubscriptionFactory ?? throw new ArgumentNullException(nameof(eventSubscriptionFactory));
+    }
         
-        public async Task StartAsync()
-        {
-            using IServiceScope scope = _scopeFactory.CreateScope();
+    public async Task StartAsync()
+    {
+        using IServiceScope scope = _scopeFactory.CreateScope();
 
-            StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
-            if (context == null)
-            {
-                throw new InvalidOperationException($"Context cannot be null on {nameof(CartProjection)} startup.");
-            }
-            
-            ulong checkpoint = await context.GetSubscriptionCheckpoint(SubscriptionId);
-            
-            await _eventSubscriptionFactory
-                .Create(SubscriptionId, HandleEventAsync)
-                .SubscribeAtAsync(checkpoint);
+        StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
+        if (context == null)
+        {
+            throw new InvalidOperationException($"Context cannot be null on {nameof(CartProjection)} startup.");
         }
+            
+        ulong checkpoint = await context.GetSubscriptionCheckpoint(SubscriptionId);
+            
+        await _eventSubscriptionFactory
+            .Create(SubscriptionId, HandleEventAsync)
+            .SubscribeAtAsync(checkpoint);
+    }
 
-        public Task StopAsync() => Task.CompletedTask;
+    public Task StopAsync() => Task.CompletedTask;
         
-        private async Task HandleEventAsync(IEvent receivedEvent, EventMetadata eventMetadata)
+    private async Task HandleEventAsync(IEvent receivedEvent, EventMetadata eventMetadata)
+    {
+        Ensure.NotNull(receivedEvent, nameof(receivedEvent));
+
+        using IServiceScope scope = _scopeFactory.CreateScope();
+
+        StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
+        if (context == null) return;
+
+        Func<Task> projectionAction = receivedEvent switch
         {
-            Ensure.NotNull(receivedEvent, nameof(receivedEvent));
+            BuyerCartItemAddedEvent   @event => () => When(@event, context),
+            BuyerCartItemRemovedEvent @event => () => When(@event, context),
+            // TODO: order confirmed -> remove cart
+            _ => null
+        };
+        if (projectionAction == null) return;
 
-            using IServiceScope scope = _scopeFactory.CreateScope();
+        await projectionAction();
+        await context.AddOrUpdateSubscriptionCheckpoint(SubscriptionId, eventMetadata.StreamPosition);
+            
+        await context.SaveChangesAsync();
+    }
+        
+    private async Task When(BuyerCartItemAddedEvent @event, StoreOrderDbContext context)
+    {
+        BuyerIdentifier buyerId = BuyerIdentifier.FromString(@event.BuyerId);
 
-            StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
-            if (context == null) return;
-
-            Func<Task> projectionAction = receivedEvent switch
+        CartEntity cartEntity = await context.Carts.SingleOrDefaultAsync(
+            c => c.CustomerNumber == buyerId.CustomerNumber &&
+                 c.SessionId == buyerId.SessionId);
+            
+        string productCatalogueNumber = @event.ProductCatalogueNumber;
+            
+        if (cartEntity == null)
+        {
+            cartEntity = new()
             {
-                BuyerCartItemAddedEvent   @event => () => When(@event, context),
-                BuyerCartItemRemovedEvent @event => () => When(@event, context),
-                // TODO: order confirmed -> remove cart
-                _ => null
+                CustomerNumber = buyerId.CustomerNumber,
+                SessionId = buyerId.SessionId,
             };
-            if (projectionAction == null) return;
 
-            await projectionAction();
-            await context.AddOrUpdateSubscriptionCheckpoint(SubscriptionId, eventMetadata.StreamPosition);
-            
-            await context.SaveChangesAsync();
-        }
-        
-        private async Task When(BuyerCartItemAddedEvent @event, StoreOrderDbContext context)
-        {
-            BuyerIdentifier buyerId = BuyerIdentifier.FromString(@event.BuyerId);
+            ProductEntity product = await context.FindAsync<ProductEntity>(productCatalogueNumber);
+            if (product == null) throw new InvalidOperationException($"Product {productCatalogueNumber} does not exist.");
 
-            CartEntity cartEntity = await context.Carts.SingleOrDefaultAsync(
-                c => c.CustomerNumber == buyerId.CustomerNumber &&
-                     c.SessionId == buyerId.SessionId);
-            
-            string productCatalogueNumber = @event.ProductCatalogueNumber;
-            
-            if (cartEntity == null)
+            Cart cart = new()
             {
-                cartEntity = new()
-                {
-                    CustomerNumber = buyerId.CustomerNumber,
-                    SessionId = buyerId.SessionId,
-                };
-
-                ProductEntity product = await context.FindAsync<ProductEntity>(productCatalogueNumber);
-                if (product == null) throw new InvalidOperationException($"Product {productCatalogueNumber} does not exist.");
-
-                Cart cart = new()
-                {
-                    Entries = new() { 
-                        [productCatalogueNumber] = new CartEntry
-                        { 
-                            Price = product.Price, 
-                            Quantity = 1,
-                            ProductInfo = new ProductInfo
-                            {
-                                CatalogueNumber = productCatalogueNumber,
-                                Name = product.Name,
-                                Price = product.Price
-                            }
-                        }
-                    }
-                };
-
-                cart.Price = cart.Entries.Values.Select(e => e.Price).Sum();
-
-                cartEntity.Data = _serializer.Serialize(cart);
-                context.Add(cartEntity);
-            }
-            else
-            {
-                Cart cart = _serializer.Deserialize<Cart>(cartEntity.Data);
-
-                if (cart.Entries?.ContainsKey(productCatalogueNumber) == true)
-                {
-                    CartEntry cartEntry = cart.Entries[productCatalogueNumber];
-                    
-                    cartEntry.Quantity++;
-                    cartEntry.Price += cartEntry.ProductInfo.Price;
-                }
-                else
-                {
-                    ProductEntity product = await context.FindAsync<ProductEntity>(productCatalogueNumber);
-                    if (product == null) throw new InvalidOperationException($"Product {productCatalogueNumber} does not exist.");
-                    
-                    // TODO: be careful.
-                    cart.Entries![productCatalogueNumber] = new CartEntry
-                    {
-                        Price = product.Price,
+                Entries = new() { 
+                    [productCatalogueNumber] = new CartEntry
+                    { 
+                        Price = product.Price, 
                         Quantity = 1,
                         ProductInfo = new ProductInfo
                         {
@@ -141,46 +105,81 @@ namespace Store.Order.Application.Buyer.Projections
                             Name = product.Name,
                             Price = product.Price
                         }
-                    };
+                    }
                 }
-                
-                cart.Price = cart.Entries.Values.Select(e => e.Price).Sum();
+            };
 
-                cartEntity.Data = _serializer.Serialize(cart);
-                context.Update(cartEntity);
-            }
+            cart.Price = cart.Entries.Values.Select(e => e.Price).Sum();
+
+            cartEntity.Data = _serializer.Serialize(cart);
+            context.Add(cartEntity);
         }
-
-        private async Task When(BuyerCartItemRemovedEvent @event, StoreOrderDbContext context)
+        else
         {
-            BuyerIdentifier buyerId = BuyerIdentifier.FromString(@event.BuyerId);
-
-            CartEntity cartEntity = await context.Carts.SingleOrDefaultAsync(
-                c => c.CustomerNumber == buyerId.CustomerNumber
-                     && c.SessionId == buyerId.SessionId);
-            
-            if (cartEntity == null) return;
-
             Cart cart = _serializer.Deserialize<Cart>(cartEntity.Data);
 
-            // TODO: ugly, ugly, ugly
-            string productCatalogueNumber = @event.ProductCatalogueNumber;
-            if (cart.Entries.TryGetValue(productCatalogueNumber, out CartEntry cartEntry))
+            if (cart.Entries?.ContainsKey(productCatalogueNumber) == true)
             {
-                if (--cartEntry.Quantity < 1)
-                {
-                    cart.Entries.Remove(productCatalogueNumber);
-                }
-                else
-                {
-                    cartEntry.Price -= cartEntry.ProductInfo.Price;
-                }
+                CartEntry cartEntry = cart.Entries[productCatalogueNumber];
+                    
+                cartEntry.Quantity++;
+                cartEntry.Price += cartEntry.ProductInfo.Price;
             }
-            
+            else
+            {
+                ProductEntity product = await context.FindAsync<ProductEntity>(productCatalogueNumber);
+                if (product == null) throw new InvalidOperationException($"Product {productCatalogueNumber} does not exist.");
+                    
+                // TODO: be careful.
+                cart.Entries![productCatalogueNumber] = new CartEntry
+                {
+                    Price = product.Price,
+                    Quantity = 1,
+                    ProductInfo = new ProductInfo
+                    {
+                        CatalogueNumber = productCatalogueNumber,
+                        Name = product.Name,
+                        Price = product.Price
+                    }
+                };
+            }
+                
             cart.Price = cart.Entries.Values.Select(e => e.Price).Sum();
 
             cartEntity.Data = _serializer.Serialize(cart);
             context.Update(cartEntity);
         }
+    }
+
+    private async Task When(BuyerCartItemRemovedEvent @event, StoreOrderDbContext context)
+    {
+        BuyerIdentifier buyerId = BuyerIdentifier.FromString(@event.BuyerId);
+
+        CartEntity cartEntity = await context.Carts.SingleOrDefaultAsync(
+            c => c.CustomerNumber == buyerId.CustomerNumber
+                 && c.SessionId == buyerId.SessionId);
+            
+        if (cartEntity == null) return;
+
+        Cart cart = _serializer.Deserialize<Cart>(cartEntity.Data);
+
+        // TODO: ugly, ugly, ugly
+        string productCatalogueNumber = @event.ProductCatalogueNumber;
+        if (cart.Entries.TryGetValue(productCatalogueNumber, out CartEntry cartEntry))
+        {
+            if (--cartEntry.Quantity < 1)
+            {
+                cart.Entries.Remove(productCatalogueNumber);
+            }
+            else
+            {
+                cartEntry.Price -= cartEntry.ProductInfo.Price;
+            }
+        }
+            
+        cart.Price = cart.Entries.Values.Select(e => e.Price).Sum();
+
+        cartEntity.Data = _serializer.Serialize(cart);
+        context.Update(cartEntity);
     }
 }

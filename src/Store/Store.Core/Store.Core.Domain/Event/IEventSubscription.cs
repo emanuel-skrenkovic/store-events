@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 
-namespace Store.Core.Domain.Event
+namespace Store.Core.Domain.Event;
+
+public interface IEventSubscription
 {
-    public interface IEventSubscription
-    {
-        Task SubscribeAtAsync(ulong checkpoint);
-    }
+    Task SubscribeAtAsync(ulong checkpoint);
 }

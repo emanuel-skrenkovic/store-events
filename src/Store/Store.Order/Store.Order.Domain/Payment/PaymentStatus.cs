@@ -1,11 +1,10 @@
-namespace Store.Order.Domain.Payment
+namespace Store.Order.Domain.Payment;
+
+public enum PaymentStatus
 {
-    public enum PaymentStatus
-    {
-        Approved, 
-        Pending, 
-        Completed, 
-        Cancelled, 
-        Failed 
-    }
+    Approved, 
+    Pending, 
+    Completed, 
+    Cancelled, 
+    Failed 
 }

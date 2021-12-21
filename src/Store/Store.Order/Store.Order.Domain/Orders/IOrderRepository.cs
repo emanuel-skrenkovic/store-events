@@ -1,12 +1,11 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Store.Order.Domain.Orders
-{
-    public interface IOrderRepository
-    {
-        Task<Order> GetOrderAsync(Guid orderId);
+namespace Store.Order.Domain.Orders;
 
-        Task SaveOrderAsync(Order order);
-    }
+public interface IOrderRepository
+{
+    Task<Order> GetOrderAsync(Guid orderId);
+
+    Task SaveOrderAsync(Order order);
 }

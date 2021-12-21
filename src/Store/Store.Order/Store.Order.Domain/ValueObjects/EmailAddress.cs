@@ -4,30 +4,29 @@ using Store.Core.Domain;
 using Store.Core.Domain.Email;
 using Store.Core.Domain.ErrorHandling;
 
-namespace Store.Order.Domain.ValueObjects
+namespace Store.Order.Domain.ValueObjects;
+
+public class EmailAddress : ValueObject<EmailAddress>
 {
-    public class EmailAddress : ValueObject<EmailAddress>
+    public string Value { get; }
+
+    private EmailAddress(string value)
     {
-        public string Value { get; }
+        Value = value;
+    }
 
-        private EmailAddress(string value)
+    public static EmailAddress FromString(string address, IEmailValidator emailValidator)
+    {
+        if (!emailValidator.Validate(address, out Error error))
         {
-            Value = value;
+            throw new ArgumentException(error.Message);
         }
-
-        public static EmailAddress FromString(string address, IEmailValidator emailValidator)
-        {
-            if (!emailValidator.Validate(address, out Error error))
-            {
-                throw new ArgumentException(error.Message);
-            }
             
-            return new(address);
-        }
+        return new(address);
+    }
         
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return Value;
-        }
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

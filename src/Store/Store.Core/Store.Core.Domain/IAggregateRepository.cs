@@ -1,13 +1,12 @@
 using System.Threading.Tasks;
 
-namespace Store.Core.Domain
-{
-    public interface IAggregateRepository
-    {
-        Task<T> GetAsync<T, TKey>(TKey id)
-            where T : AggregateEntity<TKey>, new();
+namespace Store.Core.Domain;
 
-        Task SaveAsync<T, TKey>(T entity)
-            where T : AggregateEntity<TKey>;
-    }
+public interface IAggregateRepository
+{
+    Task<T> GetAsync<T, TKey>(TKey id)
+        where T : AggregateEntity<TKey>, new();
+
+    Task SaveAsync<T, TKey>(T entity)
+        where T : AggregateEntity<TKey>;
 }

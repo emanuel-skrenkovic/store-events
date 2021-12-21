@@ -1,12 +1,11 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Store.Catalogue.Domain.Product
+namespace Store.Catalogue.Domain.Product;
+
+public interface IProductRepository
 {
-    public interface IProductRepository
-    {
-        Task<Product> GetProductAsync(Guid id);
+    Task<Product> GetProductAsync(Guid id);
         
-        Task SaveProductAsync(Product product);
-    }
+    Task SaveProductAsync(Product product);
 }

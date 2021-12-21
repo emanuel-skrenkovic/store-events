@@ -1,4 +1,3 @@
-namespace Store.Order.Domain
-{
-    public record CatalogueNumber(string Value);
-}
+namespace Store.Order.Domain;
+
+public record CatalogueNumber(string Value);

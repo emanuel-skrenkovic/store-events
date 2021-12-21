@@ -1,6 +1,5 @@
-namespace Store.Core.Domain.Event
+namespace Store.Core.Domain.Event;
+
+public interface IEvent
 {
-    public interface IEvent
-    {
-    }
 }

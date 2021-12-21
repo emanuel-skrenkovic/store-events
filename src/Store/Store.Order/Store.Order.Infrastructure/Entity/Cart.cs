@@ -1,9 +1,8 @@
-namespace Store.Order.Infrastructure.Entity
+namespace Store.Order.Infrastructure.Entity;
+
+public class Cart
 {
-    public class Cart
-    {
-        public Dictionary<string, CartEntry> Entries { get; set; }
+    public Dictionary<string, CartEntry> Entries { get; set; }
         
-        public decimal Price { get; set; }
-    }
+    public decimal Price { get; set; }
 }

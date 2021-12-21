@@ -2,30 +2,29 @@ using System;
 using System.Net.Mail;
 using Store.Core.Domain.ErrorHandling;
 
-namespace Store.Core.Domain.Email
+namespace Store.Core.Domain.Email;
+
+public class EmailValidator : IEmailValidator
 {
-    public class EmailValidator : IEmailValidator
+    public bool Validate(string emailAddress, out Error error)
     {
-        public bool Validate(string emailAddress, out Error error)
+        try
         {
-            try
-            {
-                MailAddress mailAddress = new MailAddress(emailAddress);
+            MailAddress mailAddress = new MailAddress(emailAddress);
 
-                if (emailAddress != mailAddress.Address)
-                {
-                    error = new("Provided email address string does not match the parsed email address.");
-                    return false;
-                }
-
-                error = null;
-                return true;
-            }
-            catch (FormatException formatException)
+            if (emailAddress != mailAddress.Address)
             {
-                error = new(formatException.Message);
+                error = new("Provided email address string does not match the parsed email address.");
                 return false;
             }
+
+            error = null;
+            return true;
+        }
+        catch (FormatException formatException)
+        {
+            error = new(formatException.Message);
+            return false;
         }
     }
 }
