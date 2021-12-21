@@ -1,10 +1,7 @@
 using System.Text.Json.Serialization;
 using EventStore.Client;
 using MediatR;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
 using Store.Core.Infrastructure;
@@ -13,6 +10,7 @@ using Store.Order.Application;
 using Store.Order.Application.Buyer;
 using Store.Order.Application.Buyer.Projections;
 using Store.Order.Application.Order.Commands.PlaceOrder;
+using Store.Order.Application.Order.Projections;
 using Store.Order.Application.Product;
 using Store.Order.Application.Product.Projections;
 using Store.Order.Domain;
@@ -66,6 +64,7 @@ builder.Services.AddSingleton(_ => new EventStoreConnectionConfiguration
 builder.Services.AddSingleton<IEventSubscriptionFactory, EventStoreSubscriptionFactory>();
 builder.Services.AddSingleton<IEventListener, CartProjection>();
 builder.Services.AddSingleton<IEventListener, ProductProjection>();
+builder.Services.AddSingleton<IEventListener, OrderProjection>();
 
 builder.Services.AddHostedService<EventStoreSubscriptionService>();
 

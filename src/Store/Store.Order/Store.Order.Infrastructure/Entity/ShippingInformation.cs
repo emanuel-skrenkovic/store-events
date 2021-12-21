@@ -2,8 +2,6 @@ namespace Store.Order.Infrastructure.Entity;
 
 public class ShippingInformation
 {
-    public int Id { get; set; }
-        
     public int CountryCode { get; set; }
         
     public string FullName { get; set; }
@@ -17,6 +15,4 @@ public class ShippingInformation
     public string Postcode { get; set; }
         
     public string PhoneNumber { get; set; }
-        
-    public Guid OrderId { get; set; }
 }
