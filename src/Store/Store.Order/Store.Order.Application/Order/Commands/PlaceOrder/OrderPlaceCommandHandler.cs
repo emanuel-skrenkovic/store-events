@@ -27,12 +27,12 @@ public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Resul
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        Domain.Buyers.Buyer buyer = await _buyerRepository.GetBuyerAsync(
-            new BuyerIdentifier(request.CustomerNumber, request.SessionId));
+        BuyerIdentifier buyerId = new(request.CustomerNumber, request.SessionId);
+        
+        Domain.Buyers.Buyer buyer = await _buyerRepository.GetBuyerAsync(buyerId);
         if (buyer == null) return new Error($"Customer with customer number {request.CustomerNumber} not found.");
 
         Result<Domain.Orders.Order> placeOrderResult = await _buyerOrderService.PlaceOrderAsync(buyer);
-
         return placeOrderResult.Then(order => _orderRepository.SaveOrderAsync(order));
     }
 }
