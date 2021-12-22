@@ -1,0 +1,27 @@
+using Microsoft.EntityFrameworkCore;
+using Store.Core.Infrastructure.EntityFramework.Entity;
+using Store.Shopping.Infrastructure.Entity;
+
+namespace Store.Shopping.Infrastructure;
+
+public class StoreOrderDbContext : DbContext
+{
+    public DbSet<OrderEntity> Orders { get; set; }
+        
+    public DbSet<CartEntity> Carts { get; set; }
+        
+    public DbSet<ProductEntity> Products { get; set; }
+        
+    public DbSet<SubscriptionCheckpointEntity> SubscriptionCheckpoint { get; set; }
+
+    public StoreOrderDbContext(DbContextOptions<StoreOrderDbContext> options) : base(options) { }
+        
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.HasDefaultSchema("public");
+
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(StoreOrderDbContext).Assembly);
+            
+        base.OnModelCreating(modelBuilder);
+    }
+}

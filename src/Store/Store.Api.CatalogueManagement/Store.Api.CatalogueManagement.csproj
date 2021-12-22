@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <LangVersion>10</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="EventStore.Client.Grpc.Streams" Version="21.2.0" />
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Store.Catalogue\Store.Catalogue.Application\Store.Catalogue.Application.csproj" />
+      <ProjectReference Include="..\Store.Catalogue\Store.Catalogue.AspNet\Store.Catalogue.AspNet.csproj" />
+      <ProjectReference Include="..\Store.Catalogue\Store.Catalogue.Infrastructure\Store.Catalogue.Infrastructure.csproj" />
+      <ProjectReference Include="..\Store.Catalogue\Store.Catalogue.Integration\Store.Catalogue.Integration.csproj" />
+      <ProjectReference Include="..\Store.Core\Store.Core.Infrastructure\Store.Core.Infrastructure.csproj" />
+      <ProjectReference Include="..\Store.Shopping\Store.Shopping.AspNet\Store.Shopping.AspNet.csproj" />
+    </ItemGroup>
+
+</Project>
