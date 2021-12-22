@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Store.Core\Store.Core.Infrastructure\Store.Core.Infrastructure.csproj" />
+      <ProjectReference Include="..\Store.Shopping\Store.Shopping.Application\Store.Shopping.Application.csproj" />
+      <ProjectReference Include="..\Store.Shopping\Store.Shopping.AspNet\Store.Shopping.AspNet.csproj" />
+      <ProjectReference Include="..\Store.Shopping\Store.Shopping.Infrastructure\Store.Shopping.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>

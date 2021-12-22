@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Store.Catalogue", "Store.Catalogue", "{EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Store.Order", "Store.Order", "{173D1E16-96AD-4DDB-82CF-1EE59AAF7909}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Store.Shopping", "Store.Shopping", "{173D1E16-96AD-4DDB-82CF-1EE59AAF7909}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Store.Core", "Store.Core", "{9BCFAE85-02D8-492B-B323-B1B93C8F68D0}"
 EndProject
@@ -16,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.Application
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.AspNet", "Store.Catalogue\Store.Catalogue.AspNet\Store.Catalogue.AspNet.csproj", "{99BBA82C-F86B-4D78-9238-0D5DA9D52E2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.CatalogueManagement", "Store.CatalogueManagement\Store.CatalogueManagement.csproj", "{EB47280C-44F7-4349-9230-AAA2E8B2387A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Api.CatalogueManagement", "Store.Api.CatalogueManagement\Store.Api.CatalogueManagement.csproj", "{EB47280C-44F7-4349-9230-AAA2E8B2387A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Core.Infrastructure", "Store.Core\Store.Core.Infrastructure\Store.Core.Infrastructure.csproj", "{D7230754-25E5-4431-B7BA-1AFD0D3BAD0D}"
 EndProject
@@ -24,17 +24,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.Infrastruct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.Integration", "Store.Catalogue\Store.Catalogue.Integration\Store.Catalogue.Integration.csproj", "{C319A61F-15A0-4529-89F0-2F429D985508}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Order.Domain", "Store.Order\Store.Order.Domain\Store.Order.Domain.csproj", "{D2615163-55D7-4466-8828-FC12378E913F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Shopping.Domain", "Store.Shopping\Store.Shopping.Domain\Store.Shopping.Domain.csproj", "{D2615163-55D7-4466-8828-FC12378E913F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Order.Domain.Tests", "Store.Order\Store.Order.Domain.Tests\Store.Order.Domain.Tests.csproj", "{29AEEB82-72D0-4AA0-B956-38E7E7F498B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Shopping.Domain.Tests", "Store.Shopping\Store.Shopping.Domain.Tests\Store.Shopping.Domain.Tests.csproj", "{29AEEB82-72D0-4AA0-B956-38E7E7F498B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Order.Application", "Store.Order\Store.Order.Application\Store.Order.Application.csproj", "{F8A1D8EB-97D0-4699-ABF9-2A92EFA9A402}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Shopping.Application", "Store.Shopping\Store.Shopping.Application\Store.Shopping.Application.csproj", "{F8A1D8EB-97D0-4699-ABF9-2A92EFA9A402}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Order.Infrastructure", "Store.Order\Store.Order.Infrastructure\Store.Order.Infrastructure.csproj", "{1CAE3186-235B-4032-AC43-8FB9A76E8D02}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Shopping.Infrastructure", "Store.Shopping\Store.Shopping.Infrastructure\Store.Shopping.Infrastructure.csproj", "{1CAE3186-235B-4032-AC43-8FB9A76E8D02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Order.AspNet", "Store.Order\Store.Order.AspNet\Store.Order.AspNet.csproj", "{B94B19A8-A6BC-4A48-8129-8E9D0EA683E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Shopping.AspNet", "Store.Shopping\Store.Shopping.AspNet\Store.Shopping.AspNet.csproj", "{B94B19A8-A6BC-4A48-8129-8E9D0EA683E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Shopping", "Store.Shopping\Store.Shopping.csproj", "{B8502645-C258-463A-8B98-C88312AB91A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Api.Shopping", "Store.Api.Shopping\Store.Api.Shopping.csproj", "{B8502645-C258-463A-8B98-C88312AB91A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
