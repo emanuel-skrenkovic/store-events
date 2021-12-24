@@ -115,6 +115,32 @@ public class DockerContainer : IDisposable
             .ConfigureAwait(false)
             .GetAwaiter()
             .GetResult();
+
+        var runningVolumes = _dockerClient.Volumes
+            .ListAsync()
+            .ConfigureAwait(false)
+            .GetAwaiter()
+            .GetResult();
+        
+        foreach (var volume in runningVolumes.Volumes)
+        {
+            DateTime createdAt = DateTime.Parse(volume.CreatedAt);
+            
+            if (createdAt > DateTime.UtcNow.AddMinutes(-5))
+            {
+                try
+                {
+                    _dockerClient.Volumes.RemoveAsync(volume.Name)
+                        .ConfigureAwait(false)
+                        .GetAwaiter()
+                        .GetResult(); 
+                }
+                catch 
+                {
+                    // Ignore failed attempts to delete volume.
+                }
+            }
+        }
     }
 
     public void Dispose()
