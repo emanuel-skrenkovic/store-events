@@ -68,8 +68,7 @@ public class PostgresFixture<TContext> : IDisposable where TContext : DbContext
                 typeof(TContext),
                 optionsBuilder.Options);
             if (_context == null) return false;
-
-            await _context?.Database.ExecuteSqlRawAsync("SELECT 1;");
+            await EnsureMigratedAsync();
 
             return true;
         }
