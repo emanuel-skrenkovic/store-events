@@ -90,7 +90,7 @@ public class DockerContainer : IDisposable
             }
             catch
             {
-                await Task.Delay(100);
+                await Task.Delay(50);
             }
         }
 
