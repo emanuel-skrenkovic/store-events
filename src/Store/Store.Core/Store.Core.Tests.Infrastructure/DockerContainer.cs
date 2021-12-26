@@ -22,7 +22,7 @@ public class DockerContainer : IDisposable
         List<string> env = null, 
         Dictionary<string, string> ports = null)
     {
-        _containerName = containerName;
+        _containerName = $"{containerName}-{Guid.NewGuid()}";
         _imageName = imageName;
         _env = env;
         _ports = ports;
