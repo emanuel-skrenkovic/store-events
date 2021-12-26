@@ -44,8 +44,13 @@ public class DockerContainer : IDisposable
         await WaitUntilContainerUp(checkStatus);
     }
 
-    public Task RestartAsync()
-        => _dockerClient.Containers.RestartContainerAsync(_containerId, new ContainerRestartParameters());
+    public async Task RestartAsync(Func<Task<bool>> checkStatus)
+    {
+        await _dockerClient.Containers.StopContainerAsync(_containerId, new ContainerStopParameters());
+        await _dockerClient.Containers.RemoveContainerAsync(_containerId, new ContainerRemoveParameters());
+        
+        await EnsureRunningAsync(checkStatus);
+    }
     
     private async Task StartContainer()
     {

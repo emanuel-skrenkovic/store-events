@@ -52,7 +52,7 @@ public class EventStoreFixture : IDisposable
     {
         // TODO: Run ES in Docker container, reset container here.
         // Ugly, but ES does not support "drop database" thingy.
-        await _container.RestartAsync();
+        await _container.RestartAsync(CheckConnectionAsync);
     }
 
     public async Task<IEnumerable<object>> Events(string streamName)
