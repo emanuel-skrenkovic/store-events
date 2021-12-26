@@ -26,8 +26,9 @@ public class PostgresFixture<TContext> : IDisposable where TContext : DbContext
     
     #endregion
     
-    private TContext _context;
     private readonly DockerContainer _container;
+    
+    public TContext Context { get; private set; }
 
     public PostgresFixture()
     {
@@ -46,16 +47,16 @@ public class PostgresFixture<TContext> : IDisposable where TContext : DbContext
     public async Task SeedAsync(Func<TContext, Task> seedAction)
     {
         await EnsureMigratedAsync();
-        await seedAction(_context);
+        await seedAction(Context);
     }
 
     public async Task CleanAsync()
     {
-        await _context.Database.EnsureDeletedAsync();
+        await Context.Database.EnsureDeletedAsync();
         await EnsureMigratedAsync();
     }
 
-    private Task EnsureMigratedAsync() => _context.Database.MigrateAsync();
+    private Task EnsureMigratedAsync() => Context.Database.MigrateAsync();
 
     private async Task<bool> CheckConnectionAsync()
     {
@@ -64,10 +65,10 @@ public class PostgresFixture<TContext> : IDisposable where TContext : DbContext
             DbContextOptionsBuilder<TContext> optionsBuilder = new();
             optionsBuilder.UseNpgsql(ConnectionString);
             
-            _context = (TContext)Activator.CreateInstance(
+            Context = (TContext)Activator.CreateInstance(
                 typeof(TContext),
                 optionsBuilder.Options);
-            if (_context == null) return false;
+            if (Context == null) return false;
             await EnsureMigratedAsync();
 
             return true;
@@ -82,7 +83,7 @@ public class PostgresFixture<TContext> : IDisposable where TContext : DbContext
 
     private void ReleaseUnmanagedResources()
     {
-        _context.Dispose();
+        Context.Dispose();
         _container.Dispose();
     }
 

@@ -29,10 +29,10 @@ public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Resul
 
         BuyerIdentifier buyerId = new(request.CustomerNumber, request.SessionId);
         
-        Domain.Buyers.Buyer buyer = await _buyerRepository.GetBuyerAsync(buyerId);
-        if (buyer == null) return new Error($"Customer with customer number {request.CustomerNumber} not found.");
+        Buyer buyer = await _buyerRepository.GetBuyerAsync(buyerId);
+        if (buyer == null) return new NotFoundError($"Customer with customer number {request.CustomerNumber} not found.");
 
-        Result<Domain.Orders.Order> placeOrderResult = await _buyerOrderService.PlaceOrderAsync(buyer);
+        Result<Order> placeOrderResult = await _buyerOrderService.PlaceOrderAsync(buyer);
         return placeOrderResult.Then(order => _orderRepository.SaveOrderAsync(order));
     }
 }

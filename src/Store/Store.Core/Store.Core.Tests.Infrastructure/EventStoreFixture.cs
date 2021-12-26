@@ -1,4 +1,7 @@
 using EventStore.Client;
+using Store.Core.Domain;
+using Store.Core.Domain.Event;
+using Store.Core.Infrastructure.EventStore.Extensions;
 
 namespace Store.Core.Tests.Infrastructure;
 
@@ -18,7 +21,8 @@ public class EventStoreFixture : IDisposable
         "EVENTSTORE_EXT_TCP_PORT=1113",
         "EVENTSTORE_HTTP_PORT=2113",
         "EVENTSTORE_INSECURE=true",
-        "EVENTSTORE_ENABLE_EXTERNAL_TCP=true"
+        "EVENTSTORE_ENABLE_EXTERNAL_TCP=true",
+        "EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP=true"
     };
 
     private readonly Dictionary<string, string> _ports = new()
@@ -55,7 +59,7 @@ public class EventStoreFixture : IDisposable
         await _container.RestartAsync(CheckConnectionAsync);
     }
 
-    public async Task<IEnumerable<object>> Events(string streamName)
+    public async Task<List<IEvent>> Events(string streamName)
     {
         EventStoreClient.ReadStreamResult eventStream = EventStore.ReadStreamAsync(
             Direction.Forwards,
@@ -66,8 +70,11 @@ public class EventStoreFixture : IDisposable
         {
             return null;
         }
-            
-        return await eventStream.Select(e => e.Event.Data.ToArray()).ToArrayAsync();
+
+        ISerializer serializer = new JsonSerializer();
+        return await eventStream
+            .Select(e => e.Deserialize(serializer) as IEvent)
+            .ToListAsync();
     }
 
     private async Task<bool> CheckConnectionAsync()

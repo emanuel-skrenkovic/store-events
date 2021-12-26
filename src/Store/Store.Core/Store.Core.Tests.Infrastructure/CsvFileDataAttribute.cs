@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Xunit.Sdk;
 
-namespace Store.Core.Domain.Tests.Helpers.Csv;
+namespace Store.Core.Tests.Infrastructure;
 
 public class CsvFileDataAttribute : DataAttribute
 {

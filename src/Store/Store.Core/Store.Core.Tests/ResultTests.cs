@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Store.Core.Domain.ErrorHandling;
 using Xunit;
 
-namespace Store.Core.Domain.Tests;
+namespace Store.Core.Tests;
 
 public class ResultTests
 {

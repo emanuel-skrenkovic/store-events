@@ -2,21 +2,19 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
+        <Nullable>disable</Nullable>
 
         <IsPackable>false</IsPackable>
-
-        <LangVersion>10</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CsvHelper" Version="27.2.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
         <PackageReference Include="xunit" Version="2.4.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="coverlet.collector" Version="3.0.2">
+        <PackageReference Include="coverlet.collector" Version="3.1.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
@@ -24,21 +22,20 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Store.Core.Domain\Store.Core.Domain.csproj" />
-      <ProjectReference Include="..\Store.Core.Infrastructure\Store.Core.Infrastructure.csproj" />
       <ProjectReference Include="..\Store.Core.Tests.Infrastructure\Store.Core.Tests.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="TestCases\Email\ValidEmailAddresses.csv">
+      <None Update="TestCases\Csv\objectCsvTestData.csv">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="TestCases\Csv\objectCsvTestData.csv">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
       <None Update="TestCases\Csv\simpleCsvTestData.csv">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
       <None Update="TestCases\Email\InvalidEmailAddresses.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="TestCases\Email\ValidEmailAddresses.csv">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>

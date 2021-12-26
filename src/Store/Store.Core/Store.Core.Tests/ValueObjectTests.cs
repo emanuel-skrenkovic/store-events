@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using Store.Core.Domain;
 using Xunit;
 
-namespace Store.Core.Domain.Tests;
+namespace Store.Core.Tests;
 
 public class ValueObjectTests
 {

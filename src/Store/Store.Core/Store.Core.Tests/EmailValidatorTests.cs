@@ -1,9 +1,9 @@
 using Store.Core.Domain.Email;
 using Store.Core.Domain.ErrorHandling;
-using Store.Core.Domain.Tests.Helpers.Csv;
+using Store.Core.Tests.Infrastructure;
 using Xunit;
 
-namespace Store.Core.Domain.Tests;
+namespace Store.Core.Tests;
 
 public class EmailValidatorTests
 {

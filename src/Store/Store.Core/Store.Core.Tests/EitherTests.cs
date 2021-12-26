@@ -3,7 +3,7 @@ using Store.Core.Domain.Functional;
 using Store.Core.Domain.Functional.Extensions;
 using Xunit;
 
-namespace Store.Core.Domain.Tests;
+namespace Store.Core.Tests;
 
 public class EitherTests
 {
