@@ -40,6 +40,22 @@ public class DockerContainer : IDisposable
         var runningContainers = await _dockerClient.Containers.ListContainersAsync(new ContainersListParameters());
         if (runningContainers.Any(c => c.ID == _containerId)) return;
 
+
+        var images = await _dockerClient.Images.ListImagesAsync(new ImagesListParameters());
+        if (!images.Any(i => i.RepoTags.Contains(_imageName)))
+        {
+            string[] imageNameParts = _imageName.Split(':');
+            
+            await _dockerClient.Images.CreateImageAsync(
+                new ImagesCreateParameters
+                {
+                    FromImage = imageNameParts[0],
+                    Tag = imageNameParts[1]
+                }, 
+                authConfig: null, 
+                new Progress<JSONMessage>());
+        }
+
         await StartContainer();
         await WaitUntilContainerUp(checkStatus);
     }
