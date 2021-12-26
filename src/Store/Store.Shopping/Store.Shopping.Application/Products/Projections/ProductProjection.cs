@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Store.Catalogue.Integration;
 using Store.Catalogue.Integration.Events;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
@@ -58,11 +59,8 @@ public class ProductProjection : IEventListener
 
         Func<Task> projectionAction = receivedEvent switch
         {
-            ProductAddedEvent @event        => () => When(@event, context),
-            ProductPriceChangedEvent @event => () => When(@event, context),
-            ProductRenamedEvent @event      => () => When(@event, context),
-            ProductAvailableEvent @event    => () => When(@event, context),
-            ProductUnavailableEvent @event  => () => When(@event, context),
+            ProductCreatedEvent @event => () => When(@event, context),
+            ProductUpdatedEvent @event => () => When(@event, context),
             _ => null
         };
         if (projectionAction == null) return;
@@ -73,56 +71,30 @@ public class ProductProjection : IEventListener
         await context.SaveChangesAsync();
     }
         
-    private Task When(ProductAddedEvent @event, StoreOrderDbContext context)
+    private Task When(ProductCreatedEvent @event, StoreOrderDbContext context)
     {
-        ProductEntity productEntity = new()
+        ProductView productView = @event.ProductView;
+        context.Products.Add(new()
         {
             CatalogueNumber = @event.ProductId.ToString(),
-            Name = @event.Name,
-            Price = @event.Price
-        };
-            
-        context.Add(productEntity);
+            Name = productView.Name,
+            Price = productView.Price,
+            Available = productView.Available
+        });
 
         return Task.CompletedTask;
     }
         
-    private async Task When(ProductPriceChangedEvent @event, StoreOrderDbContext context)
+    private async Task When(ProductUpdatedEvent @event, StoreOrderDbContext context)
     {
         ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
         if (productEntity == null) return;
 
-        productEntity.Price = @event.NewPrice;
-            
-        context.Update(productEntity);
-    }
-        
-    private async Task When(ProductRenamedEvent @event, StoreOrderDbContext context)
-    {
-        ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
-        if (productEntity == null) return;
+        ProductView productView = @event.ProductView;
 
-        productEntity.Name = @event.NewName;
-            
-        context.Update(productEntity);
-    }
-        
-    private async Task When(ProductAvailableEvent @event, StoreOrderDbContext context)
-    {
-        ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
-        if (productEntity == null) return;
-            
-        productEntity.Available = true;
-            
-        context.Update(productEntity);
-    }
-        
-    private async Task When(ProductUnavailableEvent @event, StoreOrderDbContext context)
-    {
-        ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
-        if (productEntity == null) return;
-
-        productEntity.Available = false;
+        productEntity.Name = productView.Name;
+        productEntity.Price = productView.Price;
+        productEntity.Available = productView.Available;
             
         context.Update(productEntity);
     }
