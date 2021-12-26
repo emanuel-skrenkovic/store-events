@@ -22,7 +22,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Store.Catalogue\Store.Catalogue.Application\Store.Catalogue.Application.csproj" />
       <ProjectReference Include="..\..\Store.Core\Store.Core.Tests.Infrastructure\Store.Core.Tests.Infrastructure.csproj" />
       <ProjectReference Include="..\Store.Shopping.Application\Store.Shopping.Application.csproj" />
       <ProjectReference Include="..\Store.Shopping.Domain\Store.Shopping.Domain.csproj" />
