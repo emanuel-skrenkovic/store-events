@@ -1,8 +1,9 @@
 using System;
+using Store.Core.Domain;
 using Store.Core.Domain.Event;
 using Xunit;
 
-namespace Store.Core.Domain.Tests;
+namespace Store.Core.Tests;
 
 public record CreateTestEntityEvent(Guid EntityId, string Value1, int? Value2) : IEvent;
 

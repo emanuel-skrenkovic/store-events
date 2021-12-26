@@ -5,11 +5,11 @@ using Store.Shopping.Domain.Orders.ValueObjects;
 using Store.Shopping.Domain.ValueObjects;
 using Xunit;
 
-namespace Store.Shopping.Domain.Tests;
+namespace Store.Shopping.Tests.Unit;
 
 public class OrderTests
 {
-    private Domain.Orders.Order CreateValidOrder()
+    private Order CreateValidOrder()
     {
         CustomerNumber customerNumber = new(Guid.NewGuid().ToString());
         OrderNumber orderNumber = new(Guid.NewGuid());
@@ -20,7 +20,7 @@ public class OrderTests
             new OrderLine(Guid.NewGuid().ToString(), 38, 4)
         });
 
-        return Domain.Orders.Order.Create(orderNumber, customerNumber, orderLines);
+        return Order.Create(orderNumber, customerNumber, orderLines);
     }
         
     [Fact]
@@ -36,7 +36,7 @@ public class OrderTests
         });
 
             
-        Domain.Orders.Order order = Domain.Orders.Order.Create(orderNumber, customerNumber, orderLines);
+        Order order = Order.Create(orderNumber, customerNumber, orderLines);
         Assert.NotNull(order);
         Assert.Equal(orderNumber.Value, order.Id);
         Assert.Equal(customerNumber.Value, order.CustomerNumber);
@@ -48,10 +48,10 @@ public class OrderTests
     [Fact]
     public void Order_ShippingInformation_Should_BeAddedSuccessfully()
     {
-        Domain.Orders.Order order = CreateValidOrder();
+        Order order = CreateValidOrder();
             
         ShippingInformation shippingInformation = new ShippingInformation(
-            1, "Test Full Name", "Street Address 1", "MadeUp City", "TotallyFakeProvince", "NonExistantPostcode", "CallMe");
+            1, "Test Full Name", "Street Address 1", "MadeUp City", "TotallyFakeProvince", "NonExistentPostcode", "CallMe");
             
         order.SetShippingInformation(shippingInformation);
         Assert.Equal(shippingInformation, order.ShippingInformation);
@@ -61,10 +61,10 @@ public class OrderTests
     [Fact]
     public void Order_ShippingInformation_Should_BeChangedSuccessfully()
     {
-        Domain.Orders.Order order = CreateValidOrder();
+        Order order = CreateValidOrder();
             
         ShippingInformation shippingInformation = new ShippingInformation(
-            1, "Test Full Name", "Street Address 1", "MadeUp City", "TotallyFakeProvince", "NonExistantPostcode", "CallMe");
+            1, "Test Full Name", "Street Address 1", "MadeUp City", "TotallyFakeProvince", "NonExistentPostcode", "CallMe");
             
         order.SetShippingInformation(shippingInformation);
             

@@ -6,7 +6,7 @@ using Store.Shopping.Domain.Payments.ValueObjects;
 using Store.Shopping.Domain.ValueObjects;
 using Xunit;
 
-namespace Store.Shopping.Domain.Tests;
+namespace Store.Shopping.Tests.Unit;
 
 public class PaymentTests
 {

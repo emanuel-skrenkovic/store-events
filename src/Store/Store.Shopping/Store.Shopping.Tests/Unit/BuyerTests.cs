@@ -5,7 +5,7 @@ using Store.Shopping.Domain.Buyers.Events;
 using Store.Shopping.Domain.Buyers.ValueObjects;
 using Xunit;
 
-namespace Store.Shopping.Domain.Tests;
+namespace Store.Shopping.Tests.Unit;
 
 public class BuyerTests
 {
