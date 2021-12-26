@@ -41,7 +41,7 @@ public class ProductsController : ControllerBase
 
         await _context.SaveChangesAsync();
             
-        return CreatedAtAction("GetProduct", new { productId }, null);
+        return CreatedAtAction("GetProduct", new { id = productId }, null);
     }
 
     [HttpPut]
