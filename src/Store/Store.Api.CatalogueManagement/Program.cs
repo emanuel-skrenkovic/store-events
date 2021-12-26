@@ -7,11 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Store.Catalogue.Application.Product.Command.Create;
-using Store.Catalogue.Application.Product.Projections;
-using Store.Catalogue.Domain.Product;
 using Store.Catalogue.Infrastructure;
-using Store.Catalogue.Integration;
+using Store.Catalogue.Infrastructure.Integration;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
 using Store.Core.Infrastructure;
@@ -30,8 +27,6 @@ builder.Services.AddControllers()
     
 builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "Store.Api.CatalogueManagement", Version = "v1" }); });
 
-builder.Services.AddMediatR(typeof(ProductCreateCommand));
-    
 builder.Services.AddSingleton(_ => new EventStoreClient(EventStoreClientSettings.Create(builder.Configuration["EventStore:ConnectionString"])));
 
 builder.Services.AddScoped<IIntegrationEventMapper, CatalogueIntegrationEventMapper>();
