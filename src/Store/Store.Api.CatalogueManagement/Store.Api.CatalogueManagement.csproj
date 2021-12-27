@@ -23,4 +23,8 @@
       <ProjectReference Include="..\Store.Shopping\Store.Shopping.AspNet\Store.Shopping.AspNet.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Store.Catalogue.Tests" />
+    </ItemGroup>
+
 </Project>

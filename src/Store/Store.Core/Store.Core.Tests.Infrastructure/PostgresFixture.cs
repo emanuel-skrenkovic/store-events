@@ -4,6 +4,8 @@ namespace Store.Core.Tests.Infrastructure;
 
 public class PostgresFixture<TContext> : IDisposable where TContext : DbContext
 {
+    private readonly Func<TContext> _contextFactory;
+    
     // TODO: really don't like this. Improve.
     private const string ConnectionString = 
         "User ID=postgres;Password=postgres;Server=localhost;Port=5432;Database=store-shopping;Integrated Security=true;Pooling=true;";
@@ -30,8 +32,24 @@ public class PostgresFixture<TContext> : IDisposable where TContext : DbContext
     
     public TContext Context { get; private set; }
 
-    public PostgresFixture()
+    public PostgresFixture(Func<TContext> contextFactory = null)
     {
+        if (contextFactory == null)
+        {
+            _contextFactory = () =>
+            {
+                DbContextOptionsBuilder<TContext> optionsBuilder = new();
+                optionsBuilder.UseNpgsql(ConnectionString);
+            
+                return (TContext)Activator.CreateInstance(
+                    typeof(TContext),
+                    optionsBuilder.Options);
+            };
+        }
+        else
+        {
+            _contextFactory = contextFactory;
+        }
         _container = new(ContainerName, ImageName, _env, _ports);
         _container.EnsureRunningAsync(CheckConnectionAsync)
             .ConfigureAwait(false)
@@ -62,13 +80,9 @@ public class PostgresFixture<TContext> : IDisposable where TContext : DbContext
     {
         try
         {
-            DbContextOptionsBuilder<TContext> optionsBuilder = new();
-            optionsBuilder.UseNpgsql(ConnectionString);
-            
-            Context = (TContext)Activator.CreateInstance(
-                typeof(TContext),
-                optionsBuilder.Options);
+            Context = _contextFactory();
             if (Context == null) return false;
+
             await EnsureMigratedAsync();
 
             return true;

@@ -25,12 +25,12 @@ builder.Services.AddControllers()
     
 builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "Store.Api.CatalogueManagement", Version = "v1" }); });
 
-builder.Services.AddScoped(_ => new EventStoreEventDispatcherConfiguration
+builder.Services.AddSingleton(_ => new EventStoreEventDispatcherConfiguration
 {
     IntegrationStreamName = "catalogue-integration"
 });
-builder.Services.AddScoped<IEventDispatcher, EventStoreEventDispatcher>();
-builder.Services.AddScoped<IIntegrationEventMapper, CatalogueIntegrationEventMapper>();
+builder.Services.AddSingleton<IEventDispatcher, EventStoreEventDispatcher>();
+builder.Services.AddSingleton<IIntegrationEventMapper, CatalogueIntegrationEventMapper>();
 
 builder.Services.AddSingleton<ISerializer, JsonSerializer>();
 
