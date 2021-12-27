@@ -15,7 +15,7 @@ using Xunit;
 namespace Store.Shopping.Tests.Integration;
 
 [Collection(StoreShoppingCollection.Name)]
-public class BuyerCommandTests : IDisposable
+public class BuyerCommandTests : IAsyncLifetime
 {
     private readonly StoreShoppingFixture _fixture;
 
@@ -139,11 +139,10 @@ public class BuyerCommandTests : IDisposable
         #endregion
     }
 
-    public void Dispose()
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public async Task DisposeAsync()
     {
-        _fixture.EventStoreFixture.CleanAsync()
-            .ConfigureAwait(false)
-            .GetAwaiter()
-            .GetResult();
+        await _fixture.EventStoreFixture.CleanAsync();
     }
 }

@@ -16,7 +16,7 @@ using Xunit;
 namespace Store.Catalogue.Tests.Integration;
 
 [Collection(StoreCatalogueFixtureCollection.Name)]
-public class ApiTests : IDisposable
+public class ApiTests : IAsyncLifetime
 {
     private readonly StoreCatalogueFixture _fixture;
 
@@ -222,16 +222,11 @@ public class ApiTests : IDisposable
         #endregion
     }
 
-    public void Dispose()
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public async Task DisposeAsync()
     {
-        _fixture.EventStoreFixture.CleanAsync()
-            .ConfigureAwait(false)
-            .GetAwaiter()
-            .GetResult();
-        
-        _fixture.PostgresFixture.CleanAsync()
-            .ConfigureAwait(false)
-            .GetAwaiter()
-            .GetResult();
+        await _fixture.EventStoreFixture.CleanAsync();
+        await _fixture.PostgresFixture.CleanAsync();
     }
 }
