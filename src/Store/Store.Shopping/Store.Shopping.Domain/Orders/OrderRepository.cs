@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Store.Core.Domain;
+using Store.Core.Domain.ErrorHandling;
 
 namespace Store.Shopping.Domain.Orders;
 
@@ -13,13 +14,9 @@ public class OrderRepository : IOrderRepository
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     }
         
-    public Task<Order> GetOrderAsync(Guid orderId)
-    {
-        return _repository.GetAsync<Order, Guid>(orderId);
-    }
+    public Task<Result<Order>> GetOrderAsync(Guid orderId)
+        =>_repository.GetAsync<Order, Guid>(orderId);
 
-    public Task SaveOrderAsync(Order order)
-    {
-        return _repository.SaveAsync<Order, Guid>(order);
-    }
+    public Task<Result> SaveOrderAsync(Order order)
+        => _repository.SaveAsync<Order, Guid>(order);
 }

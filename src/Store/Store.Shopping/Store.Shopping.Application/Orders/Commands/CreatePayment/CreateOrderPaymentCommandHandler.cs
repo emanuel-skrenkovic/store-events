@@ -27,13 +27,10 @@ public class CreateOrderPaymentCommandHandler : IRequestHandler<CreateOrderPayme
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        Domain.Orders.Order order = await _orderRepository.GetOrderAsync(request.OrderId);
-        if (order == null) return new NotFoundError($"Order with order number {request.OrderId} could not be found.");
+        Result<Order> getOrderResult = await _orderRepository.GetOrderAsync(request.OrderId);
 
-        Result<Payment> createPaymentResult = _orderPaymentService.CreateOrderPayment(order);
-
-        // Really don't like this. Might just revert to exceptions
-        // even though I don't like exceptions for business logic.
-        return createPaymentResult.Then(payment => _paymentRepository.SavePaymentAsync(payment));
+        return await getOrderResult
+            .Then(order => _orderPaymentService.CreateOrderPayment(order))
+            .Then(payment => _paymentRepository.SavePaymentAsync(payment));
     }
 }

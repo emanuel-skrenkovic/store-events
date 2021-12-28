@@ -20,14 +20,12 @@ public class BuyerRemoveItemFromCartCommandHandler : IRequestHandler<BuyerRemove
         cancellationToken.ThrowIfCancellationRequested();
 
         BuyerIdentifier buyerId = new(request.CustomerNumber, request.SessionId);
-        
-        Buyer buyer = await _buyerRepository.GetBuyerAsync(buyerId);
-        if (buyer == null) return new NotFoundError($"Entity with id {buyerId.CustomerNumber} not found.");
-            
-        buyer.RemoveCartItem(new CatalogueNumber(request.ItemCatalogueNumber));
+        Result<Buyer> getBuyerResult = await _buyerRepository.GetBuyerAsync(buyerId);
 
-        await _buyerRepository.SaveBuyerAsync(buyer);
-
-        return Result.Ok();
+        return await getBuyerResult.Then(buyer =>
+        {
+            buyer.RemoveCartItem(new CatalogueNumber(request.ItemCatalogueNumber));
+            return _buyerRepository.SaveBuyerAsync(buyer);
+        });
     }
 }

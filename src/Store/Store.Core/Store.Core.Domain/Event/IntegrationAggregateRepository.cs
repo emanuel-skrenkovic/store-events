@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Store.Core.Domain.ErrorHandling;
 
 namespace Store.Core.Domain.Event;
 
@@ -20,16 +21,16 @@ public class IntegrationAggregateRepository : IAggregateRepository
         _eventDispatcher = eventDispatcher ?? throw new ArgumentNullException(nameof(eventDispatcher));
     }
 
-    public Task<T> GetAsync<T, TKey>(TKey id) where T : AggregateEntity<TKey>, new()
+    public Task<Result<T>> GetAsync<T, TKey>(TKey id) where T : AggregateEntity<TKey>, new()
         => _repository.GetAsync<T, TKey>(id);
 
-    public async Task SaveAsync<T, TKey>(T entity) where T : AggregateEntity<TKey>
+    public async Task<Result> SaveAsync<T, TKey>(T entity) where T : AggregateEntity<TKey>
     {
         // Copy the events before commit to be able to translate
         // them to integration events after they are submitted.
         List<IEvent> events = new(entity.GetUncommittedEvents());
             
-        await _repository.SaveAsync<T, TKey>(entity);
+        Result saveResult = await _repository.SaveAsync<T, TKey>(entity);
            
         // TODO: think about how concurrency might mess up
         // temporal stream of events.
@@ -40,5 +41,7 @@ public class IntegrationAggregateRepository : IAggregateRepository
                 await _eventDispatcher.DispatchAsync(integrationEvent);
             }
         }
+
+        return saveResult;
     }
 }

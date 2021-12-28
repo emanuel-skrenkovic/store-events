@@ -20,13 +20,11 @@ public class BuyerAddItemToCartCommandHandler : IRequestHandler<BuyerAddItemToCa
         cancellationToken.ThrowIfCancellationRequested();
 
         BuyerIdentifier buyerId = new(request.CustomerNumber, request.SessionId);
-        Buyer buyer = await _buyerRepository.GetBuyerAsync(buyerId) ?? Buyer.Create(buyerId);
-            
-        // TODO: check if warning correct.
+        Result<Buyer> getBuyerResult = await _buyerRepository.GetBuyerAsync(buyerId);
+
+        Buyer buyer = getBuyerResult.UnwrapOrDefault(Buyer.Create(buyerId));
         buyer.AddCartItem(new CatalogueNumber(request.ItemCatalogueNumber));
-
-        await _buyerRepository.SaveBuyerAsync(buyer);
-
-        return Result.Ok();
+        
+        return await _buyerRepository.SaveBuyerAsync(buyer);
     }
 }

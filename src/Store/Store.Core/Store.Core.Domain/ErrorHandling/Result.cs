@@ -42,6 +42,15 @@ public class Result
 
     public Task<TResult> Match<TResult>(Func<Task<TResult>> ok, Func<Error, Task<TResult>> error)
         => IsOk ? ok() : error(_error);
+    
+    public Result<TResult> Then<TResult>(Func<Result<TResult>> ok)
+        => IsOk ? ok() : Error<TResult>(_error);
+    
+    public async Task<Result<TResult>> Then<TResult>(Func<Task<Result<TResult>>> ok)
+        => IsOk ? await ok() : Error<TResult>(_error);
+
+    public async Task<Result<TResult>> Then<TResult>(Func<Task<TResult>> ok)
+        => IsOk ? Ok(await ok()) : Error<TResult>(_error);
 
     public static Result<T> Ok<T>(T value)
     {
@@ -120,12 +129,36 @@ public sealed class Result<T> : Result
 
     public Task<TResult> Match<TResult>(Func<T, Task<TResult>> ok, Func<Error, Task<TResult>> errors)
         => IsOk ? ok(_value) : errors(_error);
+    
+    #region T
 
     public Result<TResult> Then<TResult>(Func<T, TResult> ok)
         => IsOk ? Ok(ok(_value)) : Error<TResult>(_error);
 
     public async Task<Result<TResult>> Then<TResult>(Func<T, Task<TResult>> ok)
         => IsOk ? Ok(await ok(_value)) : Error<TResult>(_error);
+    
+    #endregion
+
+    #region PlainResult
+    
+    public Result Then(Func<T, Result> ok)
+        => IsOk ? ok(_value) : Error(_error);
+    
+    public async Task<Result> Then(Func<T, Task<Result>> ok)
+        => IsOk ? await ok(_value) : Error(_error);
+    
+    #endregion
+    
+    #region Result<T>
+    
+    public Result<TR> Then<TR>(Func<T, Result<TR>> ok)
+        => IsOk ? ok(_value) : Error<TR>(_error); 
+    
+    public async Task<Result<TR>> Then<TR>(Func<T, Task<Result<TR>>> ok)
+        => IsOk ? await ok(_value) : Error<TR>(_error); 
+    
+    #endregion
 
     public static implicit operator Result<T>(Error error) => new(error);
     public static implicit operator Result<T>(T value) => new(value);

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Store.Core.Domain;
+using Store.Core.Domain.ErrorHandling;
 using Store.Shopping.Domain.Buyers.ValueObjects;
 
 namespace Store.Shopping.Domain.Buyers;
@@ -14,13 +15,9 @@ public class BuyerRepository : IBuyerRepository
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     }
         
-    public Task<Buyer> GetBuyerAsync(BuyerIdentifier buyerId)
-    {
-        return _repository.GetAsync<Buyer, string>(buyerId.ToString());
-    }
+    public Task<Result<Buyer>> GetBuyerAsync(BuyerIdentifier buyerId)
+        => _repository.GetAsync<Buyer, string>(buyerId.ToString());
 
-    public Task SaveBuyerAsync(Buyer buyer)
-    {
-        return _repository.SaveAsync<Buyer, string>(buyer);
-    }
+    public Task<Result> SaveBuyerAsync(Buyer buyer)
+        => _repository.SaveAsync<Buyer, string>(buyer);
 }

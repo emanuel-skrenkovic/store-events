@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventStore.Client;
 using Store.Core.Domain;
+using Store.Core.Domain.ErrorHandling;
 using Store.Core.Domain.Event;
 using Store.Core.Infrastructure.EventStore.Extensions;
 
@@ -21,42 +22,58 @@ public class EventStoreAggregateRepository : IAggregateRepository
         _eventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));
     }
         
-    public async Task<T> GetAsync<T, TKey>(TKey id) 
+    public async Task<Result<T>> GetAsync<T, TKey>(TKey id) 
         where T : AggregateEntity<TKey>, new()
     {
-        EventStoreClient.ReadStreamResult eventStream = _eventStore.ReadStreamAsync(
-            Direction.Forwards,
-            GenerateStreamName<T, TKey>(id),
-            StreamPosition.Start);
-
-        if (await eventStream.ReadState == ReadState.StreamNotFound)
+        try
         {
-            return null;
+            EventStoreClient.ReadStreamResult eventStream = _eventStore.ReadStreamAsync(
+                Direction.Forwards,
+                GenerateStreamName<T, TKey>(id),
+                StreamPosition.Start);
+
+            if (await eventStream.ReadState == ReadState.StreamNotFound)
+            {
+                return new NotFoundError($"Event stream {id} not found.");
+            }
+
+            IReadOnlyCollection<IEvent> domainEvents = await eventStream
+                .Select(e => e.Deserialize(_serializer) as IEvent)
+                .ToArrayAsync();
+
+            T entity = new();
+            entity.Hydrate(id, domainEvents);
+
+            return entity;
         }
-            
-        IReadOnlyCollection<IEvent> domainEvents = await eventStream
-            .Select(e => e.Deserialize(_serializer) as IEvent)
-            .ToArrayAsync();
-
-        T entity = new();
-        entity.Hydrate(id, domainEvents);
-
-        return entity;
+        catch (Exception ex)
+        {
+            return new InternalError(ex.Message, ex.StackTrace);
+        }
     }
 
-    public Task SaveAsync<T, TKey>(T entity) 
+    public async Task<Result> SaveAsync<T, TKey>(T entity) 
         where T : AggregateEntity<TKey>
     {
-        Ensure.NotNull(entity);
+        try
+        {
+            Ensure.NotNull(entity);
 
-        IReadOnlyCollection<EventData> eventsData = entity.GetUncommittedEvents()
-            .Select(domainEvent => domainEvent.ToEventData(_serializer))
-            .ToImmutableList();
+            IReadOnlyCollection<EventData> eventsData = entity.GetUncommittedEvents()
+                .Select(domainEvent => domainEvent.ToEventData(_serializer))
+                .ToImmutableList();
 
-        return _eventStore.AppendToStreamAsync(
-            GenerateStreamName<T, TKey>(entity.Id),
-            StreamState.Any, // TODO: fix this
-            eventsData);
+            await _eventStore.AppendToStreamAsync(
+                GenerateStreamName<T, TKey>(entity.Id),
+                StreamState.Any, // TODO: fix this
+                eventsData);
+
+            return Result.Ok();
+        }
+        catch (Exception ex)
+        {
+            return new InternalError(ex.Message, ex.StackTrace);
+        }
     }
 
     private string GenerateStreamName<T, TKey>(TKey id)
