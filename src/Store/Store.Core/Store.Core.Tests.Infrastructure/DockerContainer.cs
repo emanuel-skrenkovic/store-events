@@ -1,10 +1,11 @@
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Store.Core.Domain;
+using Xunit;
 
 namespace Store.Core.Tests.Infrastructure;
 
-public class DockerContainer : IDisposable
+public class DockerContainer : IAsyncLifetime
 {
     private string _containerId;
     
@@ -16,6 +17,8 @@ public class DockerContainer : IDisposable
 
     private readonly DockerClient _dockerClient;
     
+    public Func<Task<bool>> CheckStatus { get; set; }
+
     public DockerContainer(
         string containerName, 
         string imageName, 
@@ -33,7 +36,7 @@ public class DockerContainer : IDisposable
         _dockerClient = new DockerClientConfiguration(dockerUri).CreateClient();
     }
     
-    public async Task EnsureRunningAsync(Func<Task<bool>> checkStatus)
+    private async Task EnsureRunningAsync(Func<Task<bool>> checkStatus)
     {
         Ensure.NotNull(checkStatus, nameof(checkStatus));
         
@@ -120,27 +123,21 @@ public class DockerContainer : IDisposable
         }
     }
     
-    #region IDisposable
+    #region IAsyncLifetime
 
-    private void ReleaseUnmanagedResources()
+    public async Task InitializeAsync()
     {
-        _dockerClient.Containers
-            .StopContainerAsync(_containerId, new ContainerStopParameters())
-            .ConfigureAwait(false)
-            .GetAwaiter()
-            .GetResult();
+        if (CheckStatus == null) throw new InvalidOperationException($"Cannot start without {nameof(CheckStatus)} set.");
+        await EnsureRunningAsync(CheckStatus);
+    }
 
-        _dockerClient.Containers
-            .RemoveContainerAsync(_containerId, new ContainerRemoveParameters())
-            .ConfigureAwait(false)
-            .GetAwaiter()
-            .GetResult();
+    public async Task DisposeAsync()
+    {
+        await _dockerClient.Containers.StopContainerAsync(_containerId, new ContainerStopParameters());
 
-        var runningVolumes = _dockerClient.Volumes
-            .ListAsync()
-            .ConfigureAwait(false)
-            .GetAwaiter()
-            .GetResult();
+        await _dockerClient.Containers.RemoveContainerAsync(_containerId, new ContainerRemoveParameters());
+
+        var runningVolumes = await _dockerClient.Volumes.ListAsync();
         
         foreach (var volume in runningVolumes.Volumes)
         {
@@ -161,17 +158,6 @@ public class DockerContainer : IDisposable
                 }
             }
         }
-    }
-
-    public void Dispose()
-    {
-        ReleaseUnmanagedResources();
-        GC.SuppressFinalize(this);
-    }
-
-    ~DockerContainer()
-    {
-        ReleaseUnmanagedResources();
     }
     
     #endregion

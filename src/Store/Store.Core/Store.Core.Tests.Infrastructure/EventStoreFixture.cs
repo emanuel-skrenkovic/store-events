@@ -2,10 +2,11 @@ using EventStore.Client;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
 using Store.Core.Infrastructure.EventStore.Extensions;
+using Xunit;
 
 namespace Store.Core.Tests.Infrastructure;
 
-public class EventStoreFixture : IDisposable
+public class EventStoreFixture : IAsyncLifetime
 {
     private const string ConnectionString = "esdb://localhost:2111,localhost:2112,localhost:2113?tls=false&tlsVerifyCert=false";
     
@@ -39,16 +40,12 @@ public class EventStoreFixture : IDisposable
     public EventStoreFixture()
     {
         _container = new(ContainerName, ImageName, _env, _ports);
-        _container
-            .EnsureRunningAsync(CheckConnectionAsync)
-            .ConfigureAwait(false)
-            .GetAwaiter()
-            .GetResult();
+        _container.CheckStatus = CheckConnectionAsync;
     }
 
     public async Task SeedAsync(Func<EventStoreClient, Task> seedAction)
     {
-        await _container.EnsureRunningAsync(CheckConnectionAsync);
+        await _container.InitializeAsync();
         await seedAction(EventStore);
     }
 
@@ -92,23 +89,17 @@ public class EventStoreFixture : IDisposable
         } 
     }
     
-    #region IDisposable
-    
-    private void ReleaseUnmanagedResources()
+    #region IAsyncLifetime
+
+    public Task InitializeAsync()
     {
-        EventStore.Dispose();
-        _container.Dispose();
+        return _container.InitializeAsync();
     }
 
-    public void Dispose()
+    public async Task DisposeAsync()
     {
-        ReleaseUnmanagedResources();
-        GC.SuppressFinalize(this);
-    }
-
-    ~EventStoreFixture()
-    {
-        ReleaseUnmanagedResources();
+        await EventStore.DisposeAsync();
+        await _container.DisposeAsync();
     }
     
     #endregion

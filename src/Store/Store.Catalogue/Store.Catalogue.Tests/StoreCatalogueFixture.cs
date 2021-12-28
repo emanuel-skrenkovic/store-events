@@ -1,15 +1,18 @@
 using System;
+using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Store.Catalogue.Infrastructure;
 using Store.Core.Domain.Event;
 using Store.Core.Tests.Infrastructure;
+using Xunit;
 
 namespace Store.Catalogue.Tests;
 
-public class StoreCatalogueFixture : IDisposable
+public class StoreCatalogueFixture : IAsyncLifetime
 {
     private const string PostgresConnectionString = 
         "User ID=postgres;Password=postgres;Server=localhost;Port=5432;Database=store-catalogue;Integrated Security=true;Pooling=true;";
@@ -24,8 +27,8 @@ public class StoreCatalogueFixture : IDisposable
         _webApplicationFactory = new WebApplicationFactory<Program>();
 
         EventStoreFixture = new();
-        PostgresFixture = new PostgresFixture<StoreCatalogueDbContext>(
-            () =>
+        PostgresFixture = new PostgresFixture<StoreCatalogueDbContext>();
+        PostgresFixture.ContextFactory = () =>
             {
                 DbContextOptionsBuilder<StoreCatalogueDbContext> optionsBuilder = new();
                 optionsBuilder.UseNpgsql(PostgresConnectionString);
@@ -34,34 +37,28 @@ public class StoreCatalogueFixture : IDisposable
                     optionsBuilder.Options,
                     _webApplicationFactory.Services.GetRequiredService<IIntegrationEventMapper>(),
                     _webApplicationFactory.Services.GetRequiredService<IEventDispatcher>());
-            });
+            };
     }
 
     public T GetService<T>() => _webApplicationFactory.Services.GetRequiredService<T>();
 
     public HttpClient GetClient() => _webApplicationFactory.CreateClient();
     
-    #region IDisposable
+    #region IAsyncLifetime
 
-    private void Dispose(bool disposing)
+    public async Task InitializeAsync()
     {
-        if (disposing)
-        {
-            _webApplicationFactory.Dispose();
-            PostgresFixture?.Dispose();
-            EventStoreFixture?.Dispose();
-        }
+        File.AppendAllLines("/home/emanuel/order.txt", new [] { $"{nameof(StoreCatalogueFixture)}-{DateTime.Now}" } );
+        await PostgresFixture.InitializeAsync();
+        await EventStoreFixture.InitializeAsync();
     }
 
-    public void Dispose()
+    public async Task DisposeAsync()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    ~StoreCatalogueFixture()
-    {
-        Dispose(false);
+        File.AppendAllLines("/home/emanuel/order.txt", new [] { $"Disposing - {nameof(StoreCatalogueFixture)}-{DateTime.Now}" } );
+        await _webApplicationFactory.DisposeAsync();
+        await PostgresFixture.DisposeAsync();
+        await EventStoreFixture.DisposeAsync();
     }
     
     #endregion
