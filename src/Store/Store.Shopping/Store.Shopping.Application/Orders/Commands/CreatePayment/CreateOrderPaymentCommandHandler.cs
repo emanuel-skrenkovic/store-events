@@ -23,14 +23,8 @@ public class CreateOrderPaymentCommandHandler : IRequestHandler<CreateOrderPayme
         _orderPaymentService = orderPaymentService ?? throw new ArgumentNullException(nameof(orderPaymentService));
     }
         
-    public async Task<Result> Handle(CreateOrderPaymentCommand request, CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        Result<Order> getOrderResult = await _orderRepository.GetOrderAsync(request.OrderId);
-
-        return await getOrderResult
+    public Task<Result> Handle(CreateOrderPaymentCommand request, CancellationToken cancellationToken)
+         => _orderRepository.GetOrderAsync(request.OrderId)
             .Then(order => _orderPaymentService.CreateOrderPayment(order))
             .Then(payment => _paymentRepository.SavePaymentAsync(payment));
-    }
 }
