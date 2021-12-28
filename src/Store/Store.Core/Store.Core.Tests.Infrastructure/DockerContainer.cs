@@ -38,7 +38,7 @@ public class DockerContainer : IAsyncLifetime
     
     private async Task EnsureRunningAsync(Func<Task<bool>> checkStatus)
     {
-        Ensure.NotNull(checkStatus, nameof(checkStatus));
+        Ensure.NotNull(checkStatus);
         
         var runningContainers = await _dockerClient.Containers.ListContainersAsync(new ContainersListParameters());
         if (runningContainers.Any(c => c.ID == _containerId)) return;

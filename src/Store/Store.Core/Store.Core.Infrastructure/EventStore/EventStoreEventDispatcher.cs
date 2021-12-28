@@ -25,7 +25,7 @@ public class EventStoreEventDispatcher : IEventDispatcher
         
     public Task DispatchAsync(object @event)
     {
-        Ensure.NotNull(@event, nameof(@event));
+        Ensure.NotNull(@event);
 
         return _eventStore.AppendToStreamAsync(
             _configuration.IntegrationStreamName,

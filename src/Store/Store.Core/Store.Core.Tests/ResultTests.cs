@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Store.Core.Domain;
 using Store.Core.Domain.ErrorHandling;
 using Xunit;
 

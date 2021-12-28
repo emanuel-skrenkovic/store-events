@@ -11,7 +11,7 @@ public class OrderPaymentService : IOrderPaymentService
 {
     public Result<Payments.Payment> CreateOrderPayment(Orders.Order order)
     {
-        Ensure.NotNull(order, nameof(order));
+        Ensure.NotNull(order);
 
         return Payments.Payment.Create(
             new PaymentNumber(Guid.NewGuid()),

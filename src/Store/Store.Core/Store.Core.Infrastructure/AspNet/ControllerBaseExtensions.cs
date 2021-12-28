@@ -8,7 +8,7 @@ public static class ControllerBaseExtensions
 {
     public static IActionResult HandleError(this ControllerBase controller, Error error)
     {
-        Ensure.NotNull(error, nameof(error));
+        Ensure.NotNull(error);
             
         return error switch
         {

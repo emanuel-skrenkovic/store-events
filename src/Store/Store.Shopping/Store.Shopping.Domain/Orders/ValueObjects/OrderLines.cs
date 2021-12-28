@@ -10,7 +10,7 @@ public class OrderLines : ValueObject<OrderLines>
 
     public OrderLines(ICollection<OrderLine> value)
     {
-        Ensure.NotNullOrEmpty(value, nameof(value));
+        Ensure.NotNullOrEmpty(value);
         Value = value.ToImmutableArray();
     }
         

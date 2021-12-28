@@ -16,7 +16,8 @@ public class Result
 
     private protected Result(Error error)
     {
-        Ensure.NotNull(error, nameof(error));
+        Ensure.NotNull(error);
+        
         _error = error;
         IsOk = false;
     }
@@ -44,7 +45,7 @@ public class Result
 
     public static Result<T> Ok<T>(T value)
     {
-        Ensure.NotNull(value, nameof(value));
+        Ensure.NotNull(value);
         return new(value);
     }
 
@@ -54,7 +55,7 @@ public class Result
 
     public static Result<T> Error<T>(Error error)
     {
-        Ensure.NotNull(error, nameof(error));
+        Ensure.NotNull(error);
         return new(error);
     }
 
@@ -67,7 +68,7 @@ public sealed class Result<T> : Result
 
     internal Result(T value)
     {
-        Ensure.NotNull(value, nameof(value));
+        Ensure.NotNull(value);
         _value = value;
     }
 

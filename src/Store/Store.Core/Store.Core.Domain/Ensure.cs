@@ -10,17 +10,8 @@ public static class Ensure
 {
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void NotNull(object arg, string message)
-    {
-        if (arg == null)
-        {
-            throw new ArgumentNullException(message);
-        }
-    }
-        
-    [DebuggerHidden]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T NotNull<T>(T arg, string message) => arg ?? throw new ArgumentNullException(message);
+    public static T NotNull<T>(T arg, [CallerArgumentExpression("arg")] string argName = null) 
+        => arg ?? throw new ArgumentNullException(argName?.TrimStart('@'));
         
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -34,11 +25,11 @@ public static class Ensure
         
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void NotNullOrEmpty<T>(IEnumerable<T> arg, string argName)
+    public static void NotNullOrEmpty<T>(IEnumerable<T> arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (arg?.Any() != true)
         {
-            throw new ArgumentException(CommonMessages.NullOrEmpty(argName));
+            throw new ArgumentException(CommonMessages.NullOrEmpty(argName?.TrimStart('@')));
         }
     }
         

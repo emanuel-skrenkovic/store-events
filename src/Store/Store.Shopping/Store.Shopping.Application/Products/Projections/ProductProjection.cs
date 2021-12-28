@@ -50,7 +50,7 @@ public class ProductProjection : IEventListener
         
     private async Task ProjectAsync(IEvent receivedEvent, EventMetadata eventMetadata)
     {
-        Ensure.NotNull(receivedEvent, nameof(receivedEvent));
+        Ensure.NotNull(receivedEvent);
 
         using IServiceScope scope = _scopeFactory.CreateScope();
 

@@ -47,7 +47,7 @@ public class EventStoreAggregateRepository : IAggregateRepository
     public Task SaveAsync<T, TKey>(T entity) 
         where T : AggregateEntity<TKey>
     {
-        Ensure.NotNull(entity, nameof(entity));
+        Ensure.NotNull(entity);
 
         IReadOnlyCollection<EventData> eventsData = entity.GetUncommittedEvents()
             .Select(domainEvent => domainEvent.ToEventData(_serializer))

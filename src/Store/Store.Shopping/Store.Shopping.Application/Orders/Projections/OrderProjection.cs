@@ -49,8 +49,8 @@ public class OrderProjection : IEventListener
 
     private async Task HandleEventAsync(IEvent receivedEvent, EventMetadata eventMetadata)
     {
-        Ensure.NotNull(receivedEvent, nameof(receivedEvent));
-        Ensure.NotNull(eventMetadata, nameof(eventMetadata));
+        Ensure.NotNull(receivedEvent);
+        Ensure.NotNull(eventMetadata);
         
         using IServiceScope scope = _scopeFactory.CreateScope();
         StoreOrderDbContext context = scope.ServiceProvider.GetService<StoreOrderDbContext>();

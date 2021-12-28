@@ -20,7 +20,7 @@ public class BuyerOrderService : IBuyerOrderService
         
     public async Task<Result<Order>> PlaceOrderAsync(Buyer buyer)
     {
-        Ensure.NotNull(buyer, nameof(buyer));
+        Ensure.NotNull(buyer);
 
         IEnumerable<ProductInfo> productsInfo = await _productInfoService.GetProductsInfoAsync(buyer
             .CartItems

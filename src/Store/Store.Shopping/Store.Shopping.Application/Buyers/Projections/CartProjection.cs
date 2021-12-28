@@ -49,7 +49,7 @@ public class CartProjection : IEventListener
         
     private async Task HandleEventAsync(IEvent receivedEvent, EventMetadata eventMetadata)
     {
-        Ensure.NotNull(receivedEvent, nameof(receivedEvent));
+        Ensure.NotNull(receivedEvent);
 
         using IServiceScope scope = _scopeFactory.CreateScope();
 
