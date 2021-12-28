@@ -37,7 +37,6 @@ public class StoreShoppingFixture : IAsyncLifetime
     
     public async Task InitializeAsync()
     {
-        File.AppendAllLines("/home/emanuel/order.txt", new [] { $"{nameof(StoreShoppingFixture)}-{DateTime.Now}" } );
         await EventStoreFixture.InitializeAsync();
         await PostgresFixture.InitializeAsync();
         
@@ -70,7 +69,6 @@ public class StoreShoppingFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        File.AppendAllLines("/home/emanuel/order.txt", new [] { $"Disposing - {nameof(StoreShoppingFixture)}-{DateTime.Now}" } );
         await EventStoreFixture.DisposeAsync();
         await PostgresFixture.DisposeAsync();
     }

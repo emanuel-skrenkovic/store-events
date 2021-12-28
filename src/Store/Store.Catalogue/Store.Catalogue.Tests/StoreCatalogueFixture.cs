@@ -48,14 +48,12 @@ public class StoreCatalogueFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        File.AppendAllLines("/home/emanuel/order.txt", new [] { $"{nameof(StoreCatalogueFixture)}-{DateTime.Now}" } );
         await PostgresFixture.InitializeAsync();
         await EventStoreFixture.InitializeAsync();
     }
 
     public async Task DisposeAsync()
     {
-        File.AppendAllLines("/home/emanuel/order.txt", new [] { $"Disposing - {nameof(StoreCatalogueFixture)}-{DateTime.Now}" } );
         await _webApplicationFactory.DisposeAsync();
         await PostgresFixture.DisposeAsync();
         await EventStoreFixture.DisposeAsync();
