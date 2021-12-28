@@ -17,12 +17,10 @@ public class PaymentCancelCommandHandler : IRequestHandler<PaymentCancelCommand,
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        Payment payment = await _paymentRepository.GetPaymentAsync(request.PaymentId);
-        if (payment == null) return new NotFoundError($"Payment with payment number: {request.PaymentId} could not be found.");
+        Result<Payment> getPaymentResult = await _paymentRepository.GetPaymentAsync(request.PaymentId);
 
-        payment.Cancel();
-        await _paymentRepository.SavePaymentAsync(payment);
-
-        return Result.Ok();
+        return await getPaymentResult.Then(payment => payment
+            .Cancel()
+            .Then(() => _paymentRepository.SavePaymentAsync(payment)));
     }
 }

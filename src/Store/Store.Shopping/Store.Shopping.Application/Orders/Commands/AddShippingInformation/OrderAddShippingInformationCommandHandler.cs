@@ -17,13 +17,11 @@ public class OrderAddShippingInformationCommandHandler : IRequestHandler<OrderAd
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        Order order = await _orderRepository.GetOrderAsync(request.OrderId);
-        if (order == null) return new NotFoundError($"Entity with id {request.OrderId} not found.");
-            
-        order.SetShippingInformation(request.ShippingInformation);
-
-        await _orderRepository.SaveOrderAsync(order);
-
-        return Result.Ok();
+        Result<Order> getOrderResult = await _orderRepository.GetOrderAsync(request.OrderId);
+        return await getOrderResult.Then(order =>
+        {
+            order.SetShippingInformation(request.ShippingInformation); 
+            return _orderRepository.SaveOrderAsync(order);
+        });
     }
 }
