@@ -1,15 +1,13 @@
 using System;
+using System.Data;
 using System.Threading.Tasks;
-using MediatR;
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
-using Store.Catalogue.Application.Product;
-using Store.Catalogue.Application.Product.Command.AdjustPrice;
-using Store.Catalogue.Application.Product.Command.Availability;
-using Store.Catalogue.Application.Product.Command.Create;
-using Store.Catalogue.Application.Product.Command.Rename;
-using Store.Catalogue.Application.Product.Query.ProductDisplay;
-using Store.Core.Domain.ErrorHandling;
-using Unit = Store.Core.Domain.Functional.Unit;
+using Microsoft.EntityFrameworkCore;
+using Store.Catalogue.AspNet.Commands;
+using Store.Catalogue.AspNet.Models;
+using Store.Catalogue.Infrastructure;
+using Store.Catalogue.Infrastructure.Entity;
 
 namespace Store.Catalogue.AspNet.Controllers;
 
@@ -17,63 +15,77 @@ namespace Store.Catalogue.AspNet.Controllers;
 [Route("[controller]")]
 public class ProductsController : ControllerBase
 {
-    private readonly IMediator _mediator;
+    private readonly StoreCatalogueDbContext _context;
 
-    public ProductsController(IMediator mediator)
-    {
-        _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-    }
-        
-    #region Actions 
-        
-    [HttpPost]
-    [Route("actions/create")]
-    public async Task<IActionResult> PostProduct([FromBody] ProductCreateCommand command)
-    {
-        Result<Guid> createProductResult = await _mediator.Send(command);
-
-        return createProductResult.Match<IActionResult>(
-            createdProductId => CreatedAtAction("GetProduct", new { id = createdProductId }, null),
-            _                => BadRequest()); // TODO
-    }
+    public ProductsController(StoreCatalogueDbContext context)
+        => _context = context ?? throw new ArgumentNullException(nameof(context));
 
     [HttpPost]
-    [Route("{id:guid}/actions/adjust-price")]
-    public async Task<IActionResult> AdjustProductPrice([FromRoute] Guid id, ProductAdjustPriceCommand command)
+    public async Task<IActionResult> CreateProduct([FromBody] ProductCreateCommand command)
     {
-        await _mediator.Send(command with { ProductId = id });
+        Guid productId = Guid.NewGuid();
+            
+        ProductApiModel productModel = command.Product;
+
+        DateTime now = DateTime.UtcNow;
+        _context.Products.Add(new()
+        {
+            Id = productId,
+            UpdatedAt = now,
+            CreatedAt = now,
+            Name = productModel.Name,
+            Price = productModel.Price,
+            Available = productModel.Available,
+            Description = productModel.Description
+        });
+
+        await _context.SaveChangesAsync();
+            
+        return CreatedAtAction("GetProduct", new { id = productId }, null);
+    }
+
+    [HttpPut]
+    [Route("{id:guid}")]
+    public async Task<IActionResult> UpdateProduct([FromRoute] Guid id, [FromBody] ProductUpdateCommand command)
+    {
+        DbSet<ProductEntity> set = _context.Products;
+        
+        ProductEntity productEntity = await set.FindAsync(id);
+        if (productEntity == null) return NotFound();
+        
+        ProductApiModel productModel = command.Product;
+
+        productEntity.UpdatedAt = DateTime.UtcNow;
+        productEntity.Name = productModel.Name;
+        productEntity.Price = productModel.Price;
+        productEntity.Available = productModel.Available;
+        productEntity.Description = productModel.Description;
+
+        set.Update(productEntity);
+
+        await _context.SaveChangesAsync();
 
         return Ok();
     }
-
-    [HttpPost]
-    [Route("{id:guid}/actions/rename")]
-    public async Task<IActionResult> RenameProduct([FromRoute] Guid id, [FromBody] ProductRenameCommand command)
-    {
-        Result<Unit> _ = await _mediator.Send(command with { ProductId = id });
-
-        // TODO: handle errors
-        return Ok();
-    }
-
-    [HttpPost]
-    [Route("{id:guid}/actions/set-availability")]
-    public async Task<IActionResult> SetProductAvailability([FromRoute] Guid id, [FromBody] ProductSetAvailabilityCommand command)
-    {
-        Result<Unit> _ = await _mediator.Send(command with { ProductId = id });
-
-        // TODO: handle errors.
-        return Ok();
-    }
-        
-    #endregion
 
     [HttpGet]
     [Route("{id:guid}")]
     public async Task<IActionResult> GetProduct([FromRoute] Guid id)
     {
-        ProductDto product = await _mediator.Send(new ProductDisplayQuery(id));
+        IDbConnection db = _context.Database.GetDbConnection();
+            
+        string query = 
+            @"SELECT p.id,
+                     p.created_at as CreatedAt,
+                     p.updated_at as UpdatedAt,
+                     p.name,
+                     p.price,
+                     p.available,
+                     p.description
+                  FROM public.product p
+                  WHERE p.id = @id;";
 
+        ProductApiModel product = await db.QueryFirstOrDefaultAsync<ProductApiModel>(query, new { id });
         if (product == null) return NotFound();
 
         return Ok(product);

@@ -1,9 +1,20 @@
 using Microsoft.EntityFrameworkCore;
+using Xunit;
 
 namespace Store.Core.Tests.Infrastructure;
 
-public class PostgresFixture<TContext> : IDisposable where TContext : DbContext
+public class PostgresFixture<TContext> : IAsyncLifetime where TContext : DbContext
 {
+    public Func<TContext> ContextFactory { get; set; } = () =>
+    {
+        DbContextOptionsBuilder<TContext> optionsBuilder = new();
+        optionsBuilder.UseNpgsql(ConnectionString);
+            
+        return (TContext)Activator.CreateInstance(
+            typeof(TContext),
+            optionsBuilder.Options);
+    };
+    
     // TODO: really don't like this. Improve.
     private const string ConnectionString = 
         "User ID=postgres;Password=postgres;Server=localhost;Port=5432;Database=store-shopping;Integrated Security=true;Pooling=true;";
@@ -33,15 +44,7 @@ public class PostgresFixture<TContext> : IDisposable where TContext : DbContext
     public PostgresFixture()
     {
         _container = new(ContainerName, ImageName, _env, _ports);
-        _container.EnsureRunningAsync(CheckConnectionAsync)
-            .ConfigureAwait(false)
-            .GetAwaiter()
-            .GetResult();
-        
-        EnsureMigratedAsync()
-            .ConfigureAwait(false)
-            .GetAwaiter()
-            .GetResult();
+        _container.CheckStatus = CheckConnectionAsync;
     }
 
     public async Task SeedAsync(Func<TContext, Task> seedAction)
@@ -62,13 +65,9 @@ public class PostgresFixture<TContext> : IDisposable where TContext : DbContext
     {
         try
         {
-            DbContextOptionsBuilder<TContext> optionsBuilder = new();
-            optionsBuilder.UseNpgsql(ConnectionString);
-            
-            Context = (TContext)Activator.CreateInstance(
-                typeof(TContext),
-                optionsBuilder.Options);
+            Context = ContextFactory();
             if (Context == null) return false;
+
             await EnsureMigratedAsync();
 
             return true;
@@ -78,24 +77,19 @@ public class PostgresFixture<TContext> : IDisposable where TContext : DbContext
             return false; 
         }
     }
+    
+    #region IAsyncLifetime
 
-    #region IDisposable
-
-    private void ReleaseUnmanagedResources()
+    public async Task InitializeAsync()
     {
-        Context.Dispose();
-        _container.Dispose();
+        await _container.InitializeAsync();
+        await EnsureMigratedAsync();
     }
 
-    public void Dispose()
+    public async Task DisposeAsync()
     {
-        ReleaseUnmanagedResources();
-        GC.SuppressFinalize(this);
-    }
-
-    ~PostgresFixture()
-    {
-        ReleaseUnmanagedResources();
+        if (Context != null) await Context.DisposeAsync();
+        await _container.DisposeAsync();
     }
     
     #endregion

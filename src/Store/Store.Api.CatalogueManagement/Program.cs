@@ -1,20 +1,15 @@
 using System.Text.Json.Serialization;
 using EventStore.Client;
-using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Store.Catalogue.Application.Product.Command.Create;
-using Store.Catalogue.Application.Product.Projections;
-using Store.Catalogue.Domain.Product;
 using Store.Catalogue.Infrastructure;
-using Store.Catalogue.Integration;
+using Store.Catalogue.Infrastructure.Integration;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
-using Store.Core.Infrastructure;
 using Store.Core.Infrastructure.EventStore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,40 +25,18 @@ builder.Services.AddControllers()
     
 builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "Store.Api.CatalogueManagement", Version = "v1" }); });
 
-builder.Services.AddMediatR(typeof(ProductCreateCommand));
-    
-builder.Services.AddSingleton(_ => new EventStoreClient(EventStoreClientSettings.Create(builder.Configuration["EventStore:ConnectionString"])));
-
-builder.Services.AddScoped<IIntegrationEventMapper, CatalogueIntegrationEventMapper>();
-
-builder.Services.AddScoped(_ => new EventStoreEventDispatcherConfiguration
+builder.Services.AddSingleton(_ => new EventStoreEventDispatcherConfiguration
 {
     IntegrationStreamName = "catalogue-integration"
 });
-builder.Services.AddScoped<IEventDispatcher, EventStoreEventDispatcher>();
-    
-builder.Services.AddScoped<EventStoreAggregateRepository>();
-builder.Services.AddScoped<IAggregateRepository>(provider => new IntegrationAggregateRepository(
-    provider.GetRequiredService<EventStoreAggregateRepository>(),
-    provider.GetRequiredService<IIntegrationEventMapper>(),
-    provider.GetRequiredService<IEventDispatcher>()));
-    
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddSingleton<IEventDispatcher, EventStoreEventDispatcher>();
+builder.Services.AddSingleton<IIntegrationEventMapper, CatalogueIntegrationEventMapper>();
 
 builder.Services.AddSingleton<ISerializer, JsonSerializer>();
-    
+
+builder.Services.AddSingleton(_ => new EventStoreClient(EventStoreClientSettings.Create(builder.Configuration["EventStore:ConnectionString"])));
 builder.Services.AddDbContext<StoreCatalogueDbContext>(
     options => options.UseNpgsql(builder.Configuration["Postgres:ConnectionString"], b => b.MigrationsAssembly("Store.Catalogue.Infrastructure")));
-
-builder.Services.AddSingleton(_ => new EventStoreConnectionConfiguration
-{
-    SubscriptionId = "projections"
-});
-
-builder.Services.AddSingleton<IEventSubscriptionFactory, EventStoreSubscriptionFactory>();
-
-builder.Services.AddSingleton<IEventListener, ProductProjection>();
-builder.Services.AddHostedService<EventStoreSubscriptionService>();
 
 #endregion
 

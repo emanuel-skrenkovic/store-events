@@ -2,13 +2,13 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
+        <PreserveCompilationContext>true</PreserveCompilationContext>
         <Nullable>disable</Nullable>
-
         <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.1" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
         <PackageReference Include="xunit" Version="2.4.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
@@ -22,10 +22,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Store.Api.CatalogueManagement\Store.Api.CatalogueManagement.csproj" />
       <ProjectReference Include="..\..\Store.Core\Store.Core.Tests.Infrastructure\Store.Core.Tests.Infrastructure.csproj" />
-      <ProjectReference Include="..\Store.Shopping.Application\Store.Shopping.Application.csproj" />
-      <ProjectReference Include="..\Store.Shopping.Domain\Store.Shopping.Domain.csproj" />
-      <ProjectReference Include="..\Store.Shopping.Infrastructure\Store.Shopping.Infrastructure.csproj" />
+      <ProjectReference Include="..\Store.Catalogue.AspNet\Store.Catalogue.AspNet.csproj" />
+      <ProjectReference Include="..\Store.Catalogue.Infrastructure\Store.Catalogue.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

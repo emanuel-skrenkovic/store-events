@@ -2,14 +2,13 @@ using System;
 using System.Threading.Tasks;
 using MediatR;
 using Store.Core.Domain.ErrorHandling;
-using Store.Shopping.Application.Buyers.Commands.AddItemToCart;
 using Store.Shopping.Application.Orders.Commands.PlaceOrder;
 using Xunit;
 
 namespace Store.Shopping.Tests.Integration;
 
 [Collection(StoreShoppingCollection.Name)]
-public class OrderCommandTests : IDisposable
+public class OrderCommandTests : IAsyncLifetime
 {
     private readonly StoreShoppingFixture _fixture;
 
@@ -88,11 +87,10 @@ public class OrderCommandTests : IDisposable
     }
     */
 
-    public void Dispose()
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public async Task DisposeAsync()
     {
-        _fixture.EventStoreFixture.CleanAsync()
-            .ConfigureAwait(false)
-            .GetAwaiter()
-            .GetResult();
+        await _fixture.EventStoreFixture.CleanAsync();
     }
 }

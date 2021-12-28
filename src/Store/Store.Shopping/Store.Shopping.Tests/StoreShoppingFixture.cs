@@ -1,30 +1,28 @@
 using System;
-using System.Collections.Generic;
-using EventStore.Client;
+using System.IO;
+using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
-using Store.Core.Infrastructure;
 using Store.Core.Infrastructure.EventStore;
 using Store.Core.Tests.Infrastructure;
 using Store.Shopping.Application;
 using Store.Shopping.Application.Buyers;
-using Store.Shopping.Application.Buyers.Projections;
 using Store.Shopping.Application.Orders.Commands.PlaceOrder;
 using Store.Shopping.Application.Products;
-using Store.Shopping.Application.Products.Projections;
 using Store.Shopping.Domain;
 using Store.Shopping.Domain.Buyers;
 using Store.Shopping.Domain.Orders;
 using Store.Shopping.Domain.Payments;
 using Store.Shopping.Infrastructure;
+using Xunit;
 
 namespace Store.Shopping.Tests;
 
-public class StoreShoppingFixture : IDisposable
+public class StoreShoppingFixture : IAsyncLifetime
 {
-    private readonly IServiceProvider _serviceProvider;
+    private IServiceProvider _serviceProvider;
     
     public EventStoreFixture EventStoreFixture { get; }
     public PostgresFixture<StoreOrderDbContext> PostgresFixture { get; }
@@ -33,13 +31,21 @@ public class StoreShoppingFixture : IDisposable
     {
         EventStoreFixture = new();
         PostgresFixture = new();
+    }
+
+    public T GetService<T>() => _serviceProvider.GetRequiredService<T>();
+    
+    public async Task InitializeAsync()
+    {
+        await EventStoreFixture.InitializeAsync();
+        await PostgresFixture.InitializeAsync();
         
         IServiceCollection services = new ServiceCollection();
         
         services.AddMediatR(typeof(OrderPlaceCommand));
         
-        services.AddSingleton<EventStoreClient>(EventStoreFixture.EventStore);
-        services.AddScoped<StoreOrderDbContext>(_ => PostgresFixture.Context);
+        services.AddSingleton(EventStoreFixture.EventStore);
+        services.AddScoped(_ => PostgresFixture.Context);
         
         services.AddScoped<IAggregateRepository, EventStoreAggregateRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
@@ -53,7 +59,7 @@ public class StoreShoppingFixture : IDisposable
         
         services.AddScoped<IEventSubscriptionFactory, EventStoreSubscriptionFactory>();
         services.AddScoped<ISerializer, JsonSerializer>();
-        services.AddSingleton<EventStoreConnectionConfiguration>(_ => new EventStoreConnectionConfiguration
+        services.AddSingleton(_ => new EventStoreConnectionConfiguration
         {
             SubscriptionId = "projections"
         });
@@ -61,26 +67,9 @@ public class StoreShoppingFixture : IDisposable
         _serviceProvider = services.BuildServiceProvider();
     }
 
-    public T GetService<T>() => _serviceProvider.GetRequiredService<T>();
-    
-    #region IDisposable
-    
-    private void ReleaseUnmanagedResources()
+    public async Task DisposeAsync()
     {
-        EventStoreFixture.Dispose();
-        PostgresFixture.Dispose();
+        await EventStoreFixture.DisposeAsync();
+        await PostgresFixture.DisposeAsync();
     }
-
-    public void Dispose()
-    {
-        ReleaseUnmanagedResources();
-        GC.SuppressFinalize(this);
-    }
-
-    ~StoreShoppingFixture()
-    {
-        ReleaseUnmanagedResources();
-    }
-    
-    #endregion
 }
