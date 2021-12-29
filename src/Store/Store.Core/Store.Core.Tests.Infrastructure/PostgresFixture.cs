@@ -17,7 +17,7 @@ public class PostgresFixture<TContext> : IAsyncLifetime where TContext : DbConte
     
     // TODO: really don't like this. Improve.
     private const string ConnectionString = 
-        "User ID=postgres;Password=postgres;Server=localhost;Port=5432;Database=store-shopping;Integrated Security=true;Pooling=true;";
+        "User ID=postgres;Password=postgres;Server=localhost;Port=5432;Database=store-catalogue;Integrated Security=true;Pooling=true;";
     
     #region DockerParameters
 

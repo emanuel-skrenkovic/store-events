@@ -56,8 +56,13 @@ if (app.Environment.IsDevelopment())
 using (IServiceScope scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
     var context = scope.ServiceProvider.GetService<StoreCatalogueDbContext>();
-    context?.Database.Migrate();
-}
+
+    if (context?.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+    {
+        context?.Database.Migrate();
+    }
+} 
+
 
 #endif
 
