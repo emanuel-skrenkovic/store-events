@@ -1,6 +1,8 @@
+using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using EventStore.Client;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
@@ -18,10 +20,25 @@ public class StoreCatalogueEventStoreFixture : IAsyncLifetime
 
     public StoreCatalogueEventStoreFixture()
     {
-        EventStoreFixture = new();
+        if (!OpenPortsFinder.TryGetPort(new System.Range(30000, 31000), out int freePort))
+        {
+            throw new InvalidOperationException($"Could not find open port in {nameof(StoreCatalogueDatabaseFixture)}.");
+        }
+
+        string eventStoreConnectionString = $"esdb://localhost:{freePort}?tls=false&tlsVerifyCert=false";
+        
+        EventStoreFixture = new(
+            () => new EventStoreClient(EventStoreClientSettings.Create(eventStoreConnectionString)), 
+            new() { ["2113"] = freePort.ToString() });
+        
         _webApplicationFactory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
             {
+                builder.ConfigureAppConfiguration((context, _) =>
+                {
+                    context.Configuration["EventStore:ConnectionString"] = eventStoreConnectionString;
+                });
+                
                 builder.ConfigureTestServices(services =>
                 {
                     // Remove existing DbContext before adding the in-memory one.

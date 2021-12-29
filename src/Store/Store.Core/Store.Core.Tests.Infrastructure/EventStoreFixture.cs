@@ -8,8 +8,6 @@ namespace Store.Core.Tests.Infrastructure;
 
 public class EventStoreFixture : IAsyncLifetime
 {
-    private const string ConnectionString = "esdb://localhost:2111,localhost:2112,localhost:2113?tls=false&tlsVerifyCert=false";
-    
     #region DockerParameters
     
     private const string ContainerName = "store.integration-tests.eventstore";
@@ -26,20 +24,17 @@ public class EventStoreFixture : IAsyncLifetime
         "EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP=true"
     };
 
-    private readonly Dictionary<string, string> _ports = new()
-    {
-        ["1113"] = "1113",
-        ["2113"] = "2113"
-    };
-    
     #endregion
     
-    public EventStoreClient EventStore { get; private set; }
     private readonly DockerContainer _container;
+    private readonly Func<EventStoreClient> _clientFactory;
     
-    public EventStoreFixture()
+    public EventStoreClient EventStore { get; private set; }
+    
+    public EventStoreFixture(Func<EventStoreClient> clientFactory, Dictionary<string, string> ports)
     {
-        _container = new(ContainerName, ImageName, _env, _ports);
+        _clientFactory = clientFactory;
+        _container = new(ContainerName, ImageName, _env, ports);
         _container.CheckStatus = CheckConnectionAsync;
     }
 
@@ -78,7 +73,7 @@ public class EventStoreFixture : IAsyncLifetime
     {
         try
         {
-            EventStore = new EventStoreClient(EventStoreClientSettings.Create(ConnectionString));
+            EventStore = _clientFactory();
             await EventStore.ReadAllAsync(Direction.Backwards, Position.End).FirstAsync();
 
             return true;

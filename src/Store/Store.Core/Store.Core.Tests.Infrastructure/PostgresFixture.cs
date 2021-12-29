@@ -5,19 +5,8 @@ namespace Store.Core.Tests.Infrastructure;
 
 public class PostgresFixture<TContext> : IAsyncLifetime where TContext : DbContext
 {
-    public Func<TContext> ContextFactory { get; set; } = () =>
-    {
-        DbContextOptionsBuilder<TContext> optionsBuilder = new();
-        optionsBuilder.UseNpgsql(ConnectionString);
-            
-        return (TContext)Activator.CreateInstance(
-            typeof(TContext),
-            optionsBuilder.Options);
-    };
-    
-    // TODO: really don't like this. Improve.
-    private const string ConnectionString = 
-        "User ID=postgres;Password=postgres;Server=localhost;Port=5432;Database=store-catalogue;Integrated Security=true;Pooling=true;";
+    private readonly DockerContainer _container;
+    private readonly Func<TContext> _contextFactory;
     
     #region DockerParameters
 
@@ -30,21 +19,15 @@ public class PostgresFixture<TContext> : IAsyncLifetime where TContext : DbConte
         "POSTGRES_PASSWORD=postgres"
     };
 
-    private readonly Dictionary<string, string> _ports = new()
-    {
-        ["5432"] = "5432"
-    };
-    
     #endregion
-    
-    private readonly DockerContainer _container;
     
     public TContext Context { get; private set; }
 
-    public PostgresFixture()
+    public PostgresFixture(Func<TContext> contextFactory, Dictionary<string, string> ports)
     {
-        _container = new(ContainerName, ImageName, _env, _ports);
+        _container = new(ContainerName, ImageName, _env, ports);
         _container.CheckStatus = CheckConnectionAsync;
+        _contextFactory = contextFactory;
     }
 
     public async Task SeedAsync(Func<TContext, Task> seedAction)
@@ -65,7 +48,7 @@ public class PostgresFixture<TContext> : IAsyncLifetime where TContext : DbConte
     {
         try
         {
-            Context = ContextFactory();
+            Context = _contextFactory();
             if (Context == null) return false;
 
             await EnsureMigratedAsync();

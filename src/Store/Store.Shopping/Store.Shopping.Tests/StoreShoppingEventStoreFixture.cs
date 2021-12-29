@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using EventStore.Client;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +29,14 @@ public class StoreShoppingEventStoreFixture : IAsyncLifetime
 
     public StoreShoppingEventStoreFixture()
     {
-        EventStoreFixture = new();
+        if (!OpenPortsFinder.TryGetPort(new Range(31000, 32000), out int freePort))
+        {
+            throw new InvalidOperationException($"Could not find open port in {nameof(StoreShoppingEventStoreFixture)}.");
+        }
+        
+        EventStoreFixture = new(() => new EventStoreClient(
+            EventStoreClientSettings.Create($"esdb://localhost:{freePort}?tls=false&tlsVerifyCert=false")),
+            new() { ["2113"] = freePort.ToString() });
     }
     
     public T GetService<T>() => _serviceProvider.GetRequiredService<T>();

@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -14,15 +15,17 @@ namespace Store.Catalogue.Tests;
 
 public class StoreCatalogueDatabaseFixture : IAsyncLifetime
 {
-    private const string PostgresConnectionString = 
-        "User ID=postgres;Password=postgres;Server=localhost;Port=5432;Database=store-catalogue;Integrated Security=true;Pooling=true;";
-    
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
     
     public PostgresFixture<StoreCatalogueDbContext> PostgresFixture { get; }
     
     public StoreCatalogueDatabaseFixture()
     {
+        if (!OpenPortsFinder.TryGetPort(new System.Range(30000, 31000), out int freePort))
+        {
+            throw new InvalidOperationException($"Could not find open port in {nameof(StoreCatalogueDatabaseFixture)}.");
+        }
+        
         Mock<IIntegrationEventMapper> integrationEventMapperMock = new();
         IEvent integrationEvent = null;
         integrationEventMapperMock
@@ -33,29 +36,37 @@ public class StoreCatalogueDatabaseFixture : IAsyncLifetime
         eventDispatcherMock
             .Setup(ed => ed.DispatchAsync(It.IsAny<object>()))
             .Returns(Task.CompletedTask);
-            
+
+        string postgresConnectionString = $"User ID=postgres;Password=postgres;Server=localhost;Port={freePort};Database=store-catalogue;Integrated Security=true;Pooling=true;";
+
+        PostgresFixture = new PostgresFixture<StoreCatalogueDbContext>(
+            () =>
+            {
+                DbContextOptionsBuilder<StoreCatalogueDbContext> optionsBuilder = new();
+                optionsBuilder
+                    .UseNpgsql(postgresConnectionString);
+
+                return new StoreCatalogueDbContext(
+                    optionsBuilder.Options,
+                    integrationEventMapperMock.Object,
+                    eventDispatcherMock.Object);
+            }, 
+            new() { ["5432"] = freePort.ToString() });
+        
         _webApplicationFactory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
             {
+                builder.ConfigureAppConfiguration((context, _) =>
+                {
+                    context.Configuration["Postgres:ConnectionString"] = postgresConnectionString;
+                });
+                    
                 builder.ConfigureTestServices(services =>
                 {
                     services.AddSingleton(integrationEventMapperMock.Object);
                     services.AddSingleton(eventDispatcherMock.Object);
                 });
             });
-
-        // EventStoreFixture = new();
-        PostgresFixture = new PostgresFixture<StoreCatalogueDbContext>();
-        PostgresFixture.ContextFactory = () =>
-            {
-                DbContextOptionsBuilder<StoreCatalogueDbContext> optionsBuilder = new();
-                optionsBuilder.UseNpgsql(PostgresConnectionString);
-
-                return new StoreCatalogueDbContext(
-                    optionsBuilder.Options,
-                    integrationEventMapperMock.Object,
-                    eventDispatcherMock.Object);
-            };
     }
 
     public HttpClient GetClient() => _webApplicationFactory.CreateClient();
