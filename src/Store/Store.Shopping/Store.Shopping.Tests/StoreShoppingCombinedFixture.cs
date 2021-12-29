@@ -5,13 +5,11 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Store.Core.Domain;
-using Store.Core.Domain.Event;
 using Store.Core.Infrastructure.EventStore;
 using Store.Core.Tests.Infrastructure;
 using Store.Shopping.Application;
 using Store.Shopping.Application.Buyers;
 using Store.Shopping.Application.Buyers.Commands.AddItemToCart;
-using Store.Shopping.Application.Orders.Commands.PlaceOrder;
 using Store.Shopping.Application.Products;
 using Store.Shopping.Domain;
 using Store.Shopping.Domain.Buyers;
@@ -22,36 +20,68 @@ using Xunit;
 
 namespace Store.Shopping.Tests;
 
-public class StoreShoppingEventStoreFixture : IAsyncLifetime
+public class StoreShoppingCombinedFixture : IAsyncLifetime
 {
     private IServiceProvider _serviceProvider;
     
     public EventStoreFixture EventStoreFixture { get; }
 
-    public StoreShoppingEventStoreFixture()
+    public PostgresFixture<StoreShoppingDbContext> PostgresFixture { get; }
+    
+    public StoreShoppingCombinedFixture()
     {
-        if (!OpenPortsFinder.TryGetPort(new Range(31000, 32000), out int freePort))
+        #region EventStore
+        
+        if (!OpenPortsFinder.TryGetPort(new Range(31000, 31500), out int freeEventStorePort))
         {
             throw new InvalidOperationException($"Could not find open port in {nameof(StoreShoppingEventStoreFixture)}.");
         }
         
         EventStoreFixture = new(() => new EventStoreClient(
-            EventStoreClientSettings.Create($"esdb://localhost:{freePort}?tls=false&tlsVerifyCert=false")),
-            new() { ["2113"] = freePort.ToString() });
+                EventStoreClientSettings.Create($"esdb://localhost:{freeEventStorePort}?tls=false&tlsVerifyCert=false")),
+            new() { ["2113"] = freeEventStorePort.ToString() });
+        
+        if (!OpenPortsFinder.TryGetPort(new Range(31500, 32000), out int freePostgresPort))
+        {
+            throw new InvalidOperationException($"Could not find open port in {nameof(StoreShoppingEventStoreFixture)}.");
+        }
+        
+        #endregion
+        
+        #region Postgres
+        
+        string postgresConnectionString = $"User ID=postgres;Password=postgres;Server=localhost;Port={freePostgresPort};Database=store-catalogue;Integrated Security=true;Pooling=true;";
+
+        PostgresFixture = new PostgresFixture<StoreShoppingDbContext>(
+            () =>
+            {
+                DbContextOptionsBuilder<StoreShoppingDbContext> optionsBuilder = new();
+                optionsBuilder
+                    .UseNpgsql(postgresConnectionString);
+
+                return new StoreShoppingDbContext(
+                    optionsBuilder.Options);
+            }, 
+            new() { ["5432"] = freePostgresPort.ToString() });
+        
+        #endregion
     }
     
     public T GetService<T>() => _serviceProvider.GetRequiredService<T>();
     
     #region IAsyncLifetime
-
+    
     public async Task InitializeAsync()
     {
+        await Task.WhenAll(
+            PostgresFixture.InitializeAsync(), 
+            EventStoreFixture.InitializeAsync());
+        
         IServiceCollection services = new ServiceCollection();
         
         services.AddMediatR(typeof(BuyerAddItemToCartCommand));
-        
-        services.AddDbContext<StoreShoppingDbContext>(
-            options => options.UseInMemoryDatabase("store-shopping"));
+
+        services.AddScoped(_ => PostgresFixture.Context);
         
         services.AddScoped<IAggregateRepository, EventStoreAggregateRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
@@ -70,13 +100,17 @@ public class StoreShoppingEventStoreFixture : IAsyncLifetime
             SubscriptionId = "projections"
         });
         
-        await EventStoreFixture.InitializeAsync();
         services.AddSingleton(EventStoreFixture.EventStore);
         
-        _serviceProvider = services.BuildServiceProvider();
+        _serviceProvider = services.BuildServiceProvider(); 
     }
 
-    public Task DisposeAsync() => EventStoreFixture.DisposeAsync();
+    public async Task DisposeAsync()
+    {
+        await Task.WhenAll(
+            EventStoreFixture.DisposeAsync(), 
+            PostgresFixture.DisposeAsync());
+    }
     
     #endregion
 }

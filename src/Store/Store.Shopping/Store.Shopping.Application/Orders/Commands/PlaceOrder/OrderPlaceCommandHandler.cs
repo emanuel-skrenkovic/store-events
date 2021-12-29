@@ -18,8 +18,8 @@ public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Resul
         IOrderRepository orderRepository,
         IBuyerOrderService buyerOrderService)
     {
-        _buyerRepository = buyerRepository ?? throw new ArgumentNullException(nameof(buyerRepository));
-        _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+        _buyerRepository   = buyerRepository   ?? throw new ArgumentNullException(nameof(buyerRepository));
+        _orderRepository   = orderRepository   ?? throw new ArgumentNullException(nameof(orderRepository));
         _buyerOrderService = buyerOrderService ?? throw new ArgumentNullException(nameof(buyerOrderService));
     }
         

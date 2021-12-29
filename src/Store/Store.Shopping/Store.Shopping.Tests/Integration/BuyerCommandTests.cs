@@ -14,8 +14,7 @@ using Xunit;
 
 namespace Store.Shopping.Tests.Integration;
 
-[Collection(StoreShoppingEventStoreCollection.Name)]
-public class BuyerCommandTests : IAsyncLifetime
+public class BuyerCommandTests : IClassFixture<StoreShoppingEventStoreFixture>
 {
     private readonly StoreShoppingEventStoreFixture _fixture;
 
@@ -138,8 +137,4 @@ public class BuyerCommandTests : IAsyncLifetime
         
         #endregion
     }
-
-    public Task InitializeAsync() => Task.CompletedTask;
-
-    public Task DisposeAsync() => Task.CompletedTask;
 }
