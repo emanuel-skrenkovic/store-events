@@ -14,12 +14,12 @@ using Xunit;
 
 namespace Store.Shopping.Tests.Integration;
 
-[Collection(StoreShoppingCollection.Name)]
+[Collection(StoreShoppingEventStoreCollection.Name)]
 public class BuyerCommandTests : IAsyncLifetime
 {
-    private readonly StoreShoppingFixture _fixture;
+    private readonly StoreShoppingEventStoreFixture _fixture;
 
-    public BuyerCommandTests(StoreShoppingFixture fixture)
+    public BuyerCommandTests(StoreShoppingEventStoreFixture fixture)
         => _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
 
     [Fact]
@@ -67,8 +67,8 @@ public class BuyerCommandTests : IAsyncLifetime
     {
         IMediator mediator = _fixture.GetService<IMediator>();
 
-        const string customerNumber         = "1234";
-        const string sessionId              = "4321";
+        string customerNumber         = Guid.NewGuid().ToString();
+        string sessionId              = Guid.NewGuid().ToString();
         const string productCatalogueNumber = "asdf";
         
         #region Preconditions
@@ -115,9 +115,9 @@ public class BuyerCommandTests : IAsyncLifetime
     {
         IMediator mediator = _fixture.GetService<IMediator>();
 
-        const string customerNumber         = "1234";
-        const string sessionId              = "4321";
-        const string productCatalogueNumber = "asdf";
+        string customerNumber         = Guid.NewGuid().ToString();
+        string sessionId              = Guid.NewGuid().ToString();
+        string productCatalogueNumber = "asdf";
 
         #region Act
     
@@ -141,8 +141,5 @@ public class BuyerCommandTests : IAsyncLifetime
 
     public Task InitializeAsync() => Task.CompletedTask;
 
-    public async Task DisposeAsync()
-    {
-        await _fixture.EventStoreFixture.CleanAsync();
-    }
+    public Task DisposeAsync() => Task.CompletedTask;
 }

@@ -13,7 +13,7 @@ public class CartReadService
     private readonly ISerializer _serializer;
     private readonly IDbConnection _db;
 
-    public CartReadService(ISerializer serializer, StoreOrderDbContext context)
+    public CartReadService(ISerializer serializer, StoreShoppingDbContext context)
     {
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         _db = context?.Database.GetDbConnection() ?? throw new ArgumentNullException(nameof(context));  

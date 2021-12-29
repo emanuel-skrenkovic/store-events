@@ -32,7 +32,7 @@ public class OrderProjection : IEventListener
     {
         using IServiceScope scope = _scopeFactory.CreateScope();
 
-        StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
+        StoreShoppingDbContext context = scope.ServiceProvider.GetRequiredService<StoreShoppingDbContext>();
         if (context == null)
         {
             throw new InvalidOperationException($"Context cannot be null on {nameof(CartProjection)} startup.");
@@ -53,7 +53,7 @@ public class OrderProjection : IEventListener
         Ensure.NotNull(eventMetadata);
         
         using IServiceScope scope = _scopeFactory.CreateScope();
-        StoreOrderDbContext context = scope.ServiceProvider.GetService<StoreOrderDbContext>();
+        StoreShoppingDbContext context = scope.ServiceProvider.GetService<StoreShoppingDbContext>();
         if (context == null) return;
         
         Func<Task> projectionAction = receivedEvent switch
@@ -70,7 +70,7 @@ public class OrderProjection : IEventListener
         await context.SaveChangesAsync();
     }
 
-    private async Task When(OrderCreatedEvent @event, StoreOrderDbContext context)
+    private async Task When(OrderCreatedEvent @event, StoreShoppingDbContext context)
     {
         OrderEntity orderEntity = new()
         {
@@ -100,7 +100,7 @@ public class OrderProjection : IEventListener
         context.Add(orderEntity);
     }
 
-    private async Task When(OrderShippingInformationSetEvent @event, StoreOrderDbContext context)
+    private async Task When(OrderShippingInformationSetEvent @event, StoreShoppingDbContext context)
     {
         OrderEntity orderEntity = await context.FindAsync<OrderEntity>(@event.OrderId);
         if (orderEntity == null) return;

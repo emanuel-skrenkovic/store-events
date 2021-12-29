@@ -11,7 +11,7 @@ using Store.Shopping.Infrastructure;
 
 namespace Store.Shopping.Infrastructure.Migrations
 {
-    [DbContext(typeof(StoreOrderDbContext))]
+    [DbContext(typeof(StoreShoppingDbContext))]
     [Migration("20211220164826_cart_and_order")]
     partial class cart_and_order
     {

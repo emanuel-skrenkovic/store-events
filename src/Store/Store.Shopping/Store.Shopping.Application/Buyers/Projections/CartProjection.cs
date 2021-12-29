@@ -32,7 +32,7 @@ public class CartProjection : IEventListener
     {
         using IServiceScope scope = _scopeFactory.CreateScope();
 
-        StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
+        StoreShoppingDbContext context = scope.ServiceProvider.GetRequiredService<StoreShoppingDbContext>();
         if (context == null)
         {
             throw new InvalidOperationException($"Context cannot be null on {nameof(CartProjection)} startup.");
@@ -53,7 +53,7 @@ public class CartProjection : IEventListener
 
         using IServiceScope scope = _scopeFactory.CreateScope();
 
-        StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
+        StoreShoppingDbContext context = scope.ServiceProvider.GetRequiredService<StoreShoppingDbContext>();
         if (context == null) return;
 
         Func<Task> projectionAction = receivedEvent switch
@@ -71,7 +71,7 @@ public class CartProjection : IEventListener
         await context.SaveChangesAsync();
     }
         
-    private async Task When(BuyerCartItemAddedEvent @event, StoreOrderDbContext context)
+    private async Task When(BuyerCartItemAddedEvent @event, StoreShoppingDbContext context)
     {
         BuyerIdentifier buyerId = BuyerIdentifier.FromString(@event.BuyerId);
 
@@ -151,7 +151,7 @@ public class CartProjection : IEventListener
         }
     }
 
-    private async Task When(BuyerCartItemRemovedEvent @event, StoreOrderDbContext context)
+    private async Task When(BuyerCartItemRemovedEvent @event, StoreShoppingDbContext context)
     {
         BuyerIdentifier buyerId = BuyerIdentifier.FromString(@event.BuyerId);
 

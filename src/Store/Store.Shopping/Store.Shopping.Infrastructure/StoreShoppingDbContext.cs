@@ -4,7 +4,7 @@ using Store.Shopping.Infrastructure.Entity;
 
 namespace Store.Shopping.Infrastructure;
 
-public class StoreOrderDbContext : DbContext
+public class StoreShoppingDbContext : DbContext
 {
     public DbSet<OrderEntity> Orders { get; set; }
         
@@ -14,13 +14,13 @@ public class StoreOrderDbContext : DbContext
         
     public DbSet<SubscriptionCheckpointEntity> SubscriptionCheckpoint { get; set; }
 
-    public StoreOrderDbContext(DbContextOptions<StoreOrderDbContext> options) : base(options) { }
+    public StoreShoppingDbContext(DbContextOptions<StoreShoppingDbContext> options) : base(options) { }
         
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("public");
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(StoreOrderDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(StoreShoppingDbContext).Assembly);
             
         base.OnModelCreating(modelBuilder);
     }

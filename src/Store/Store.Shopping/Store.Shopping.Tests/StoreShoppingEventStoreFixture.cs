@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
@@ -19,32 +20,29 @@ using Xunit;
 
 namespace Store.Shopping.Tests;
 
-public class StoreShoppingFixture : IAsyncLifetime
+public class StoreShoppingEventStoreFixture : IAsyncLifetime
 {
     private IServiceProvider _serviceProvider;
     
     public EventStoreFixture EventStoreFixture { get; }
-    public PostgresFixture<StoreOrderDbContext> PostgresFixture { get; }
-    
-    public StoreShoppingFixture()
+
+    public StoreShoppingEventStoreFixture()
     {
         EventStoreFixture = new();
-        PostgresFixture = new();
     }
-
+    
     public T GetService<T>() => _serviceProvider.GetRequiredService<T>();
     
+    #region IAsyncLifetime
+
     public async Task InitializeAsync()
     {
-        await EventStoreFixture.InitializeAsync();
-        await PostgresFixture.InitializeAsync();
-        
         IServiceCollection services = new ServiceCollection();
         
         services.AddMediatR(typeof(OrderPlaceCommand));
         
-        services.AddSingleton(EventStoreFixture.EventStore);
-        services.AddScoped(_ => PostgresFixture.Context);
+        services.AddDbContext<StoreShoppingDbContext>(
+            options => options.UseInMemoryDatabase("store-shopping"));
         
         services.AddScoped<IAggregateRepository, EventStoreAggregateRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
@@ -62,13 +60,14 @@ public class StoreShoppingFixture : IAsyncLifetime
         {
             SubscriptionId = "projections"
         });
-
+        
+        await EventStoreFixture.InitializeAsync();
+        services.AddSingleton(EventStoreFixture.EventStore);
+        
         _serviceProvider = services.BuildServiceProvider();
     }
 
-    public async Task DisposeAsync()
-    {
-        await EventStoreFixture.DisposeAsync();
-        await PostgresFixture.DisposeAsync();
-    }
+    public Task DisposeAsync() => EventStoreFixture.DisposeAsync();
+    
+    #endregion
 }

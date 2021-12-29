@@ -51,7 +51,7 @@ builder.Services.AddScoped<CartReadService>();
 
 builder.Services.AddSingleton<ISerializer, JsonSerializer>();
             
-builder.Services.AddDbContext<StoreOrderDbContext>(
+builder.Services.AddDbContext<StoreShoppingDbContext>(
     options => options.UseNpgsql(builder.Configuration["Postgres:ConnectionString"], b => b.MigrationsAssembly("Store.Shopping.Infrastructure")));
 
 #region ProjectionServices
@@ -87,7 +87,7 @@ if (app.Environment.IsDevelopment())
 
 using (IServiceScope scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
-    var context = scope.ServiceProvider.GetService<StoreOrderDbContext>();
+    var context = scope.ServiceProvider.GetService<StoreShoppingDbContext>();
     context?.Database.Migrate();
 }
 

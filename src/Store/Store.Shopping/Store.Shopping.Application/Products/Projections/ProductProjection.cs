@@ -28,7 +28,7 @@ public class ProductProjection : IEventListener
     {
         using IServiceScope scope = _scopeFactory.CreateScope();
 
-        StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
+        StoreShoppingDbContext context = scope.ServiceProvider.GetRequiredService<StoreShoppingDbContext>();
 
         if (context == null)
         {
@@ -54,7 +54,7 @@ public class ProductProjection : IEventListener
 
         using IServiceScope scope = _scopeFactory.CreateScope();
 
-        StoreOrderDbContext context = scope.ServiceProvider.GetRequiredService<StoreOrderDbContext>();
+        StoreShoppingDbContext context = scope.ServiceProvider.GetRequiredService<StoreShoppingDbContext>();
         if (context == null) return;
 
         Func<Task> projectionAction = receivedEvent switch
@@ -71,7 +71,7 @@ public class ProductProjection : IEventListener
         await context.SaveChangesAsync();
     }
         
-    private Task When(ProductCreatedEvent @event, StoreOrderDbContext context)
+    private Task When(ProductCreatedEvent @event, StoreShoppingDbContext context)
     {
         ProductView productView = @event.ProductView;
         context.Products.Add(new()
@@ -85,7 +85,7 @@ public class ProductProjection : IEventListener
         return Task.CompletedTask;
     }
         
-    private async Task When(ProductUpdatedEvent @event, StoreOrderDbContext context)
+    private async Task When(ProductUpdatedEvent @event, StoreShoppingDbContext context)
     {
         ProductEntity productEntity = await context.FindAsync<ProductEntity>(@event.ProductId);
         if (productEntity == null) return;
