@@ -109,13 +109,13 @@ public class OrderCommandTests : IClassFixture<StoreShoppingCombinedFixture>
     {
         var mediator = _fixture.GetService<IMediator>();
 
-        foreach (string catalogueNumber in productCatalogueNumbers)
+        await Task.WhenAll(productCatalogueNumbers.Select(pn =>
         {
             BuyerAddItemToCartCommand validRequest = new(
                 customerNumber, 
                 sessionId, 
-                catalogueNumber);
-            await mediator.Send(validRequest); 
-        }
+                pn);
+            return mediator.Send(validRequest); 
+        }));
     }
 }
