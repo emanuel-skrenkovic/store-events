@@ -20,6 +20,14 @@ public static class TaskExtensions
         Result result = await task;
         return await result.Then(ok);
     }
+    
+    public static async Task<Result<TResult>> Then<TResult>(
+        this Task<Result> task, 
+        Func<Result<TResult>> ok)
+    {
+        Result result = await task;
+        return result.Then(ok);
+    }
 
     public static async Task<Result<TR>> Then<T, TR>(this Task<Result<T>> task, Func<T, Task<Result<TR>>> ok)
     {

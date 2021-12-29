@@ -44,8 +44,6 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IBuyerRepository, BuyerRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
-builder.Services.AddScoped<ProductInfoService>();
-builder.Services.AddScoped<IBuyerOrderService, BuyerOrderService>();
 builder.Services.AddScoped<IOrderPaymentService, OrderPaymentService>();
 builder.Services.AddScoped<CartReadService>();
 

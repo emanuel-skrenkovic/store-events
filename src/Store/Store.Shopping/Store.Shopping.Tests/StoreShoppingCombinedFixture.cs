@@ -88,11 +88,8 @@ public class StoreShoppingCombinedFixture : IAsyncLifetime
         services.AddScoped<IBuyerRepository, BuyerRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
 
-        services.AddScoped<ProductInfoService>();
-        services.AddScoped<IBuyerOrderService, BuyerOrderService>();
         services.AddScoped<IOrderPaymentService, OrderPaymentService>();
         services.AddScoped<CartReadService>();
-        services.AddScoped<ProductInfoService>();
         
         services.AddScoped<ISerializer, JsonSerializer>();
         services.AddSingleton(_ => new EventStoreConnectionConfiguration

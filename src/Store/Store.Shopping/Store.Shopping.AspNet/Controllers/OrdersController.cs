@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Store.Core.Domain.ErrorHandling;
+using Store.Core.Infrastructure.AspNet;
 using Store.Shopping.Application.Orders.Commands.AddShippingInformation;
 using Store.Shopping.Application.Orders.Commands.PlaceOrder;
 
@@ -23,10 +24,11 @@ public class OrdersController : ControllerBase
     [Route("actions/place-order")]
     public async Task<IActionResult> PlaceOrderAsync([FromBody] OrderPlaceCommand command)
     {
-        Result placeOrderResult = await _mediator.Send(command);
+        Result<OrderPlaceResponse> placeOrderResult = await _mediator.Send(command);
 
-        // TODO: need to return either 201 if created, or 200 if already exists.
-        return Ok();
+        return placeOrderResult.Match(
+            response => CreatedAtAction("GetOrder", new { id = response.OrderId }, null),
+            this.HandleError);
     }
 
     [HttpPut]
@@ -39,4 +41,8 @@ public class OrdersController : ControllerBase
     }
         
     #endregion
+
+    [HttpGet]
+    [Route("id:guid")]
+    public Task<IActionResult> GetOrder() => throw new NotImplementedException();
 }
