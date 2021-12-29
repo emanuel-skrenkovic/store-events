@@ -21,7 +21,7 @@ public class StoreCatalogueDatabaseFixture : IAsyncLifetime
     
     public StoreCatalogueDatabaseFixture()
     {
-        if (!OpenPortsFinder.TryGetPort(new System.Range(30000, 31000), out int freePort))
+        if (!OpenPortsFinder.TryGetPort(new System.Range(29000, 30000), out int freePort))
         {
             throw new InvalidOperationException($"Could not find open port in {nameof(StoreCatalogueDatabaseFixture)}.");
         }
