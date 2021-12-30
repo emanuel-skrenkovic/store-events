@@ -2,6 +2,7 @@ using System.Data;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Store.Core.Domain;
+using Store.Core.Domain.ErrorHandling;
 using Store.Shopping.Domain.Buyers.ValueObjects;
 using Store.Shopping.Infrastructure;
 using Store.Shopping.Infrastructure.Entity;
@@ -19,7 +20,7 @@ public class CartReadService
         _db = context?.Database.GetDbConnection() ?? throw new ArgumentNullException(nameof(context));  
     } 
         
-    public async Task<Cart> GetCartAsync(BuyerIdentifier buyerId)
+    public async Task<Result<Cart>> GetCartAsync(BuyerIdentifier buyerId)
     {
         string query = @"SELECT *
                          FROM public.cart
@@ -27,7 +28,7 @@ public class CartReadService
                          AND session_id = @SessionId;";
 
         CartEntity cartEntity = await _db.QuerySingleOrDefaultAsync<CartEntity>(query, new { buyerId.CustomerNumber, buyerId.SessionId });
-        if (cartEntity == null) return null;
+        if (cartEntity == null) return new NotFoundError($"Cart from buyer {buyerId} was not found.");
 
         return _serializer.Deserialize<Cart>(cartEntity.Data);
     }

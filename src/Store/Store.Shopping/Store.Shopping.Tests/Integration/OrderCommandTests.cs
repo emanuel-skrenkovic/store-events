@@ -5,6 +5,7 @@ using MediatR;
 using Store.Core.Domain.ErrorHandling;
 using Store.Shopping.Application.Buyers.Commands.AddItemToCart;
 using Store.Shopping.Application.Orders.Commands.PlaceOrder;
+using Store.Shopping.Application.Orders.Queries;
 using Store.Shopping.Domain.Orders.Events;
 using Store.Shopping.Infrastructure.Entity;
 using Xunit;
@@ -52,7 +53,12 @@ public class OrderCommandTests : IClassFixture<StoreShoppingCombinedFixture>
         string customerNumber = Guid.NewGuid().ToString();
         string sessionId      = Guid.NewGuid().ToString();
 
-        string[] productNumbers = { "1234", "4321", "asdf" };
+        string[] productNumbers =
+        {
+            Guid.NewGuid().ToString(), 
+            Guid.NewGuid().ToString(), 
+            Guid.NewGuid().ToString()
+        };
         
         #region Preconditions
 
@@ -118,4 +124,22 @@ public class OrderCommandTests : IClassFixture<StoreShoppingCombinedFixture>
             return mediator.Send(validRequest); 
         }));
     }
+
+    /*
+    private async Task<Guid> OrderCreated(string customerNumber, string sessionId, params string[] productNumbers)
+    {
+        var mediator = _fixture.GetService<IMediator>();
+
+        ProductEntity[] products = new ProductEntity[productNumbers.Length];
+        for (int i = 0; i < productNumbers.Length; ++i) 
+            products[i] = new ProductEntity { CatalogueNumber = productNumbers[i], Available = true, Name = $"Product_{i}" };
+        await ProductsExist(products);
+        await BuyerCreated(customerNumber, sessionId, productNumbers);
+
+        OrderPlaceCommand orderPlaceCommand = new(customerNumber, sessionId);
+        Result<OrderPlaceResponse> orderPlaceResult = await mediator.Send(orderPlaceCommand);
+
+        return orderPlaceResult.Unwrap().OrderId;
+    }
+    */
 }

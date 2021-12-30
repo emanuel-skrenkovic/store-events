@@ -11,12 +11,6 @@ public class BuyerCartGetQueryHandler : IRequestHandler<BuyerCartGetQuery, Resul
     public BuyerCartGetQueryHandler(CartReadService cartReadService)
         => _cartReadService = cartReadService ?? throw new ArgumentNullException(nameof(cartReadService));
 
-    public async Task<Result<Cart>> Handle(BuyerCartGetQuery request, CancellationToken cancellationToken)
-    { 
-        Cart cart = await _cartReadService.GetCartAsync(request.BuyerId);
-
-        if (cart == null) return new NotFoundError("Buyer's cart was not found.");
-
-        return cart;
-    }
+    public Task<Result<Cart>> Handle(BuyerCartGetQuery request, CancellationToken cancellationToken)
+        => _cartReadService.GetCartAsync(request.BuyerId);
 }

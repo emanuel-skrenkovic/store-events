@@ -4,6 +4,8 @@ using Store.Core.Domain.ErrorHandling;
 using Store.Core.Infrastructure.AspNet;
 using Store.Shopping.Application.Orders.Commands.AddShippingInformation;
 using Store.Shopping.Application.Orders.Commands.PlaceOrder;
+using Store.Shopping.Application.Orders.Queries;
+using Store.Shopping.Infrastructure.Entity;
 
 namespace Store.Shopping.AspNet.Controllers;
 
@@ -14,9 +16,7 @@ public class OrdersController : ControllerBase
     private readonly IMediator _mediator;
 
     public OrdersController(IMediator mediator)
-    {
-        _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-    }
+        => _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
     #region Actions
         
@@ -35,14 +35,17 @@ public class OrdersController : ControllerBase
     [Route("{orderId:guid}/actions/set-shipping-information")] // TODO route
     public async Task<IActionResult> SetOrderShippingInformation([FromRoute] Guid orderId, [FromBody] OrderAddShippingInformationCommand command)
     {
-        Result placeOrderResult = await _mediator.Send(command with { OrderId = orderId });
-
-        return Ok();
+        Result addShippingInfoResult = await _mediator.Send(command with { OrderId = orderId });
+        return addShippingInfoResult.Match(Ok, this.HandleError);
     }
         
     #endregion
 
     [HttpGet]
     [Route("id:guid")]
-    public Task<IActionResult> GetOrder() => throw new NotImplementedException();
+    public async Task<IActionResult> GetOrder([FromRoute] Guid id)
+    {
+        Result<Order> getOrderResult = await _mediator.Send(new GetOrderQuery(id));
+        return getOrderResult.Match(Ok, this.HandleError);
+    } 
 }
