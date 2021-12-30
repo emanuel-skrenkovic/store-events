@@ -5,20 +5,28 @@ import sys
 import time
 
 def build():
+    command = "dotnet build --no-restore src/Store"
     print("[INFO] Running 'build' command...")
+    print("[INFO] Command: ", command)
 
     start = time.time()
-    os.system("dotnet build --no-restore src/Store")
+
+    os.system(command)
+
     end = time.time()
     print("[INFO] Elapsed time: ", end - start)
 
 
 def test():
     build()
+    command = "dotnet test --no-build src/Store"
     print("[INFO] Running 'test' command...")
+    print("[INFO] Command: ", command)
 
     start = time.time()
-    os.system("dotnet test --no-build src/Store")
+
+    os.system(command)
+
     end = time.time()
     print("[INFO] Elapsed time: ", end - start)
 
