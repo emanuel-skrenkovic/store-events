@@ -11,21 +11,19 @@ public class BuyerRemoveItemFromCartCommandHandler : IRequestHandler<BuyerRemove
     private readonly IBuyerRepository _buyerRepository;
 
     public BuyerRemoveItemFromCartCommandHandler(IBuyerRepository buyerRepository)
-    {
-        _buyerRepository = buyerRepository ?? throw new ArgumentNullException(nameof(buyerRepository));
-    }
+        => _buyerRepository = buyerRepository ?? throw new ArgumentNullException(nameof(buyerRepository));
         
-    public async Task<Result> Handle(BuyerRemoveItemFromCartCommand request, CancellationToken cancellationToken)
+    public Task<Result> Handle(BuyerRemoveItemFromCartCommand request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        BuyerIdentifier buyerId = new(request.CustomerNumber, request.SessionId);
-        Result<Buyer> getBuyerResult = await _buyerRepository.GetBuyerAsync(buyerId);
-
-        return await getBuyerResult.Then(buyer =>
+        (string customerNumber, string sessionId, string itemCatalogueNumber) = request;
+        BuyerIdentifier buyerId = new(customerNumber, sessionId);
+        
+        return _buyerRepository.GetBuyerAsync(buyerId).Then(buyer =>
         {
-            buyer.RemoveCartItem(new CatalogueNumber(request.ItemCatalogueNumber));
-            return _buyerRepository.SaveBuyerAsync(buyer);
+            buyer.RemoveCartItem(new CatalogueNumber(itemCatalogueNumber));
+            return _buyerRepository.SaveBuyerAsync(buyer); 
         });
     }
 }

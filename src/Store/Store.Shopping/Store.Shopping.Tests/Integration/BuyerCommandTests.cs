@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
+using Store.Core.Domain;
 using Store.Core.Domain.ErrorHandling;
 using Store.Core.Domain.Event;
 using Store.Shopping.Application.Buyers.Commands.AddItemToCart;
@@ -10,25 +11,38 @@ using Store.Shopping.Application.Buyers.Commands.RemoveItemFromCart;
 using Store.Shopping.Domain.Buyers;
 using Store.Shopping.Domain.Buyers.Events;
 using Store.Shopping.Domain.Buyers.ValueObjects;
+using Store.Shopping.Infrastructure.Entity;
 using Xunit;
 
 namespace Store.Shopping.Tests.Integration;
 
-public class BuyerCommandTests : IClassFixture<StoreShoppingEventStoreFixture>
+[Collection(nameof(StoreShoppingCombinedFixtureCollection))]
+public class BuyerCommandTests
 {
-    private readonly StoreShoppingEventStoreFixture _fixture;
+    private readonly StoreShoppingCombinedFixture _fixture;
 
-    public BuyerCommandTests(StoreShoppingEventStoreFixture fixture)
-        => _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
+    public BuyerCommandTests(StoreShoppingCombinedFixture fixture)
+        => _fixture = Ensure.NotNull(fixture);
 
     [Fact]
     public async Task BuyerAddItemToCartCommand_Should_CreateBuyer_And_AddItemToCart()
     {
         IMediator mediator = _fixture.GetService<IMediator>();
 
-        const string customerNumber         = "1234";
-        const string sessionId              = "4321";
-        const string productCatalogueNumber = "asdf";
+        string customerNumber         = Guid.NewGuid().ToString();
+        string sessionId              = Guid.NewGuid().ToString();
+        string productCatalogueNumber = Guid.NewGuid().ToString();
+        
+        #region Preconditions
+
+        await _fixture.ProductsExist(new ProductEntity
+        {
+            CatalogueNumber = productCatalogueNumber, 
+            Name = "Product", 
+            Available = true
+        });
+        
+        #endregion
         
         #region Act
         
@@ -60,6 +74,52 @@ public class BuyerCommandTests : IClassFixture<StoreShoppingEventStoreFixture>
         
         #endregion
     }
+    
+    [Fact]
+    public async Task BuyerAddItemToCartCommand_Should_ReturnError_When_ProductNotAvailable()
+    {
+        IMediator mediator = _fixture.GetService<IMediator>();
+
+        string customerNumber         = Guid.NewGuid().ToString();
+        string sessionId              = Guid.NewGuid().ToString();
+        string productCatalogueNumber = Guid.NewGuid().ToString();
+        
+        #region Preconditions
+
+        await _fixture.ProductsExist(new ProductEntity
+        {
+            CatalogueNumber = productCatalogueNumber, 
+            Name = "Product", 
+            Available = false
+        });
+        
+        #endregion
+        
+        #region Act
+        
+        BuyerAddItemToCartCommand validRequest = new(
+            customerNumber, 
+            sessionId, 
+            productCatalogueNumber);
+        Result result = await mediator.Send(validRequest);
+        
+        #endregion
+        
+        #region Assert
+        
+        Assert.NotNull(result);
+        Assert.True(result.IsError);
+
+        result.Match(null, Assert.IsType<Error>);
+
+        BuyerIdentifier buyerId = new(customerNumber, sessionId);
+        
+        // TODO: need better way for generating Id. Move Id to AggregateEntity class?
+        List<IEvent> events = await _fixture.EventStoreFixture.Events($"{typeof(Buyer).FullName}-{buyerId}"); 
+        Assert.Null(events);
+        
+        #endregion
+    }
 
     [Fact]
     public async Task BuyerRemoveItemFromCartCommand_Should_RemoveItemFromCart_When_ItemInCart()
@@ -68,9 +128,16 @@ public class BuyerCommandTests : IClassFixture<StoreShoppingEventStoreFixture>
 
         string customerNumber         = Guid.NewGuid().ToString();
         string sessionId              = Guid.NewGuid().ToString();
-        const string productCatalogueNumber = "asdf";
+        string productCatalogueNumber = Guid.NewGuid().ToString();
         
         #region Preconditions
+        
+        await _fixture.ProductsExist(new ProductEntity
+        {
+            CatalogueNumber = productCatalogueNumber, 
+            Name = "Product", 
+            Available = true
+        });
         
         BuyerAddItemToCartCommand addItemToCartCommand = new(
             customerNumber, 
@@ -116,7 +183,7 @@ public class BuyerCommandTests : IClassFixture<StoreShoppingEventStoreFixture>
 
         string customerNumber         = Guid.NewGuid().ToString();
         string sessionId              = Guid.NewGuid().ToString();
-        string productCatalogueNumber = "asdf";
+        string productCatalogueNumber = Guid.NewGuid().ToString();
 
         #region Act
     

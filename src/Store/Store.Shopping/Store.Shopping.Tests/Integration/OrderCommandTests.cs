@@ -2,10 +2,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
+using Store.Core.Domain;
 using Store.Core.Domain.ErrorHandling;
-using Store.Shopping.Application.Buyers.Commands.AddItemToCart;
 using Store.Shopping.Application.Orders.Commands.PlaceOrder;
-using Store.Shopping.Application.Orders.Queries;
 using Store.Shopping.Domain.Orders.Events;
 using Store.Shopping.Infrastructure.Entity;
 using Xunit;
@@ -13,12 +12,13 @@ using Order = Store.Shopping.Domain.Orders.Order;
 
 namespace Store.Shopping.Tests.Integration;
 
-public class OrderCommandTests : IClassFixture<StoreShoppingCombinedFixture>
+[Collection(nameof(StoreShoppingCombinedFixtureCollection))]
+public class OrderCommandTests
 {
     private readonly StoreShoppingCombinedFixture _fixture;
 
     public OrderCommandTests(StoreShoppingCombinedFixture fixture)
-        => _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
+        => _fixture = Ensure.NotNull(fixture);
 
     [Fact]
     public async Task OrderPlaceCommand_Should_ReturnError_When_BuyerDoesNotExist()
@@ -62,12 +62,12 @@ public class OrderCommandTests : IClassFixture<StoreShoppingCombinedFixture>
         
         #region Preconditions
 
-        await ProductsExist(
+        await _fixture.ProductsExist(
             new ProductEntity { CatalogueNumber = productNumbers[0], Available = true, Name = "Product0" },
             new ProductEntity { CatalogueNumber = productNumbers[1], Available = true, Name = "Product1" },
             new ProductEntity { CatalogueNumber = productNumbers[2], Available = true, Name = "Product2" });
         
-        await BuyerCreated(customerNumber, sessionId, productNumbers);
+        await _fixture.BuyerCreated(customerNumber, sessionId, productNumbers);
         
         #endregion
         
@@ -100,46 +100,4 @@ public class OrderCommandTests : IClassFixture<StoreShoppingCombinedFixture>
 
         #endregion
     }
-
-    private async Task ProductsExist(params ProductEntity[] products)
-    {
-        var context = _fixture.PostgresFixture.Context;
-
-        foreach (ProductEntity product in products)
-            context.Add(product);
-
-        await context.SaveChangesAsync();
-    }
-
-    private async Task BuyerCreated(string customerNumber, string sessionId, params string[] productCatalogueNumbers)
-    {
-        var mediator = _fixture.GetService<IMediator>();
-
-        await Task.WhenAll(productCatalogueNumbers.Select(pn =>
-        {
-            BuyerAddItemToCartCommand validRequest = new(
-                customerNumber, 
-                sessionId, 
-                pn);
-            return mediator.Send(validRequest); 
-        }));
-    }
-
-    /*
-    private async Task<Guid> OrderCreated(string customerNumber, string sessionId, params string[] productNumbers)
-    {
-        var mediator = _fixture.GetService<IMediator>();
-
-        ProductEntity[] products = new ProductEntity[productNumbers.Length];
-        for (int i = 0; i < productNumbers.Length; ++i) 
-            products[i] = new ProductEntity { CatalogueNumber = productNumbers[i], Available = true, Name = $"Product_{i}" };
-        await ProductsExist(products);
-        await BuyerCreated(customerNumber, sessionId, productNumbers);
-
-        OrderPlaceCommand orderPlaceCommand = new(customerNumber, sessionId);
-        Result<OrderPlaceResponse> orderPlaceResult = await mediator.Send(orderPlaceCommand);
-
-        return orderPlaceResult.Unwrap().OrderId;
-    }
-    */
 }

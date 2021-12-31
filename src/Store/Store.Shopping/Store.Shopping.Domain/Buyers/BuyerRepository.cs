@@ -11,9 +11,7 @@ public class BuyerRepository : IBuyerRepository
     private readonly IAggregateRepository _repository;
 
     public BuyerRepository(IAggregateRepository repository)
-    {
-        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-    }
+        => _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         
     public Task<Result<Buyer>> GetBuyerAsync(BuyerIdentifier buyerId)
         => _repository.GetAsync<Buyer, string>(buyerId.ToString());
