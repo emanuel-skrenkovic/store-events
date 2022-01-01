@@ -12,10 +12,15 @@ public class PaymentRefundCommandHandler : IRequestHandler<PaymentRefundCommand,
     public PaymentRefundCommandHandler(IPaymentRepository paymentRepository)
         => _paymentRepository = Ensure.NotNull(paymentRepository);
     
-    // TODO: beer for anyone who can read this shit.
+    // TODO: paying beer for anyone who can read this shit.
     public Task<Result<PaymentRefundResponse>> Handle(PaymentRefundCommand request, CancellationToken cancellationToken)
         => _paymentRepository.GetPaymentAsync(request.PaymentId)
-            .Then(payment => payment.Refund(request.Note)
-                .Then(refund => _paymentRepository.SavePaymentAsync(payment)
-                    .Then<PaymentRefundResponse>(() => new PaymentRefundResponse(refund.Id))));
+            .Then(async payment =>
+            {
+                if (payment.Status == PaymentStatus.Refunded) return new PaymentRefundResponse(payment.RefundInfo.Id);
+                
+                return await payment.Refund(request.Note)
+                    .Then(refund => _paymentRepository.SavePaymentAsync(payment)
+                        .Then<PaymentRefundResponse>(() => new PaymentRefundResponse(refund.Id)));
+            });
 }
