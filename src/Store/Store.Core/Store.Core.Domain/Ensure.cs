@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Store.Core.Domain;
@@ -38,16 +36,16 @@ public static class Ensure
 
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T NonNegative<T>(T number, [CallerArgumentExpression("number")] string argName = null) where T : IComparable
+    public static decimal NonNegative(decimal number, [CallerArgumentExpression("number")] string argName = null)
     {
-        if (number.CompareTo(0) < 0)
+        if (number < 0)
         {
             throw new ArgumentException($"{argName} is negative.");
         }
 
         return number;
     }
-        
+    
     private static class CommonMessages
     {
         [DebuggerHidden]

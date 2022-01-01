@@ -46,7 +46,7 @@ public class Payment : AggregateEntity<Guid>
     // TODO: this seems stupid.
     public Result<Refund> Refund(string note = null)
     {
-        if (Status != PaymentStatus.Created) return new Error($"Refund cannot be completed on payment in state '{Status}'.");
+        if (Status == PaymentStatus.Refunded) return new Error($"Payment is already refunded. See refund id: '{RefundInfo.Id}';");
         
         Refund refund = new()
         {
