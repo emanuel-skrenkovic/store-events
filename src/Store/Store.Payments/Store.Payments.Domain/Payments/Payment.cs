@@ -68,7 +68,7 @@ public class Payment : AggregateEntity<Guid>
 
     public Result Complete()
     {
-        if (Status != PaymentStatus.Created) return new Error($"Payment in state '{Status}' cannot be completed..");
+        if (Status != PaymentStatus.Created) return new Error($"Payment in state '{Status}' cannot be completed.");
         ApplyEvent(new PaymentCompletedEvent(Id, PaymentStatus.Completed));
         
         return Result.Ok();

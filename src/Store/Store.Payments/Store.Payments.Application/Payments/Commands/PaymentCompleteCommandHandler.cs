@@ -14,5 +14,10 @@ public class PaymentCompleteCommandHandler : IRequestHandler<PaymentCompleteComm
 
     public Task<Result> Handle(PaymentCompleteCommand request, CancellationToken cancellationToken)
         => _paymentRepository.GetPaymentAsync(request.PaymentId)
-            .Then(payment => payment.Complete().Then(() => _paymentRepository.SavePaymentAsync(payment)));
+            .Then(async payment =>
+            {
+                if (payment.Status == PaymentStatus.Completed) return Result.Ok();
+                
+                return await payment.Complete().Then(() => _paymentRepository.SavePaymentAsync(payment));
+            });
 }

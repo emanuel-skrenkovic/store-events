@@ -23,11 +23,13 @@ public class PaymentsController : ControllerBase
     public async Task<IActionResult> CreatePayment([FromBody] PaymentCreateCommand command)
     {
         Result<PaymentCreateResponse> result = await _mediator.Send(command);
-        return result.Match(paymentId => CreatedAtAction("GetPayment", new { paymentId }, null), this.HandleError);
+        return result.Match(
+            response => CreatedAtAction("GetPayment", new { response.PaymentId }, null), 
+            this.HandleError);
     }
 
     [HttpPut]
-    [Route("{productId:guid}/actions/refund")]
+    [Route("{paymentId:guid}/actions/refund")]
     public async Task<IActionResult> RefundPayment([FromRoute] Guid paymentId, [FromBody] PaymentRefundCommand command)
     {
         Result<PaymentRefundResponse> result = await _mediator.Send(command with { PaymentId = paymentId });
@@ -35,7 +37,7 @@ public class PaymentsController : ControllerBase
     }
 
     [HttpPut]
-    [Route("{productId:guid}/actions/complete")]
+    [Route("{paymentId:guid}/actions/complete")]
     public async Task<IActionResult> CompletePayment([FromRoute] Guid paymentId)
     {
         Result result = await _mediator.Send(new PaymentCompleteCommand(paymentId));
