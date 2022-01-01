@@ -36,6 +36,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Core.Tests", "Store.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Catalogue.Tests", "Store.Catalogue\Store.Catalogue.Tests\Store.Catalogue.Tests.csproj", "{E1702D4E-B2AD-4775-8A9B-02BA748B1E48}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Store.Payments", "Store.Payments", "{2188D55E-0B45-4D97-B85D-6520CC7750C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Payments.Domain", "Store.Payments.Domain\Store.Payments.Domain.csproj", "{9D7EE58D-549C-4431-8051-9F1624DEDB0B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +59,7 @@ Global
 		{C0F34397-AD2C-419F-BDDC-14BB96C4F834} = {173D1E16-96AD-4DDB-82CF-1EE59AAF7909}
 		{B6B8C552-B85D-4F93-AFEE-61465172AF44} = {9BCFAE85-02D8-492B-B323-B1B93C8F68D0}
 		{E1702D4E-B2AD-4775-8A9B-02BA748B1E48} = {EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}
+		{9D7EE58D-549C-4431-8051-9F1624DEDB0B} = {2188D55E-0B45-4D97-B85D-6520CC7750C8}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE5F2D00-026A-4817-9063-04E87016015E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -117,5 +122,9 @@ Global
 		{E1702D4E-B2AD-4775-8A9B-02BA748B1E48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1702D4E-B2AD-4775-8A9B-02BA748B1E48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1702D4E-B2AD-4775-8A9B-02BA748B1E48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D7EE58D-549C-4431-8051-9F1624DEDB0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D7EE58D-549C-4431-8051-9F1624DEDB0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D7EE58D-549C-4431-8051-9F1624DEDB0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D7EE58D-549C-4431-8051-9F1624DEDB0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
