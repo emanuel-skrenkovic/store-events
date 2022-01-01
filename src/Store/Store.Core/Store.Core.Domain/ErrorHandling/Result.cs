@@ -51,6 +51,9 @@ public class Result
 
     public async Task<Result<TResult>> Then<TResult>(Func<Task<TResult>> ok)
         => IsOk ? Ok(await ok()) : Error<TResult>(_error);
+    
+    public async Task<Result> Then(Func<Task<Result>> ok)
+        => IsOk ? await ok() : _error;
 
     public static Result<T> Ok<T>(T value)
     {

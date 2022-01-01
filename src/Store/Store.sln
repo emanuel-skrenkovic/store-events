@@ -42,6 +42,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Payments.Domain", "St
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Payments.Tests", "Store.Payments\Store.Payments.Tests\Store.Payments.Tests.csproj", "{2C6A0A53-0C51-45E9-9BDB-E1B6A4F693E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Payments.Application", "Store.Payments\Store.Payments.Application\Store.Payments.Application.csproj", "{967F2CB0-C327-4FBC-9BE2-2C7BC7007619}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,7 @@ Global
 		{E1702D4E-B2AD-4775-8A9B-02BA748B1E48} = {EADAC059-A11B-4322-9D4A-5C8B3FFDC7A5}
 		{4A3A71EA-1A84-432A-B69F-DB0654987BC1} = {2188D55E-0B45-4D97-B85D-6520CC7750C8}
 		{2C6A0A53-0C51-45E9-9BDB-E1B6A4F693E6} = {2188D55E-0B45-4D97-B85D-6520CC7750C8}
+		{967F2CB0-C327-4FBC-9BE2-2C7BC7007619} = {2188D55E-0B45-4D97-B85D-6520CC7750C8}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE5F2D00-026A-4817-9063-04E87016015E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -133,5 +136,9 @@ Global
 		{2C6A0A53-0C51-45E9-9BDB-E1B6A4F693E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C6A0A53-0C51-45E9-9BDB-E1B6A4F693E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C6A0A53-0C51-45E9-9BDB-E1B6A4F693E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{967F2CB0-C327-4FBC-9BE2-2C7BC7007619}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{967F2CB0-C327-4FBC-9BE2-2C7BC7007619}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{967F2CB0-C327-4FBC-9BE2-2C7BC7007619}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{967F2CB0-C327-4FBC-9BE2-2C7BC7007619}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
