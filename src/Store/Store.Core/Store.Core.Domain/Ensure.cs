@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Store.Core.Domain;
@@ -22,17 +21,31 @@ public static class Ensure
             throw new ArgumentException(CommonMessages.NullOrEmpty(argName));
         }
     }
-        
+    
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void NotNullOrEmpty<T>(IEnumerable<T> arg, [CallerArgumentExpression("arg")] string argName = null)
+    public static T NotNullOrEmpty<T>(T arg, [CallerArgumentExpression("arg")] string argName = null) where T : IEnumerable
     {
-        if (arg?.Any() != true)
+        if (arg?.GetEnumerator().MoveNext() != true)
         {
             throw new ArgumentException(CommonMessages.NullOrEmpty(argName?.TrimStart('@')));
         }
+
+        return arg;
     }
-        
+
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static decimal NonNegative(decimal number, [CallerArgumentExpression("number")] string argName = null)
+    {
+        if (number < 0)
+        {
+            throw new ArgumentException($"{argName} is negative.");
+        }
+
+        return number;
+    }
+    
     private static class CommonMessages
     {
         [DebuggerHidden]

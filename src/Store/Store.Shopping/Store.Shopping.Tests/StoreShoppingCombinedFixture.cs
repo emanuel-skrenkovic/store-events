@@ -39,14 +39,14 @@ public class StoreShoppingCombinedFixture : IAsyncLifetime
                 EventStoreClientSettings.Create($"esdb://localhost:{freeEventStorePort}?tls=false&tlsVerifyCert=false")),
             new() { ["2113"] = freeEventStorePort.ToString() });
         
+        #endregion
+        
+        #region Postgres
+        
         if (!OpenPortsFinder.TryGetPort(new Range(31500, 32000), out int freePostgresPort))
         {
             throw new InvalidOperationException($"Could not find open port in {nameof(StoreShoppingCombinedFixture)}.");
         }
-        
-        #endregion
-        
-        #region Postgres
         
         string postgresConnectionString = $"User ID=postgres;Password=postgres;Server=localhost;Port={freePostgresPort};Database=store-catalogue;Integrated Security=true;Pooling=true;";
 

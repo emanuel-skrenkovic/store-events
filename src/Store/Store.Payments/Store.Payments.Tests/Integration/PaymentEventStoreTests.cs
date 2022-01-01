@@ -1,0 +1,230 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using MediatR;
+using Store.Core.Domain;
+using Store.Core.Domain.ErrorHandling;
+using Store.Payments.Application.Payments.Commands;
+using Store.Payments.Domain.Payments;
+using Store.Payments.Domain.Payments.Events;
+using Xunit;
+
+namespace Store.Payments.Tests.Integration;
+
+public class PaymentEventStoreTests : IClassFixture<PaymentsEventStoreFixture>
+{
+    private readonly PaymentsEventStoreFixture _fixture;
+
+    public PaymentEventStoreTests(PaymentsEventStoreFixture fixture)
+        => _fixture = Ensure.NotNull(fixture);
+
+    [Fact]
+    public async Task PaymentCreateCommand_Should_CreatePayment()
+    {
+        var mediator = _fixture.GetService<IMediator>();
+
+        string source = Guid.NewGuid().ToString();
+        decimal amount = 15m;
+        string note = Guid.NewGuid().ToString();
+
+        #region Act
+        
+        PaymentCreateCommand command = new(source, amount, note);
+        Result<PaymentCreateResponse> paymentCreateResult = await mediator.Send(command);
+        
+        #endregion
+        
+        #region Assert
+        
+        Assert.NotNull(paymentCreateResult);
+        Assert.True(paymentCreateResult.IsOk);
+
+        PaymentCreateResponse response = paymentCreateResult.UnwrapOrDefault();
+        
+        Assert.NotNull(response);
+        Assert.NotEqual(default, response.PaymentId);
+
+        var events = await _fixture.EventStoreFixture.Events($"{typeof(Payment).FullName}-{response.PaymentId}");
+        Assert.NotEmpty(events);
+        Assert.Contains(events, e => e is PaymentCreatedEvent);
+
+        var @event = events.SingleOrDefault(e => e is PaymentCreatedEvent) as PaymentCreatedEvent;
+        Assert.NotNull(@event);
+        Assert.Equal(response.PaymentId, @event.PaymentId);
+        Assert.Equal(source, @event.Source);
+        Assert.Equal(amount, @event.Amount);
+        Assert.Equal(note, @event.Note);
+        
+        #endregion
+    }
+
+    [Fact]
+    public async Task PaymentRefundCommand_Should_Refund()
+    {
+        var mediator = _fixture.GetService<IMediator>();
+        
+        #region Preconditions        
+        
+        string source = Guid.NewGuid().ToString();
+        decimal amount = 15m;
+        string note = Guid.NewGuid().ToString();
+
+        string refundNote = Guid.NewGuid().ToString();
+        
+        Guid paymentId = await _fixture.PaymentExists(source, amount, note);
+
+        #endregion
+        
+        #region Act
+
+        PaymentRefundCommand command = new(paymentId, refundNote);
+        Result<PaymentRefundResponse> refundResult = await mediator.Send(command);
+
+        #endregion
+        
+        #region Assert
+        
+        Assert.NotNull(refundResult);
+        Assert.True(refundResult.IsOk);
+
+        var response = refundResult.UnwrapOrDefault();
+        Assert.NotNull(response);
+        Assert.NotEqual(default, response.RefundId);
+        
+        var events = await _fixture.EventStoreFixture.Events($"{typeof(Payment).FullName}-{paymentId}");
+        Assert.NotEmpty(events);
+        Assert.Contains(events, e => e is PaymentRefundedEvent);
+
+        var @event = events.SingleOrDefault(e => e is PaymentRefundedEvent) as PaymentRefundedEvent;
+        Assert.NotNull(@event);
+        Assert.Equal(paymentId, @event.PaymentId);
+        Assert.Equal(response.RefundId, @event.Refund.Id);
+        Assert.Equal(refundNote, @event.Refund.Note);
+        Assert.Equal(amount, @event.Refund.Amount);
+        
+        #endregion
+    }
+    
+    [Fact]
+    public async Task PaymentRefundCommand_Should_ReturnOk_When_PaymentAlreadyRefunded()
+    {
+        var mediator = _fixture.GetService<IMediator>();
+        
+        #region Preconditions        
+        
+        string source = Guid.NewGuid().ToString();
+        decimal amount = 15m;
+        string note = Guid.NewGuid().ToString();
+
+        string refundNote = Guid.NewGuid().ToString();
+        
+        Guid paymentId = await _fixture.PaymentExists(source, amount, note);
+        await mediator.Send(new PaymentRefundCommand(paymentId, refundNote));
+
+        #endregion
+        
+        #region Act
+
+        PaymentRefundCommand command = new(paymentId, refundNote);
+        Result<PaymentRefundResponse> refundResult = await mediator.Send(command);
+
+        #endregion
+        
+        #region Assert
+        
+        Assert.NotNull(refundResult);
+        Assert.True(refundResult.IsOk);
+
+        var response = refundResult.UnwrapOrDefault();
+        Assert.NotNull(response);
+        Assert.NotEqual(default, response.RefundId);
+        
+        var events = await _fixture.EventStoreFixture.Events($"{typeof(Payment).FullName}-{paymentId}");
+        Assert.NotEmpty(events);
+        Assert.Contains(events, e => e is PaymentRefundedEvent);
+
+        var @event = events.SingleOrDefault(e => e is PaymentRefundedEvent) as PaymentRefundedEvent;
+        Assert.NotNull(@event);
+        Assert.Equal(paymentId, @event.PaymentId);
+        Assert.Equal(response.RefundId, @event.Refund.Id);
+        Assert.Equal(refundNote, @event.Refund.Note);
+        Assert.Equal(amount, @event.Refund.Amount);
+        
+        #endregion
+    }
+
+    [Fact]
+    public async Task PaymentCompleteCommand_Should_Complete()
+    {
+        var mediator = _fixture.GetService<IMediator>();
+        
+        #region Preconditions        
+        
+        string source = Guid.NewGuid().ToString();
+        decimal amount = 15m;
+        string note = Guid.NewGuid().ToString();
+        
+        Guid paymentId = await _fixture.PaymentExists(source, amount, note);
+        
+        #endregion
+        
+        #region Act
+
+        PaymentCompleteCommand command = new(paymentId);
+        Result paymentCompleteResult = await mediator.Send(command);
+
+        #endregion
+        
+        #region Assert
+        
+        Assert.NotNull(paymentCompleteResult);
+        Assert.True(paymentCompleteResult.IsOk);
+
+        var events = await _fixture.EventStoreFixture.Events($"{typeof(Payment).FullName}-{paymentId}");
+        Assert.NotEmpty(events);
+        Assert.Contains(events, e => e is PaymentCompletedEvent);
+        
+        var @event = events.SingleOrDefault(e => e is PaymentCompletedEvent) as PaymentCompletedEvent;
+        Assert.NotNull(@event);
+        
+        Assert.Equal(paymentId, @event.PaymentId);
+        Assert.Equal(PaymentStatus.Completed, @event.Status);
+        
+        #endregion
+    }
+
+    [Fact]
+    public async Task PaymentCompleteCommand_Should_ReturnError_When_PaymentRefunded()
+    {
+        var mediator = _fixture.GetService<IMediator>();
+        
+        #region Preconditions        
+        
+        string source = Guid.NewGuid().ToString();
+        decimal amount = 15m;
+        string note = Guid.NewGuid().ToString();
+        
+        Guid paymentId = await _fixture.PaymentExists(source, amount, note);
+        await mediator.Send(new PaymentRefundCommand(paymentId));
+        
+        #endregion
+        
+        #region Act
+
+        PaymentCompleteCommand command = new(paymentId);
+        Result paymentCompleteResult = await mediator.Send(command);
+
+        #endregion 
+        
+        #region Assert
+        
+        Assert.NotNull(paymentCompleteResult);
+        Assert.True(paymentCompleteResult.IsError);
+
+        var events = await _fixture.EventStoreFixture.Events($"{typeof(Payment).FullName}-{paymentId}");
+        Assert.NotEmpty(events);
+        Assert.DoesNotContain(events, e => e is PaymentCompletedEvent);
+
+        #endregion
+    }
+}
