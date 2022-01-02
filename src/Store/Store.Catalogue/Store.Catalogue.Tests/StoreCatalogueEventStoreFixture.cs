@@ -3,9 +3,11 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using EventStore.Client;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Store.Catalogue.Infrastructure;
 using Store.Core.Tests.Infrastructure;
@@ -20,7 +22,7 @@ public class StoreCatalogueEventStoreFixture : IAsyncLifetime
 
     public StoreCatalogueEventStoreFixture()
     {
-        if (!OpenPortsFinder.TryGetPort(new System.Range(30000, 31000), out int freePort))
+        if (!OpenPortsFinder.TryGetPort(new Range(30000, 31000), out int freePort))
         {
             throw new InvalidOperationException($"Could not find open port in {nameof(StoreCatalogueDatabaseFixture)}.");
         }
@@ -34,10 +36,9 @@ public class StoreCatalogueEventStoreFixture : IAsyncLifetime
         _webApplicationFactory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
             {
-                builder.ConfigureAppConfiguration((context, _) =>
-                {
-                    context.Configuration["EventStore:ConnectionString"] = eventStoreConnectionString;
-                });
+                var configuration = new ConfigurationManager();
+                configuration["EventStore:ConnectionString"] = eventStoreConnectionString;
+                builder.UseConfiguration(configuration);
                 
                 builder.ConfigureTestServices(services =>
                 {
