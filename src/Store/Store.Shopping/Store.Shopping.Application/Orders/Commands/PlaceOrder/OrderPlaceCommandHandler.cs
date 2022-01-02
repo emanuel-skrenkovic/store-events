@@ -46,7 +46,7 @@ public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Resul
         OrderNumber orderNumber = new(Guid.NewGuid());
         
         return _buyerRepository.GetBuyerAsync(buyerId)
-            .Then(buyer => ValidateShippingInformation(shippingInfo).Then(shippingInformation => CreateOrder(buyer,orderNumber, new(paymentNumber), shippingInformation)))
+            .Then(buyer => ValidateShippingInfo(shippingInfo).Then(si => CreateOrder(buyer,orderNumber, new(paymentNumber), si)))
             .Then<OrderPlaceResponse>(() => new OrderPlaceResponse(orderNumber.Value));
     }
 
@@ -92,7 +92,7 @@ public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Resul
         return await _orderRepository.SaveOrderAsync(order); 
     }
     
-    private Result<ShippingInformation> ValidateShippingInformation(ShippingInfo shippingInfo) 
+    private Result<ShippingInformation> ValidateShippingInfo(ShippingInfo shippingInfo) 
         => ShippingInformation.Create(
             shippingInfo.CountryCode, 
             shippingInfo.FullName, 
