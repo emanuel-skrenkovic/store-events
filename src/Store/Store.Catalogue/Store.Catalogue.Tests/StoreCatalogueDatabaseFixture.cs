@@ -1,9 +1,12 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using EventStore.Client;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Store.Catalogue.Infrastructure;
@@ -37,6 +40,9 @@ public class StoreCatalogueDatabaseFixture : IAsyncLifetime
             .Setup(ed => ed.DispatchAsync(It.IsAny<object>()))
             .Returns(Task.CompletedTask);
 
+        Mock<EventStoreClientSettings> eventStoreClientSettingsMock = new();
+        Mock<EventStoreClient> eventStoreClientMock = new(eventStoreClientSettingsMock.Object);
+
         string postgresConnectionString = $"User ID=postgres;Password=postgres;Server=localhost;Port={freePort};Database=store-catalogue;Integrated Security=true;Pooling=true;";
 
         PostgresFixture = new PostgresFixture<StoreCatalogueDbContext>(
@@ -56,13 +62,14 @@ public class StoreCatalogueDatabaseFixture : IAsyncLifetime
         _webApplicationFactory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
             {
-                builder.ConfigureAppConfiguration((context, _) =>
-                {
-                    context.Configuration["Postgres:ConnectionString"] = postgresConnectionString;
-                });
+                var configuration = new ConfigurationManager();
+                configuration["Postgres:ConnectionString"] = postgresConnectionString;
+
+                builder.UseConfiguration(configuration);
                     
                 builder.ConfigureTestServices(services =>
                 {
+                    services.AddSingleton(eventStoreClientMock.Object);
                     services.AddSingleton(integrationEventMapperMock.Object);
                     services.AddSingleton(eventDispatcherMock.Object);
                 });
