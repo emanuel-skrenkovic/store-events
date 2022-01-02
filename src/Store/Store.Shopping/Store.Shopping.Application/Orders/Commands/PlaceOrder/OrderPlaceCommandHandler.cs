@@ -7,11 +7,13 @@ using Store.Shopping.Domain.Buyers;
 using Store.Shopping.Domain.Buyers.ValueObjects;
 using Store.Shopping.Domain.Orders;
 using Store.Shopping.Domain.Orders.ValueObjects;
+using Store.Shopping.Domain.Payments.ValueObjects;
 using Store.Shopping.Domain.ValueObjects;
 using Store.Shopping.Infrastructure;
 using Store.Shopping.Infrastructure.Entity;
 using Order = Store.Shopping.Domain.Orders.Order;
 using OrderLine = Store.Shopping.Domain.Orders.OrderLine;
+using ShippingInformation = Store.Shopping.Domain.Orders.ValueObjects.ShippingInformation;
 
 namespace Store.Shopping.Application.Orders.Commands.PlaceOrder;
 
@@ -35,16 +37,24 @@ public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Resul
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        (string customerNumber, string sessionId) = request;
+        (string customerNumber, 
+         string sessionId, 
+         Guid paymentNumber, 
+         ShippingInfo shippingInfo) = request;
+        
         BuyerIdentifier buyerId = new(customerNumber, sessionId);
-
         OrderNumber orderNumber = new(Guid.NewGuid());
+        
         return _buyerRepository.GetBuyerAsync(buyerId)
-            .Then(buyer => CreateOrder(buyer, orderNumber))
+            .Then(buyer => ValidateShippingInformation(shippingInfo).Then(shippingInformation => CreateOrder(buyer,orderNumber, new(paymentNumber), shippingInformation)))
             .Then<OrderPlaceResponse>(() => new OrderPlaceResponse(orderNumber.Value));
     }
 
-    private async Task<Result> CreateOrder(Buyer buyer, OrderNumber orderNumber)
+    private async Task<Result> CreateOrder(
+        Buyer buyer, 
+        OrderNumber orderNumber, 
+        PaymentNumber paymentNumber, 
+        ShippingInformation shippingInformation)
     {
         string[] catalogueNumbers = buyer
             .CartItems
@@ -75,8 +85,20 @@ public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Resul
         Order order = Order.Create(
             orderNumber,
             new CustomerNumber(buyer.CustomerNumber),
-            orderLines);
+            paymentNumber,
+            orderLines,
+            shippingInformation);
 
         return await _orderRepository.SaveOrderAsync(order); 
     }
+    
+    private Result<ShippingInformation> ValidateShippingInformation(ShippingInfo shippingInfo) 
+        => ShippingInformation.Create(
+            shippingInfo.CountryCode, 
+            shippingInfo.FullName, 
+            shippingInfo.StreetAddress,
+            shippingInfo.City,
+            shippingInfo.StateProvince, 
+            shippingInfo.Postcode, 
+            shippingInfo.PhoneNumber);
 }

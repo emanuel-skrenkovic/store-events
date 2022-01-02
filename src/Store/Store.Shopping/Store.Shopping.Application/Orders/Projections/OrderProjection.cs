@@ -58,8 +58,7 @@ public class OrderProjection : IEventListener
         
         Func<Task> projectionAction = receivedEvent switch
         {
-            OrderCreatedEvent                @event => () => When(@event, context),
-            OrderShippingInformationSetEvent @event => () => When(@event, context),
+            OrderPlacedEvent @event => () => When(@event, context),
             _ => null
         };
         if (projectionAction == null) return;
@@ -70,7 +69,7 @@ public class OrderProjection : IEventListener
         await context.SaveChangesAsync();
     }
 
-    private async Task When(OrderCreatedEvent @event, StoreShoppingDbContext context)
+    private async Task When(OrderPlacedEvent @event, StoreShoppingDbContext context)
     {
         OrderEntity orderEntity = new()
         {
@@ -85,7 +84,9 @@ public class OrderProjection : IEventListener
         IEnumerable<string>      productIds = @event.OrderLines.Select(ol => ol.CatalogueNumber);
         ICollection<ProductEntity> products = await context.Products.Where(p => productIds.Contains(p.CatalogueNumber)).ToListAsync();
 
-        Infrastructure.Entity.Order order = new()
+        var shippingInfo = @event.ShippingInfo;
+        
+        Order order = new()
         {
             OrderLines = @event.OrderLines.Select(ol => new OrderLine
             {
@@ -93,34 +94,20 @@ public class OrderProjection : IEventListener
                 Product = products.SingleOrDefault(p => p.CatalogueNumber == ol.CatalogueNumber),
                 Count = ol.Count,
                 TotalAmount = ol.Price
-            }).ToList()
+            }).ToList(),
+            ShippingInformation = new()
+            {
+                CountryCode   = shippingInfo.CountryCode,
+                FullName      = shippingInfo.FullName,
+                StreetAddress = shippingInfo.StreetAddress,
+                City          = shippingInfo.City,
+                StateProvince = shippingInfo.StateProvince,
+                Postcode      = shippingInfo.Postcode,
+                PhoneNumber   = shippingInfo.PhoneNumber
+            }
         };
         orderEntity.Data = _serializer.Serialize(order);
 
         context.Add(orderEntity);
-    }
-
-    private async Task When(OrderShippingInformationSetEvent @event, StoreShoppingDbContext context)
-    {
-        OrderEntity orderEntity = await context.FindAsync<OrderEntity>(@event.OrderId);
-        if (orderEntity == null) return;
-
-        var order = _serializer.Deserialize<Infrastructure.Entity.Order>(orderEntity.Data);
-
-        var shippingInformation = @event.ShippingInformation;
-        order.ShippingInformation = new()
-        {
-            CountryCode   = shippingInformation.CountryCode,
-            FullName      = shippingInformation.FullName,
-            StreetAddress = shippingInformation.StreetAddress,
-            City          = shippingInformation.City,
-            StateProvince = shippingInformation.StateProvince,
-            Postcode      = shippingInformation.Postcode,
-            PhoneNumber   = shippingInformation.PhoneNumber
-        };
-
-        orderEntity.Data = _serializer.Serialize(order);
-
-        context.Update(orderEntity);
     }
 }

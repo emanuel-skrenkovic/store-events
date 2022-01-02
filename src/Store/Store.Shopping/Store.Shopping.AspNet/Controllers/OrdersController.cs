@@ -2,7 +2,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Store.Core.Domain.ErrorHandling;
 using Store.Core.Infrastructure.AspNet;
-using Store.Shopping.Application.Orders.Commands.AddShippingInformation;
 using Store.Shopping.Application.Orders.Commands.PlaceOrder;
 using Store.Shopping.Application.Orders.Queries;
 using Store.Shopping.Infrastructure.Entity;
@@ -29,14 +28,6 @@ public class OrdersController : ControllerBase
         return placeOrderResult.Match(
             response => CreatedAtAction("GetOrder", new { id = response.OrderId }, null),
             this.HandleError);
-    }
-
-    [HttpPut]
-    [Route("{orderId:guid}/actions/set-shipping-information")] // TODO route
-    public async Task<IActionResult> SetOrderShippingInformation([FromRoute] Guid orderId, [FromBody] OrderAddShippingInformationCommand command)
-    {
-        Result addShippingInfoResult = await _mediator.Send(command with { OrderId = orderId });
-        return addShippingInfoResult.Match(Ok, this.HandleError);
     }
         
     #endregion

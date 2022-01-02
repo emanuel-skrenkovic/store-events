@@ -4,8 +4,10 @@ using System.Threading.Tasks;
 using MediatR;
 using Store.Core.Domain;
 using Store.Core.Domain.ErrorHandling;
+using Store.Shopping.Application.Orders;
 using Store.Shopping.Application.Orders.Commands.PlaceOrder;
 using Store.Shopping.Domain.Orders.Events;
+using Store.Shopping.Domain.Payments.ValueObjects;
 using Store.Shopping.Infrastructure.Entity;
 using Xunit;
 using Order = Store.Shopping.Domain.Orders.Order;
@@ -27,10 +29,20 @@ public class OrderCommandTests
 
         string customerNumber = Guid.NewGuid().ToString();
         string sessionId      = Guid.NewGuid().ToString();
+        PaymentNumber paymentNumber = new(Guid.NewGuid());
+        ShippingInfo shippingInformation = new(
+            0,
+            "full-name",
+            "street-address",
+            "city",
+            "state-province",
+            "postcode",
+            "phone-number");
+
 
         #region Act
         
-        OrderPlaceCommand orderPlaceCommand = new(customerNumber, sessionId);
+        OrderPlaceCommand orderPlaceCommand = new(customerNumber, sessionId, paymentNumber.Value, shippingInformation);
         Result orderPlaceResult = await mediator.Send(orderPlaceCommand);
         
         #endregion
@@ -52,6 +64,15 @@ public class OrderCommandTests
         
         string customerNumber = Guid.NewGuid().ToString();
         string sessionId      = Guid.NewGuid().ToString();
+        PaymentNumber paymentNumber = new(Guid.NewGuid());
+        ShippingInfo shippingInformation = new(
+            0,
+            "full-name",
+            "street-address",
+            "city",
+            "state-province",
+            "postcode",
+            "phone-number");
 
         string[] productNumbers =
         {
@@ -73,7 +94,7 @@ public class OrderCommandTests
         
         #region Act
 
-        OrderPlaceCommand orderPlaceCommand = new(customerNumber, sessionId);
+        OrderPlaceCommand orderPlaceCommand = new(customerNumber, sessionId, paymentNumber.Value, shippingInformation);
         Result<OrderPlaceResponse> orderPlaceResult = await mediator.Send(orderPlaceCommand);
         
         #endregion
@@ -89,14 +110,26 @@ public class OrderCommandTests
 
         var events = await _fixture.EventStoreFixture.Events($"{typeof(Order).FullName}-{response.OrderId}");
         Assert.NotEmpty(events);
-        Assert.Contains(events, e => e is OrderCreatedEvent);
+        Assert.Contains(events, e => e is OrderPlacedEvent);
 
-        var orderCreatedEvent = events.SingleOrDefault(e => e is OrderCreatedEvent) as OrderCreatedEvent;
+        var orderCreatedEvent = events.SingleOrDefault(e => e is OrderPlacedEvent) as OrderPlacedEvent;
         Assert.NotNull(orderCreatedEvent);
         Assert.Equal(response.OrderId, orderCreatedEvent.OrderId);
         Assert.Equal(customerNumber, orderCreatedEvent.CustomerNumber);
+        Assert.Equal(paymentNumber.Value, orderCreatedEvent.PaymentId);
+        
         var orderLinesCatalogueNumbers = orderCreatedEvent.OrderLines.Select(ol => ol.CatalogueNumber).ToArray();
         Assert.All(productNumbers, pn => orderLinesCatalogueNumbers.Contains(pn));
+
+        Domain.Orders.ValueObjects.ShippingInfo shippingInfo = orderCreatedEvent.ShippingInfo;
+        Assert.NotNull(shippingInfo);
+        Assert.Equal(shippingInformation.CountryCode, shippingInfo.CountryCode);
+        Assert.Equal(shippingInformation.FullName, shippingInfo.FullName);
+        Assert.Equal(shippingInformation.StreetAddress, shippingInfo.StreetAddress);
+        Assert.Equal(shippingInformation.City, shippingInfo.City);
+        Assert.Equal(shippingInformation.StateProvince, shippingInfo.StateProvince);
+        Assert.Equal(shippingInformation.Postcode, shippingInfo.Postcode);
+        Assert.Equal(shippingInformation.PhoneNumber, shippingInfo.PhoneNumber);
 
         #endregion
     }

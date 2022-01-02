@@ -1,7 +1,7 @@
-namespace Store.Shopping.Domain.Orders;
+namespace Store.Shopping.Application.Orders;
 
-public record ShippingInformation(
-    int CountryCode, // TODO
+public record ShippingInfo(
+    int    CountryCode,
     string FullName,
     string StreetAddress,
     string City,
