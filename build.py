@@ -6,57 +6,61 @@ import time
 
 from dataclasses import dataclass
 
+
 @dataclass
 class TaskStatus:
     exit_code: int
     task_name: str
 
-def build():
-    command = "dotnet build --no-restore src/Store"
-    print("[INFO] Running 'build' command...")
-    print("[INFO] Command: ", command)
 
-    start = time.time()
+class TaskRunner:
+    def __init__(self):
+        self.tasks = {}
 
-    result = os.system(command)
+    def register_task(self, name, command_text, depends_on = []):
+        depend_tasks = [lambda: self.tasks[task_name] for task_name in depends_on]
+        self.tasks[name] = lambda: self._execute_task(name, command_text, depends_on = depend_tasks)
 
-    end = time.time()
-    print("[INFO] Elapsed time: ", end - start)
+    def run(self, name):
+        task = self.tasks[name]
 
-    return TaskStatus(result, "build")
+        if not task:
+            raise Exception(f"Command '{command_name}' is not registered.")
 
+        return task()
 
-def test():
-    build_result = build()
-    if build_result.exit_code != 0:
-        return build_result
+    def _execute_task(self, name, command_text, **kwargs):
+        depends_on = kwargs.get("depends_on")
+        if depends_on:
+            for prerequisite in depends_on:
+                prerequisite_status = prerequisite()()
 
-    command = "dotnet test --no-build src/Store"
-    print("[INFO] Running 'test' command...")
-    print("[INFO] Command: ", command)
+                if prerequisite_status.exit_code != 0:
+                    return prerequisite_status
 
-    start = time.time()
+        print(f"[INFO] Running '{name}' command...")
+        print("[INFO] Command: ", command_text)
 
-    result = os.system(command)
+        start = time.time()
+        exit_code = os.system(command_text)
+        end = time.time()
 
-    end = time.time()
-    print("[INFO] Elapsed time: ", end - start)
+        print(f"[INFO] Elapsed time: {end - start}\n")
 
-    return TaskStatus(result, "test")
+        return TaskStatus(exit_code, name)
+    
 
-def run_command(command_name):
-    if command_name == "build":
-        return build()
-    elif command_name == "test":
-        return test()
-    else:
-        raise Exception("command not recognized")
+# Register new tasks here, the above is just infrastructure for running tasks.
+runner = TaskRunner()
+runner.register_task("build", "dotnet build --no-restore src/Store")
+runner.register_task("test", "dotnet test --no-build src/Store", ["build"])
+
 
 if __name__ == "__main__":
     command_name = sys.argv[1] if len(sys.argv) > 1 else "build"
 
     start = time.time()
-    status = run_command(command_name)
+    status = runner.run(command_name)
     end = time.time()
     print("[INFO] Total elapsed time: ", end - start)
 
