@@ -15,8 +15,6 @@ public abstract class AggregateEntity<TKey>
     public TKey Id { get; set; }
 
     public int Version { get; private set; }
-        
-    public AggregateEntity(Guid id) : this() { }
 
     protected AggregateEntity()
     {
@@ -38,7 +36,7 @@ Please call the 'RegisterApplier' in the 'RegisterAppliers' method in the aggreg
         }
                 
                 
-        _eventAppliers[domainEvent.GetType()](domainEvent);
+        _eventAppliers[eventType](domainEvent);
         _events.Add(domainEvent);
     }
 
