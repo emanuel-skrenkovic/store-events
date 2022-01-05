@@ -10,10 +10,6 @@ using Store.Core.Infrastructure.EventStore;
 using Store.Core.Tests.Infrastructure;
 using Store.Shopping.Application.Buyers;
 using Store.Shopping.Application.Buyers.Commands.AddItemToCart;
-using Store.Shopping.Domain;
-using Store.Shopping.Domain.Buyers;
-using Store.Shopping.Domain.Orders;
-using Store.Shopping.Domain.Payments;
 using Store.Shopping.Infrastructure;
 using Store.Shopping.Infrastructure.Entity;
 using Xunit;
@@ -89,24 +85,6 @@ public class StoreShoppingCombinedFixture : IAsyncLifetime
             return mediator.Send(validRequest); 
         }));
     }
-
-    /*
-    public async Task<Guid> OrderCreated(string customerNumber, string sessionId, params string[] productNumbers)
-    {
-        var mediator = _fixture.GetService<IMediator>();
-
-        ProductEntity[] products = new ProductEntity[productNumbers.Length];
-        for (int i = 0; i < productNumbers.Length; ++i) 
-            products[i] = new ProductEntity { CatalogueNumber = productNumbers[i], Available = true, Name = $"Product_{i}" };
-        await ProductsExist(products);
-        await BuyerCreated(customerNumber, sessionId, productNumbers);
-
-        OrderPlaceCommand orderPlaceCommand = new(customerNumber, sessionId);
-        Result<OrderPlaceResponse> orderPlaceResult = await mediator.Send(orderPlaceCommand);
-
-        return orderPlaceResult.Unwrap().OrderId;
-    }
-    */
     
     #region IAsyncLifetime
     
@@ -115,32 +93,6 @@ public class StoreShoppingCombinedFixture : IAsyncLifetime
         await Task.WhenAll(
             PostgresFixture.InitializeAsync(), 
             EventStoreFixture.InitializeAsync());
-        
-        // IServiceCollection services = new ServiceCollection();
-        //
-        // services.AddMediatR(typeof(BuyerAddItemToCartCommand));
-        //
-        // services.AddScoped(_ => PostgresFixture.Context);
-        //
-        // services.AddScoped<IAggregateRepository, EventStoreAggregateRepository>();
-        // services.AddScoped<IOrderRepository, OrderRepository>();
-        // services.AddScoped<IBuyerRepository, BuyerRepository>();
-        // services.AddScoped<IPaymentRepository, PaymentRepository>();
-        //
-        // // services.AddTransient<ProductInfoService>();
-        //
-        // services.AddScoped<IOrderPaymentService, OrderPaymentService>();
-        // services.AddScoped<CartReadService>();
-        //
-        // services.AddScoped<ISerializer, JsonSerializer>();
-        // services.AddSingleton(_ => new EventStoreConnectionConfiguration
-        // {
-        //     SubscriptionId = "projections"
-        // });
-        //
-        // services.AddSingleton(EventStoreFixture.EventStore);
-        //
-        // _serviceProvider = services.BuildServiceProvider(); 
     }
 
     private IServiceProvider BuildServices()
@@ -161,13 +113,6 @@ public class StoreShoppingCombinedFixture : IAsyncLifetime
         });
         
         services.AddScoped<IAggregateRepository, EventStoreAggregateRepository>();
-        services.AddScoped<IOrderRepository, OrderRepository>();
-        services.AddScoped<IBuyerRepository, BuyerRepository>();
-        services.AddScoped<IPaymentRepository, PaymentRepository>();
-
-        // services.AddTransient<ProductInfoService>();
-
-        services.AddScoped<IOrderPaymentService, OrderPaymentService>();
         services.AddScoped<CartReadService>();
         
         services.AddScoped<ISerializer, JsonSerializer>();

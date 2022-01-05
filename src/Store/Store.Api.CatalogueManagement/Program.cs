@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Store.Catalogue.AspNet;
 using Store.Catalogue.Infrastructure;
+using Store.Core.Infrastructure.AspNet;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,7 @@ builder.Services
     .AddCatalogue(configuration =>
     {
         configuration.EventStoreConnectionString = builder.Configuration["EventStore:ConnectionString"];
-        configuration.PostgresConnectionString = builder.Configuration["Postgres:ConnectionString"];
+        configuration.PostgresConnectionString   = builder.Configuration["Postgres:ConnectionString"];
     })
     .AddControllers()
     .AddJsonOptions(opts =>
@@ -32,6 +33,7 @@ builder.Services
 #region App
 
 var app = builder.Build();
+app.UseMiddleware<CorrelationMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

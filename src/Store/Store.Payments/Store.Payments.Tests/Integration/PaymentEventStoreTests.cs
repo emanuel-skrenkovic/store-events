@@ -154,7 +154,7 @@ public class PaymentEventStoreTests : IClassFixture<PaymentsEventStoreFixture>
     }
 
     [Fact]
-    public async Task PaymentCompleteCommand_Should_Complete()
+    public async Task PaymentVerifyCommand_Should_Verify()
     {
         var mediator = _fixture.GetService<IMediator>();
         
@@ -170,31 +170,31 @@ public class PaymentEventStoreTests : IClassFixture<PaymentsEventStoreFixture>
         
         #region Act
 
-        PaymentCompleteCommand command = new(paymentId);
-        Result paymentCompleteResult = await mediator.Send(command);
+        PaymentVerifyCommand command = new(paymentId);
+        Result paymentVerifyResult = await mediator.Send(command);
 
         #endregion
         
         #region Assert
         
-        Assert.NotNull(paymentCompleteResult);
-        Assert.True(paymentCompleteResult.IsOk);
+        Assert.NotNull(paymentVerifyResult);
+        Assert.True(paymentVerifyResult.IsOk);
 
         var events = await _fixture.EventStoreFixture.Events($"{typeof(Payment).FullName}-{paymentId}");
         Assert.NotEmpty(events);
-        Assert.Contains(events, e => e is PaymentCompletedEvent);
+        Assert.Contains(events, e => e is PaymentVerifiedEvent);
         
-        var @event = events.SingleOrDefault(e => e is PaymentCompletedEvent) as PaymentCompletedEvent;
+        var @event = events.SingleOrDefault(e => e is PaymentVerifiedEvent) as PaymentVerifiedEvent;
         Assert.NotNull(@event);
         
         Assert.Equal(paymentId, @event.PaymentId);
-        Assert.Equal(PaymentStatus.Completed, @event.Status);
+        Assert.Equal(PaymentStatus.Verified, @event.Status);
         
         #endregion
     }
 
     [Fact]
-    public async Task PaymentCompleteCommand_Should_ReturnError_When_PaymentRefunded()
+    public async Task PaymentVerifyCommand_Should_ReturnError_When_PaymentRefunded()
     {
         var mediator = _fixture.GetService<IMediator>();
         
@@ -211,19 +211,19 @@ public class PaymentEventStoreTests : IClassFixture<PaymentsEventStoreFixture>
         
         #region Act
 
-        PaymentCompleteCommand command = new(paymentId);
-        Result paymentCompleteResult = await mediator.Send(command);
+        PaymentVerifyCommand command = new(paymentId);
+        Result paymentVerifyResult = await mediator.Send(command);
 
         #endregion 
         
         #region Assert
         
-        Assert.NotNull(paymentCompleteResult);
-        Assert.True(paymentCompleteResult.IsError);
+        Assert.NotNull(paymentVerifyResult);
+        Assert.True(paymentVerifyResult.IsError);
 
         var events = await _fixture.EventStoreFixture.Events($"{typeof(Payment).FullName}-{paymentId}");
         Assert.NotEmpty(events);
-        Assert.DoesNotContain(events, e => e is PaymentCompletedEvent);
+        Assert.DoesNotContain(events, e => e is PaymentVerifiedEvent);
 
         #endregion
     }

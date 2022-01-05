@@ -7,20 +7,20 @@ namespace Store.Payments.Application.Payments.Commands;
 
 public class PaymentRefundCommandHandler : IRequestHandler<PaymentRefundCommand, Result<PaymentRefundResponse>>
 {
-    private readonly IPaymentRepository _paymentRepository;
+    private readonly IAggregateRepository _repository;
 
-    public PaymentRefundCommandHandler(IPaymentRepository paymentRepository)
-        => _paymentRepository = Ensure.NotNull(paymentRepository);
+    public PaymentRefundCommandHandler(IAggregateRepository repository)
+        => _repository = Ensure.NotNull(repository);
     
     // TODO: paying beer for anyone who can read this shit.
     public Task<Result<PaymentRefundResponse>> Handle(PaymentRefundCommand request, CancellationToken cancellationToken)
-        => _paymentRepository.GetPaymentAsync(request.PaymentId)
+        => _repository.GetAsync<Payment, Guid>(request.PaymentId)
             .Then(async payment =>
             {
                 if (payment.Status == PaymentStatus.Refunded) return new PaymentRefundResponse(payment.RefundInfo.Id);
                 
                 return await payment.Refund(request.Note)
-                    .Then(refund => _paymentRepository.SavePaymentAsync(payment)
+                    .Then(refund => _repository.SaveAsync<Payment, Guid>(payment, CorrelationContext.CorrelationId, CorrelationContext.CausationId)
                         .Then<PaymentRefundResponse>(() => new PaymentRefundResponse(refund.Id)));
             });
 }

@@ -14,13 +14,13 @@ namespace Store.Shopping.Application.Buyers.Commands.AddItemToCart;
 
 public class BuyerAddItemToCartCommandHandler : IRequestHandler<BuyerAddItemToCartCommand, Result>
 {
-    private readonly IBuyerRepository _buyerRepository;
+    private readonly IAggregateRepository _repository;
     private readonly StoreShoppingDbContext _context;
 
-    public BuyerAddItemToCartCommandHandler(IBuyerRepository buyerRepository, StoreShoppingDbContext context)
+    public BuyerAddItemToCartCommandHandler(IAggregateRepository repository, StoreShoppingDbContext context)
     {
-        _buyerRepository = Ensure.NotNull(buyerRepository);
-        _context         = Ensure.NotNull(context);
+        _repository = Ensure.NotNull(repository);
+        _context    = Ensure.NotNull(context);
     }
         
     public async Task<Result> Handle(BuyerAddItemToCartCommand request, CancellationToken cancellationToken)
@@ -43,11 +43,11 @@ public class BuyerAddItemToCartCommandHandler : IRequestHandler<BuyerAddItemToCa
         
         BuyerIdentifier buyerId = new(request.CustomerNumber, request.SessionId);
         
-        Result<Buyer> getBuyerResult = await _buyerRepository.GetBuyerAsync(buyerId);
+        Result<Buyer> getBuyerResult = await _repository.GetAsync<Buyer, string>(buyerId.ToString());
         Buyer buyer = getBuyerResult.UnwrapOrDefault(Buyer.Create(buyerId));
 
         buyer.AddCartItem(new CatalogueNumber(request.ProductCatalogueNumber));
         
-        return await _buyerRepository.SaveBuyerAsync(buyer);
+        return await _repository.SaveAsync<Buyer, string>(buyer, CorrelationContext.CorrelationId, CorrelationContext.CausationId);
     }
 }

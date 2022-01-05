@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Store.Catalogue.Infrastructure.Entity;
+using Store.Core.Domain;
 using Store.Core.Domain.Event;
 
 namespace Store.Catalogue.Infrastructure;
@@ -52,7 +53,10 @@ public class StoreCatalogueDbContext : DbContext
         
         if (result > 0 && integrationEvents.Any())
         {
-            await Task.WhenAll(integrationEvents.Select(e => _eventDispatcher.DispatchAsync(e)));
+            await Task.WhenAll(integrationEvents.Select(e => _eventDispatcher.DispatchAsync(
+                e, 
+                CorrelationContext.CorrelationId, 
+                CorrelationContext.CausationId)));
         }
 
         return result;

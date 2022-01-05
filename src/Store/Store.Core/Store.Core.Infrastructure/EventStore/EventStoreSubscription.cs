@@ -48,12 +48,13 @@ public class EventStoreSubscription : IEventSubscription
         {
             IEvent @event = resolvedEvent.Deserialize(_serializer) as IEvent;
                 
-            // if (!Handles(@event)) return;
+            ulong streamPosition = resolvedEvent.OriginalPosition?.CommitPosition ?? Position.Start.CommitPosition;
+            
+            EventMetadata eventMetadata = _serializer.DeserializeFromBytes<EventMetadata>(resolvedEvent.Event.Metadata.ToArray());
+            eventMetadata.StreamPosition = streamPosition;
 
             // TODO: transaction of some sort?
-            await _handleEvent(
-                @event, 
-                new EventMetadata(resolvedEvent.OriginalPosition?.CommitPosition ?? Position.Start.CommitPosition));
+            await _handleEvent(@event, eventMetadata);
         }
         catch
         {

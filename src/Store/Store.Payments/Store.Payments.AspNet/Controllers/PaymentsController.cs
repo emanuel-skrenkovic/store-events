@@ -38,9 +38,9 @@ public class PaymentsController : ControllerBase
 
     [HttpPut]
     [Route("{paymentId:guid}/actions/complete")]
-    public async Task<IActionResult> CompletePayment([FromRoute] Guid paymentId)
+    public async Task<IActionResult> CompletePayment([FromRoute] Guid paymentId, [FromBody] PaymentVerifyCommand command)
     {
-        Result result = await _mediator.Send(new PaymentCompleteCommand(paymentId));
+        Result result = await _mediator.Send(command with { PaymentId = paymentId });
         return result.Match(Ok, this.HandleError);
     }
     

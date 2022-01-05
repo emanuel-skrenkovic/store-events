@@ -44,7 +44,8 @@ public class IntegrationEventTests : IClassFixture<StoreCatalogueEventStoreFixtu
         
         Assert.True(response.IsSuccessStatusCode);
 
-        List<IEvent> events = await _fixture.EventStoreFixture.Events("catalogue-integration");
+        List<(IEvent @event, EventMetadata metadata)> eventsAndMetadata = await _fixture.EventStoreFixture.EventsWithMetadata("catalogue-integration");
+        List<IEvent> events = eventsAndMetadata.Select(em => em.@event).ToList();
         Assert.Contains(events, e => e is ProductCreatedEvent);
 
         var productCreatedEvent = events.FirstOrDefault(e => e is ProductCreatedEvent) as ProductCreatedEvent;
@@ -55,6 +56,11 @@ public class IntegrationEventTests : IClassFixture<StoreCatalogueEventStoreFixtu
         Assert.Equal(productName, productCreatedEvent.ProductView.Name);
         Assert.Equal(productPrice, productCreatedEvent.ProductView.Price);
         Assert.Equal(productAvailable, productCreatedEvent.ProductView.Available);
+        
+        EventMetadata eventMetadata = eventsAndMetadata.SingleOrDefault(e => e.@event is ProductCreatedEvent).metadata;
+        Assert.NotNull(eventMetadata);
+        Assert.NotEqual(default, eventMetadata.CorrelationId);
+        Assert.NotEqual(default, eventMetadata.CausationId);
         
         #endregion
     }
@@ -102,7 +108,8 @@ public class IntegrationEventTests : IClassFixture<StoreCatalogueEventStoreFixtu
         
         Assert.True(response.IsSuccessStatusCode);
 
-        List<IEvent> events = await _fixture.EventStoreFixture.Events("catalogue-integration");
+        List<(IEvent @event, EventMetadata metadata)> eventsAndMetadata = await _fixture.EventStoreFixture.EventsWithMetadata("catalogue-integration");
+        List<IEvent> events = eventsAndMetadata.Select(em => em.@event).ToList();
         Assert.Contains(events, e => e is ProductCreatedEvent);
 
         var productUpdatedEvent = events.FirstOrDefault(e => e is ProductUpdatedEvent) as ProductUpdatedEvent;
@@ -112,7 +119,12 @@ public class IntegrationEventTests : IClassFixture<StoreCatalogueEventStoreFixtu
         Assert.Equal(updatedProductName, productUpdatedEvent.ProductView.Name);
         Assert.Equal(updatedProductPrice, productUpdatedEvent.ProductView.Price);
         Assert.Equal(updatedProductAvailable, productUpdatedEvent.ProductView.Available);
-        
+
+        EventMetadata eventMetadata = eventsAndMetadata.SingleOrDefault(e => e.@event is ProductUpdatedEvent).metadata;
+        Assert.NotNull(eventMetadata);
+        Assert.NotEqual(default, eventMetadata.CorrelationId);
+        Assert.NotEqual(default, eventMetadata.CausationId);
+
         #endregion
     }
     

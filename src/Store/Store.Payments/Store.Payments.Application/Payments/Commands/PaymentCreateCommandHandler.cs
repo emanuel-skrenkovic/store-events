@@ -8,10 +8,10 @@ namespace Store.Payments.Application.Payments.Commands;
 
 public class PaymentCreateCommandHandler : IRequestHandler<PaymentCreateCommand, Result<PaymentCreateResponse>>
 {
-    private readonly IPaymentRepository _paymentRepository;
+    private readonly IAggregateRepository _repository;
 
-    public PaymentCreateCommandHandler(IPaymentRepository paymentRepository)
-        => _paymentRepository = Ensure.NotNull(paymentRepository);
+    public PaymentCreateCommandHandler(IAggregateRepository repository)
+        => _repository = Ensure.NotNull(repository);
     
     public Task<Result<PaymentCreateResponse>> Handle(PaymentCreateCommand request, CancellationToken cancellationToken)
     {
@@ -22,7 +22,7 @@ public class PaymentCreateCommandHandler : IRequestHandler<PaymentCreateCommand,
             new Amount(request.Amount),
             request.Note);
 
-        return _paymentRepository.SavePaymentAsync(payment)
+        return _repository.SaveAsync<Payment, Guid>(payment, CorrelationContext.CorrelationId, CorrelationContext.CausationId)
             .Then<PaymentCreateResponse>(() => new PaymentCreateResponse(paymentNumber.Value));
     }
 }

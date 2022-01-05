@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Store.Core.Domain;
 using Store.Shopping.Domain.Orders.Events;
 using Store.Shopping.Domain.Orders.ValueObjects;
-using Store.Shopping.Domain.Payments.ValueObjects;
 using Store.Shopping.Domain.ValueObjects;
 
 namespace Store.Shopping.Domain.Orders;

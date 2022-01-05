@@ -2,7 +2,6 @@ using System;
 using Store.Shopping.Domain.Orders;
 using Store.Shopping.Domain.Orders.Events;
 using Store.Shopping.Domain.Orders.ValueObjects;
-using Store.Shopping.Domain.Payments.ValueObjects;
 using Store.Shopping.Domain.ValueObjects;
 using Xunit;
 

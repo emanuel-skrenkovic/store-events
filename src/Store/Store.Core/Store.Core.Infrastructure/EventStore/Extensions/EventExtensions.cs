@@ -17,13 +17,14 @@ public static class EventExtensions
             Type.GetType(record.EventType));
     }
 
-    public static EventData ToEventData<T>(this T domainEvent, ISerializer serializer) 
+    public static EventData ToEventData<T>(this T domainEvent, EventMetadata metadata, ISerializer serializer) 
     {
         Type eventType = domainEvent.GetType();
             
         return new EventData(
-            Uuid.NewUuid(), 
+            Uuid.FromGuid(metadata.EventId), 
             eventType.AssemblyQualifiedName!,
-            serializer.SerializeToBytes(domainEvent, eventType));
+            serializer.SerializeToBytes(domainEvent, eventType),
+            serializer.SerializeToBytes(metadata));
     }
 }

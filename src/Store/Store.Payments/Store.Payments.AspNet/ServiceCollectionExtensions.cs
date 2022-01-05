@@ -30,7 +30,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ISerializer, JsonSerializer>();
 
         services.AddScoped<IAggregateRepository, EventStoreAggregateRepository>();
-        services.AddScoped<IPaymentRepository, PaymentRepository>();
 
         return services;
     }

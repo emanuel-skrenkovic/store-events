@@ -23,13 +23,23 @@ public class EventStoreEventDispatcher : IEventDispatcher
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
         
-    public Task DispatchAsync(object @event)
+    public Task DispatchAsync(object @event, Guid correlationId, Guid causationId)
     {
         Ensure.NotNull(@event);
 
         return _eventStore.AppendToStreamAsync(
             _configuration.IntegrationStreamName,
             StreamState.Any, // TODO: fix this
-            new [] { @event.ToEventData(_serializer) });
+            new [] 
+            { 
+                @event.ToEventData(
+                    new EventMetadata
+                    {
+                        EventId       = Guid.NewGuid(),
+                        CorrelationId = correlationId,
+                        CausationId   = causationId
+                    },
+                    _serializer) 
+            });
     }
 }

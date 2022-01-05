@@ -11,10 +11,8 @@ using Store.Shopping.Application.Buyers.Projections;
 using Store.Shopping.Application.Orders.Commands.PlaceOrder;
 using Store.Shopping.Application.Orders.Projections;
 using Store.Shopping.Application.Products.Projections;
-using Store.Shopping.Domain;
 using Store.Shopping.Domain.Buyers;
 using Store.Shopping.Domain.Orders;
-using Store.Shopping.Domain.Payments;
 using Store.Shopping.Infrastructure;
 
 namespace Store.Shopping.AspNet;
@@ -43,11 +41,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(_ => new EventStoreClient(EventStoreClientSettings.Create(configuration.EventStoreConnectionString)));
             
         services.AddScoped<IAggregateRepository, EventStoreAggregateRepository>();
-        services.AddScoped<IOrderRepository, OrderRepository>();
-        services.AddScoped<IBuyerRepository, BuyerRepository>();
-        services.AddScoped<IPaymentRepository, PaymentRepository>();
-
-        services.AddScoped<IOrderPaymentService, OrderPaymentService>();
+ 
         services.AddScoped<CartReadService>();
 
         services.AddSingleton<ISerializer, JsonSerializer>();

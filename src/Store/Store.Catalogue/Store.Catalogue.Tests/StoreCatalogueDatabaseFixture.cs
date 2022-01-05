@@ -37,7 +37,7 @@ public class StoreCatalogueDatabaseFixture : IAsyncLifetime
 
         Mock<IEventDispatcher> eventDispatcherMock = new();
         eventDispatcherMock
-            .Setup(ed => ed.DispatchAsync(It.IsAny<object>()))
+            .Setup(ed => ed.DispatchAsync(It.IsAny<object>(), It.IsAny<Guid>(), It.IsAny<Guid>()))
             .Returns(Task.CompletedTask);
 
         Mock<EventStoreClientSettings> eventStoreClientSettingsMock = new();

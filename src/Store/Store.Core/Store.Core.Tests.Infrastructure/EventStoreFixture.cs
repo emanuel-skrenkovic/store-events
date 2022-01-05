@@ -69,6 +69,24 @@ public class EventStoreFixture : IAsyncLifetime
             .ToListAsync();
     }
 
+    public async Task<List<(IEvent, EventMetadata)>> EventsWithMetadata(string streamName)
+    {
+        EventStoreClient.ReadStreamResult eventStream = EventStore.ReadStreamAsync(
+            Direction.Forwards,
+            streamName, //GenerateStreamName<T, TKey>(id),
+            StreamPosition.Start);
+
+        if (await eventStream.ReadState == ReadState.StreamNotFound)
+        {
+            return null;
+        }
+
+        ISerializer serializer = new JsonSerializer();
+        return await eventStream
+            .Select(e => (e.Deserialize(serializer) as IEvent, serializer.DeserializeFromBytes<EventMetadata>(e.Event.Metadata.ToArray())))
+            .ToListAsync(); 
+    }
+
     private async Task<bool> CheckConnectionAsync()
     {
         try

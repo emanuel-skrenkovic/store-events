@@ -7,7 +7,7 @@ using Store.Core.Domain.ErrorHandling;
 using Store.Shopping.Application.Orders;
 using Store.Shopping.Application.Orders.Commands.PlaceOrder;
 using Store.Shopping.Domain.Orders.Events;
-using Store.Shopping.Domain.Payments.ValueObjects;
+using Store.Shopping.Domain.ValueObjects;
 using Store.Shopping.Infrastructure.Entity;
 using Xunit;
 using Order = Store.Shopping.Domain.Orders.Order;

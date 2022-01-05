@@ -66,20 +66,20 @@ public class Payment : AggregateEntity<Guid>
         Status = domainEvent.Status;
     }
 
-    public Result Complete()
+    public Result Verify()
     {
-        if (Status != PaymentStatus.Created) return new Error($"Payment in state '{Status}' cannot be completed.");
-        ApplyEvent(new PaymentCompletedEvent(Id, PaymentStatus.Completed));
+        if (Status != PaymentStatus.Created) return new Error($"Payment in state '{Status}' cannot be verified.");
+        ApplyEvent(new PaymentVerifiedEvent(Id, PaymentStatus.Verified));
         
         return Result.Ok();
     }
 
-    private void Apply(PaymentCompletedEvent domainEvent) => Status = domainEvent.Status;
+    private void Apply(PaymentVerifiedEvent domainEvent) => Status = domainEvent.Status;
     
     protected override void RegisterAppliers()
     {
         RegisterApplier<PaymentCreatedEvent>(Apply);
         RegisterApplier<PaymentRefundedEvent>(Apply);
-        RegisterApplier<PaymentCompletedEvent>(Apply);
+        RegisterApplier<PaymentVerifiedEvent>(Apply);
     }
 }

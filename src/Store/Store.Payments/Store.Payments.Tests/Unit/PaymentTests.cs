@@ -61,33 +61,33 @@ public class PaymentTests
     }
 
     [Fact]
-    public void Payment_Should_Complete_When_NotRefunded()
+    public void Payment_Should_Verify_When_NotRefunded()
     {
         Payment payment = ValidPayment();
 
-        Result completePaymentResult = payment.Complete();
+        Result verifyPaymentResult = payment.Verify();
         
-        Assert.True(completePaymentResult.IsOk);
-        Assert.Equal(PaymentStatus.Completed, payment.Status);
+        Assert.True(verifyPaymentResult.IsOk);
+        Assert.Equal(PaymentStatus.Verified, payment.Status);
         
         Assert.NotEmpty(payment.GetUncommittedEvents());
-        Assert.Contains(payment.GetUncommittedEvents(), e => e is PaymentCompletedEvent);
+        Assert.Contains(payment.GetUncommittedEvents(), e => e is PaymentVerifiedEvent);
     }
 
     [Fact]
-    public void Payment_Should_ReturnError_On_Complete_When_Refunded()
+    public void Payment_Should_ReturnError_On_Verify_When_Refunded()
     {
         Payment payment = ValidPayment();
 
         payment.Refund();
         
-        Result completePaymentResult = payment.Complete();
+        Result verifyPaymentResult = payment.Verify();
         
-        Assert.True(completePaymentResult.IsError);
+        Assert.True(verifyPaymentResult.IsError);
         Assert.Equal(PaymentStatus.Refunded, payment.Status);
         
         Assert.NotEmpty(payment.GetUncommittedEvents());
-        Assert.DoesNotContain(payment.GetUncommittedEvents(), e => e is PaymentCompletedEvent);
+        Assert.DoesNotContain(payment.GetUncommittedEvents(), e => e is PaymentVerifiedEvent);
     }
 
     [Fact]

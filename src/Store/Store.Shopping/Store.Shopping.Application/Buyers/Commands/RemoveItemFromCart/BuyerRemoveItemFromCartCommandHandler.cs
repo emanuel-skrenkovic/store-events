@@ -1,4 +1,5 @@
 using MediatR;
+using Store.Core.Domain;
 using Store.Core.Domain.ErrorHandling;
 using Store.Shopping.Domain;
 using Store.Shopping.Domain.Buyers;
@@ -8,22 +9,24 @@ namespace Store.Shopping.Application.Buyers.Commands.RemoveItemFromCart;
 
 public class BuyerRemoveItemFromCartCommandHandler : IRequestHandler<BuyerRemoveItemFromCartCommand, Result>
 {
-    private readonly IBuyerRepository _buyerRepository;
+    private readonly IAggregateRepository _repository;
 
-    public BuyerRemoveItemFromCartCommandHandler(IBuyerRepository buyerRepository)
-        => _buyerRepository = buyerRepository ?? throw new ArgumentNullException(nameof(buyerRepository));
+    public BuyerRemoveItemFromCartCommandHandler(IAggregateRepository repository)
+        => _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         
     public Task<Result> Handle(BuyerRemoveItemFromCartCommand request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        (string customerNumber, string sessionId, string itemCatalogueNumber) = request;
-        BuyerIdentifier buyerId = new(customerNumber, sessionId);
-        
-        return _buyerRepository.GetBuyerAsync(buyerId).Then(buyer =>
-        {
-            buyer.RemoveCartItem(new CatalogueNumber(itemCatalogueNumber));
-            return _buyerRepository.SaveBuyerAsync(buyer); 
-        });
+        BuyerIdentifier buyerId = new(request.CustomerNumber, request.SessionId);
+        return _repository.GetAsync<Buyer, string>(buyerId.ToString())
+            .Then(buyer =>
+            {
+                buyer.RemoveCartItem(new CatalogueNumber(request.ProductCatalogueNumber));
+                return _repository.SaveAsync<Buyer, string>(
+                    buyer, 
+                    CorrelationContext.CorrelationId, 
+                    CorrelationContext.CausationId); 
+            });
     }
 }

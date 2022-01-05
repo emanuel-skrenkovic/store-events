@@ -8,7 +8,6 @@ using Store.Core.Domain.ErrorHandling;
 using Store.Core.Infrastructure.EventStore;
 using Store.Core.Tests.Infrastructure;
 using Store.Payments.Application.Payments.Commands;
-using Store.Payments.Domain.Payments;
 using Xunit;
 
 namespace Store.Payments.Tests;
@@ -51,7 +50,6 @@ public class PaymentsEventStoreFixture : IAsyncLifetime
         services.AddSingleton<ISerializer, JsonSerializer>();
         
         services.AddScoped<IAggregateRepository, EventStoreAggregateRepository>();
-        services.AddScoped<IPaymentRepository, PaymentRepository>();
         
         return services.BuildServiceProvider();
     }
