@@ -10,16 +10,16 @@ namespace Store.Core.Infrastructure;
 
 public class EventStoreSubscriptionService : IHostedService
 {
-    private readonly IEnumerable<IEventListener> _projectionManagers;
+    private readonly IEnumerable<IEventListener> _eventListeners;
         
     public EventStoreSubscriptionService(IEnumerable<IEventListener> projectionManagers)
     {
-        _projectionManagers = projectionManagers ?? throw new ArgumentNullException(nameof(projectionManagers));
+        _eventListeners = projectionManagers ?? throw new ArgumentNullException(nameof(projectionManagers));
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
-        => Task.WhenAll(_projectionManagers.Select(pm => pm.StartAsync()));
+        => Task.WhenAll(_eventListeners.Select(pm => pm.StartAsync()));
 
     public Task StopAsync(CancellationToken cancellationToken)
-        => Task.WhenAll(_projectionManagers.Select(pm => pm.StopAsync()));
+        => Task.WhenAll(_eventListeners.Select(pm => pm.StopAsync()));
 }
