@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.Client;
+using Microsoft.Extensions.DependencyInjection;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
 using Store.Core.Infrastructure.EventStore.Extensions;
@@ -11,6 +12,7 @@ namespace Store.Core.Infrastructure.EventStore;
 public class EventStoreSubscription : IEventSubscription
 {
     private readonly ISerializer _serializer;
+    private readonly IServiceScopeFactory _scopeFactory;
         
     private readonly EventStoreConnectionConfiguration _configuration;
     private readonly EventStoreClient _eventStore;
@@ -19,14 +21,16 @@ public class EventStoreSubscription : IEventSubscription
 
     internal EventStoreSubscription(
         ISerializer serializer,
+        IServiceScopeFactory scopeFactory,
         EventStoreConnectionConfiguration configuration,
         EventStoreClient eventStore,
         Func<IEvent, EventMetadata, Task> handleEvent)
     {
-        _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        _eventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));
-        _handleEvent = handleEvent ?? throw new ArgumentNullException(nameof(handleEvent));
+        _serializer    = Ensure.NotNull(serializer);
+        _scopeFactory  = Ensure.NotNull(scopeFactory);
+        _configuration = Ensure.NotNull(configuration);
+        _eventStore    = Ensure.NotNull(eventStore);
+        _handleEvent   = Ensure.NotNull(handleEvent);
     }
         
     public Task SubscribeAtAsync(ulong checkpoint)
@@ -53,7 +57,14 @@ public class EventStoreSubscription : IEventSubscription
             EventMetadata eventMetadata = _serializer.DeserializeFromBytes<EventMetadata>(resolvedEvent.Event.Metadata.ToArray());
             eventMetadata.StreamPosition = streamPosition;
 
-            // TODO: transaction of some sort?
+            // Run the event handler in a scope, so as to have the 
+            // correlation context be unique between the handlers.
+            // TODO: check if this actually works this way.
+            using IServiceScope scope = _scopeFactory.CreateScope();
+            
+            CorrelationContext.SetCorrelationId(eventMetadata.CorrelationId);
+            CorrelationContext.SetCausationId(eventMetadata.EventId);
+                
             await _handleEvent(@event, eventMetadata);
         }
         catch
