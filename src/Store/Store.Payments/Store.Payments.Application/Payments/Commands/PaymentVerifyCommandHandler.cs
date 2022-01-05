@@ -5,19 +5,19 @@ using Store.Payments.Domain.Payments;
 
 namespace Store.Payments.Application.Payments.Commands;
 
-public class PaymentCompleteCommandHandler : IRequestHandler<PaymentCompleteCommand, Result>
+public class PaymentCompleteCommandHandler : IRequestHandler<PaymentVerifyCommand, Result>
 {
     private readonly IPaymentRepository _paymentRepository;
 
     public PaymentCompleteCommandHandler(IPaymentRepository paymentRepository)
         => _paymentRepository = Ensure.NotNull(paymentRepository);
 
-    public Task<Result> Handle(PaymentCompleteCommand request, CancellationToken cancellationToken)
+    public Task<Result> Handle(PaymentVerifyCommand request, CancellationToken cancellationToken)
         => _paymentRepository.GetPaymentAsync(request.PaymentId)
             .Then(async payment =>
             {
                 if (payment.Status == PaymentStatus.Completed) return Result.Ok();
                 
-                return await payment.Complete().Then(() => _paymentRepository.SavePaymentAsync(payment));
+                return await payment.Verify().Then(() => _paymentRepository.SavePaymentAsync(payment));
             });
 }
