@@ -48,10 +48,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Payments.AspNet", "St
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Api.Payments", "Store.Api.Payments\Store.Api.Payments.csproj", "{8B087F98-0743-4743-BD3D-43B8FFE83195}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Store.Checkout", "Store.Checkout", "{0E21D96C-5C0C-4811-A5EF-336C780C8353}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Checkout.Application", "Store.Checkout\Store.Checkout.Application\Store.Checkout.Application.csproj", "{87EF9936-B4AD-4318-A3E5-A3BBF6F55BE5}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,7 +71,6 @@ Global
 		{2C6A0A53-0C51-45E9-9BDB-E1B6A4F693E6} = {2188D55E-0B45-4D97-B85D-6520CC7750C8}
 		{967F2CB0-C327-4FBC-9BE2-2C7BC7007619} = {2188D55E-0B45-4D97-B85D-6520CC7750C8}
 		{A9BF2BF2-1AFE-471B-926B-B106F9CAB71B} = {2188D55E-0B45-4D97-B85D-6520CC7750C8}
-		{87EF9936-B4AD-4318-A3E5-A3BBF6F55BE5} = {0E21D96C-5C0C-4811-A5EF-336C780C8353}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE5F2D00-026A-4817-9063-04E87016015E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -158,9 +153,5 @@ Global
 		{8B087F98-0743-4743-BD3D-43B8FFE83195}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B087F98-0743-4743-BD3D-43B8FFE83195}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B087F98-0743-4743-BD3D-43B8FFE83195}.Release|Any CPU.Build.0 = Release|Any CPU
-		{87EF9936-B4AD-4318-A3E5-A3BBF6F55BE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{87EF9936-B4AD-4318-A3E5-A3BBF6F55BE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{87EF9936-B4AD-4318-A3E5-A3BBF6F55BE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{87EF9936-B4AD-4318-A3E5-A3BBF6F55BE5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
