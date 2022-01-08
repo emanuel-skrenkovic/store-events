@@ -18,15 +18,14 @@ public class BuyerRemoveItemFromCartCommandHandler : IRequestHandler<BuyerRemove
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        BuyerIdentifier buyerId = new(request.CustomerNumber, request.SessionId);
+        (string customerNumber, string sessionId, string productCatalogueNumber) = request;
+        BuyerIdentifier buyerId = new(customerNumber, sessionId);
+        
         return _repository.GetAsync<Buyer, string>(buyerId.ToString())
             .Then(buyer =>
             {
-                buyer.RemoveCartItem(new CatalogueNumber(request.ProductCatalogueNumber));
-                return _repository.SaveAsync<Buyer, string>(
-                    buyer, 
-                    CorrelationContext.CorrelationId, 
-                    CorrelationContext.CausationId); 
+                buyer.RemoveCartItem(new CatalogueNumber(productCatalogueNumber));
+                return _repository.SaveAsync<Buyer, string>(buyer);
             });
     }
 }

@@ -15,6 +15,10 @@ public static class DbContextExtensions
         return checkpoint?.Position ?? 0;
     }
 
+    /// <summary>
+    /// Calls context.Add or context.Update for the checkpoint.
+    /// Does NOT save the changes.
+    /// </summary>
     public static async Task AddOrUpdateSubscriptionCheckpoint(this DbContext context, string subscriptionId, ulong newPosition)
     {
         SubscriptionCheckpointEntity checkpoint = await context.Set<SubscriptionCheckpointEntity>()

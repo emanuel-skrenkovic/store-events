@@ -15,39 +15,37 @@ namespace Store.Shopping.Application.Buyers.Commands.AddItemToCart;
 public class BuyerAddItemToCartCommandHandler : IRequestHandler<BuyerAddItemToCartCommand, Result>
 {
     private readonly IAggregateRepository _repository;
-    private readonly StoreShoppingDbContext _context;
+    private readonly IDbConnection _db;
 
     public BuyerAddItemToCartCommandHandler(IAggregateRepository repository, StoreShoppingDbContext context)
     {
         _repository = Ensure.NotNull(repository);
-        _context    = Ensure.NotNull(context);
+        _db         = Ensure.NotNull(context?.Database.GetDbConnection());
     }
         
     public async Task<Result> Handle(BuyerAddItemToCartCommand request, CancellationToken cancellationToken)
     {
-        string productCatalogueNumber = request.ProductCatalogueNumber;
-        
+        (string customerNumber, string sessionId, string productCatalogueNumber) = request;
+
         string query =
             @"SELECT p.*
               FROM public.product p
               WHERE p.catalogue_number = @productCatalogueNumber;";
 
-        IDbConnection db = _context.Database.GetDbConnection();
-
-        ProductEntity product = await db.QuerySingleOrDefaultAsync<ProductEntity>(
+        ProductEntity product = await _db.QuerySingleOrDefaultAsync<ProductEntity>(
             query, 
             new { productCatalogueNumber });
 
         if (product == null)    return new Error($"Could not find product with catalogue number: '{productCatalogueNumber}'.");
         if (!product.Available) return new Error($"Product with catalogue number '{productCatalogueNumber}' is not available.");
         
-        BuyerIdentifier buyerId = new(request.CustomerNumber, request.SessionId);
+        BuyerIdentifier buyerId = new(customerNumber, sessionId);
         
         Result<Buyer> getBuyerResult = await _repository.GetAsync<Buyer, string>(buyerId.ToString());
         Buyer buyer = getBuyerResult.UnwrapOrDefault(Buyer.Create(buyerId));
 
-        buyer.AddCartItem(new CatalogueNumber(request.ProductCatalogueNumber));
+        buyer.AddCartItem(new CatalogueNumber(productCatalogueNumber));
         
-        return await _repository.SaveAsync<Buyer, string>(buyer, CorrelationContext.CorrelationId, CorrelationContext.CausationId);
+        return await _repository.SaveAsync<Buyer, string>(buyer);
     }
 }

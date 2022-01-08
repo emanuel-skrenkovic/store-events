@@ -17,11 +17,9 @@ public class PaymentVerifyCommandHandler : IRequestHandler<PaymentVerifyCommand,
             .Then(async payment =>
             {
                 if (payment.Status == PaymentStatus.Verified) return Result.Ok();
-                
+
                 return await payment.Verify()
                     .Then(() => _repository.SaveAsync<Payment, Guid>(
-                        payment, 
-                        CorrelationContext.CorrelationId, 
-                        CorrelationContext.CausationId));
+                        payment));
             });
 }

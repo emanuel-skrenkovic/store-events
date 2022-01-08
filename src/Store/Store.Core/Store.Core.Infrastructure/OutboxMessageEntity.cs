@@ -4,9 +4,11 @@ namespace Store.Core.Infrastructure;
 
 public class OutboxMessageEntity
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     
     public Guid CorrelationId { get; set; }
+    
+    public Guid CausationId { get; set; }
     
     public DateTime CreatedAt { get; set; }
      

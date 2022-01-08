@@ -4,29 +4,39 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
+using Store.Core.Domain.ProcessManager;
+using Store.Core.Infrastructure.EntityFramework.Extensions;
 
 namespace Store.Core.Infrastructure;
 
 // TODO: supervisor to restart process manager if something goes bad?
-public class ProcessManager<TState, TContext> : IProcessManager<TState>
+public class ProcessManager<TState, TContext> : IProcessManager<TState>, IEventListener
     where TState : class, new()
     where TContext : DbContext
 {
+    private readonly ISerializer _serializer;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IEventSubscriptionFactory _eventSubscriptionFactory;
+    private readonly IProcess<TState> _process;
 
-    public ProcessManager(IServiceScopeFactory scopeFactory)
+    private string SubscriptionId => _process.GetType().Name;
+
+    public ProcessManager(
+        ISerializer serializer, 
+        IServiceScopeFactory scopeFactory, 
+        IEventSubscriptionFactory eventSubscriptionFactory,
+        IProcess<TState> process)
     {
+        _serializer = Ensure.NotNull(serializer);
         _scopeFactory = Ensure.NotNull(scopeFactory);
+        _eventSubscriptionFactory = Ensure.NotNull(eventSubscriptionFactory);
+        _process = Ensure.NotNull(process);
     }
-    
-    public async Task HandleAsync(IProcess<TState> process, IEvent @event, EventMetadata eventMetadata)
-    {
-        // TODO:
-        // 1. event or something comes in
-        // 2. Try set to outbox (outbox doesn't do anything if command already exists)
-        // 3. Save own state? (same unit of work as outbox)
 
+    public async Task HandleAsync(IEvent @event, EventMetadata eventMetadata)
+    {
         Ensure.NotNull(@event);
+        Ensure.NotNull(eventMetadata);
 
         using IServiceScope scope = _scopeFactory.CreateScope();
         TContext context = scope.ServiceProvider.GetRequiredService<TContext>();
@@ -35,23 +45,65 @@ public class ProcessManager<TState, TContext> : IProcessManager<TState>
             throw new InvalidOperationException(
                 $"Failed to get '{typeof(TContext).FullName}' in {nameof(ProcessManager<TState, TContext>)}");
 
-        TState currentState = await context.FindAsync<TState>(eventMetadata.CorrelationId);
-        currentState ??= new();
+        ProcessEntity processEntity = await context.FindAsync<ProcessEntity>(eventMetadata.CorrelationId);
 
-        if (process.TryNext(currentState, @event, out TState updatedState, out object command))
+        TState currentState;
+        if (processEntity == null)
         {
-            context.Update(updatedState);
+            processEntity = new();
+            currentState = new();
 
-            if (command != null)
+            context.Attach(processEntity);
+        }
+        else
+        {
+            currentState = _serializer.Deserialize(
+                processEntity.Data, 
+                Type.GetType(processEntity.Type)) as TState;             
+        }
+
+        if (!_process.TryNext(currentState, @event, out TState updatedState, out object command))
+            return;
+
+        processEntity.Data = _serializer.Serialize(updatedState);
+
+        if (command != null)
+        {
+            context.Add(new OutboxMessageEntity
             {
-                context.Update(new OutboxMessageEntity
-                {
-                    CorrelationId = eventMetadata.CorrelationId,
-                    CreatedAt     = DateTime.UtcNow
-                }); 
-            }
+                Id            = CorrelationContext.MessageId,
+                CorrelationId = eventMetadata.CorrelationId,
+                CausationId   = eventMetadata.CausationId,
+                CreatedAt     = DateTime.UtcNow,
+                Type          = command.GetType().FullName,
+                Data          = _serializer.Serialize(command)
+            }); 
         }
         
+        await context.AddOrUpdateSubscriptionCheckpoint(SubscriptionId, eventMetadata.StreamPosition);
         await context.SaveChangesAsync();
     }
+    
+    #region IEventListener
+
+    public async Task StartAsync()
+    {
+        using IServiceScope scope = _scopeFactory.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<TContext>();
+        if (context == null)
+        {
+            throw new InvalidOperationException($"Context cannot be null on {nameof(ProcessManager<TState, TContext>)} startup.");
+        }
+            
+        ulong checkpoint = await context.GetSubscriptionCheckpoint(SubscriptionId);
+            
+        await _eventSubscriptionFactory
+            .Create(SubscriptionId, HandleAsync)
+            .SubscribeAtAsync(checkpoint);
+    }
+
+    public Task StopAsync() => Task.CompletedTask;
+
+    #endregion
 }

@@ -53,10 +53,7 @@ public class StoreCatalogueDbContext : DbContext
         
         if (result > 0 && integrationEvents.Any())
         {
-            await Task.WhenAll(integrationEvents.Select(e => _eventDispatcher.DispatchAsync(
-                e, 
-                CorrelationContext.CorrelationId, 
-                CorrelationContext.CausationId)));
+            await Task.WhenAll(integrationEvents.Select(e => _eventDispatcher.DispatchAsync(e)));
         }
 
         return result;

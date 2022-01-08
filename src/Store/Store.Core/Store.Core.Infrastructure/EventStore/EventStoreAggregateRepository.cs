@@ -18,8 +18,8 @@ public class EventStoreAggregateRepository : IAggregateRepository
        
     public EventStoreAggregateRepository(ISerializer serializer, EventStoreClient eventStore)
     {
-        _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-        _eventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));
+        _serializer = Ensure.NotNull(serializer);
+        _eventStore = Ensure.NotNull(eventStore);
     }
         
     public async Task<Result<T>> GetAsync<T, TKey>(TKey id) 
@@ -52,7 +52,7 @@ public class EventStoreAggregateRepository : IAggregateRepository
         }
     }
 
-    public async Task<Result> SaveAsync<T, TKey>(T entity, Guid correlationId, Guid causationId) 
+    public async Task<Result> SaveAsync<T, TKey>(T entity) 
         where T : AggregateEntity<TKey>
     {
         try
@@ -61,12 +61,7 @@ public class EventStoreAggregateRepository : IAggregateRepository
 
             IReadOnlyCollection<EventData> eventsData = entity.GetUncommittedEvents()
                 .Select(domainEvent => domainEvent.ToEventData(
-                    new EventMetadata
-                    {
-                        EventId = Guid.NewGuid(), 
-                        CorrelationId = correlationId, 
-                        CausationId = causationId
-                    }, 
+                    CorrelationContext.CreateEventMetadata(domainEvent), 
                     _serializer))
                 .ToImmutableList();
 

@@ -20,7 +20,7 @@ public class PaymentRefundCommandHandler : IRequestHandler<PaymentRefundCommand,
                 if (payment.Status == PaymentStatus.Refunded) return new PaymentRefundResponse(payment.RefundInfo.Id);
                 
                 return await payment.Refund(request.Note)
-                    .Then(refund => _repository.SaveAsync<Payment, Guid>(payment, CorrelationContext.CorrelationId, CorrelationContext.CausationId)
+                    .Then(refund => _repository.SaveAsync<Payment, Guid>(payment)
                         .Then<PaymentRefundResponse>(() => new PaymentRefundResponse(refund.Id)));
             });
 }

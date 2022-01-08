@@ -40,7 +40,7 @@ public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Resul
         return _repository.GetAsync<Buyer, string>(buyerId.ToString())
             .Then(buyer => ValidateShippingInfo(request.ShippingInfo)
                 .Then(si => CreateOrder(buyer, orderNumber, paymentNumber, si)))
-            .Then(order => _repository.SaveAsync<Order, Guid>(order, CorrelationContext.CorrelationId, CorrelationContext.CausationId))
+            .Then(order => _repository.SaveAsync<Order, Guid>(order))
             .Then<OrderPlaceResponse>(() => new OrderPlaceResponse(orderNumber.Value));
     }
 

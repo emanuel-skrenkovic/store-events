@@ -1,41 +1,66 @@
-using System.Collections.Generic;
+using System;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using Quartz;
 using Store.Core.Domain;
-using Store.Core.Domain.Outbox;
 
 namespace Store.Core.Infrastructure;
 
-public class OutboxProcessor
+public class OutboxProcessor : IJob
 {
-    private readonly IOutbox _outbox;
+    private readonly ISerializer _serializer;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IDbConnection _db;
     private readonly IMediator _mediator;
 
-    public OutboxProcessor(IOutbox outbox, IMediator mediator)
+    public OutboxProcessor(ISerializer serializer, IServiceScopeFactory scopeFactory, IDbConnection db, IMediator mediator)
     {
-        _outbox   = Ensure.NotNull(outbox);
-        _mediator = Ensure.NotNull(mediator);
+        _serializer   = Ensure.NotNull(serializer);
+        _scopeFactory = Ensure.NotNull(scopeFactory);
+        _db           = Ensure.NotNull(db);
+        _mediator     = Ensure.NotNull(mediator);
     }
     
-    public Task RunAsync() => ProcessMessages();
-    
-    private async Task ProcessMessages() 
+    private async Task ProcessMessages()
     {
-        IReadOnlyCollection<OutboxMessage> messages = await _outbox.GetPendingMessagesAsync();
-
+        const string unprocessedMessagesQuery =
+            @"SELECT * FROM public.outbox_message
+              WHERE processed_at IS NULL;";
+        
+        var messages = (await _db.QueryAsync<OutboxMessageEntity>(unprocessedMessagesQuery))
+            ?.ToList();
         if (messages?.Any() != true) return;
 
-        foreach (var message in messages)
+        foreach (OutboxMessageEntity message in messages)
         {
-            // var command = message.ToCommand();
-            await _mediator.Send(message);
+            // Create scope to isolate CorrelationContext.
+            using IServiceScope _ = _scopeFactory.CreateScope();
             
-            message.Processed();
+            CorrelationContext.SetMessageId(message.Id);
+            CorrelationContext.SetCorrelationId(message.CorrelationId);
+            CorrelationContext.SetCausationId(message.Id);
+            
+            var command = _serializer.Deserialize(message.Data, Type.GetType(message.Type));
+            await _mediator.Send(command); // TODO: how do I know this worked? I don't. That's why I retry.
+            
+            const string updateCommand =
+                @"UPDATE public.outbox_message
+                  SET processed_at = @processedAt
+                  WHERE message_id = @id;";
 
-            await _outbox.AppendAsync(message);
-
-            // TODO 
+            await _db.ExecuteAsync(
+                updateCommand, 
+                new { id = message.Id, processedAt = DateTime.UtcNow });
         }
     }
+    
+    #region IJob
+
+    public Task Execute(IJobExecutionContext context) => ProcessMessages();
+    
+    #endregion
 }

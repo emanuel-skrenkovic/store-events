@@ -23,7 +23,7 @@ public class EventStoreEventDispatcher : IEventDispatcher
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
         
-    public Task DispatchAsync(object @event, Guid correlationId, Guid causationId)
+    public Task DispatchAsync(object @event)
     {
         Ensure.NotNull(@event);
 
@@ -32,14 +32,7 @@ public class EventStoreEventDispatcher : IEventDispatcher
             StreamState.Any, // TODO: fix this
             new [] 
             { 
-                @event.ToEventData(
-                    new EventMetadata
-                    {
-                        EventId       = Guid.NewGuid(),
-                        CorrelationId = correlationId,
-                        CausationId   = causationId
-                    },
-                    _serializer) 
+                @event.ToEventData(CorrelationContext.CreateEventMetadata(@event as IEvent), _serializer) 
             });
     }
 }

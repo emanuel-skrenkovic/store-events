@@ -22,7 +22,7 @@ public class PaymentCreateCommandHandler : IRequestHandler<PaymentCreateCommand,
             new Amount(request.Amount),
             request.Note);
 
-        return _repository.SaveAsync<Payment, Guid>(payment, CorrelationContext.CorrelationId, CorrelationContext.CausationId)
+        return _repository.SaveAsync<Payment, Guid>(payment)
             .Then<PaymentCreateResponse>(() => new PaymentCreateResponse(paymentNumber.Value));
     }
 }

@@ -61,7 +61,11 @@ public class EventStoreSubscription : IEventSubscription
             // correlation context be unique between the handlers.
             // TODO: check if this actually works this way.
             using IServiceScope scope = _scopeFactory.CreateScope();
-            
+
+            // TODO: think about this!
+            CorrelationContext.SetMessageId(GuidUtility.NewDeterministicGuid(
+                @event!.GetType().FullName, 
+                eventMetadata.EventId.ToString()));
             CorrelationContext.SetCorrelationId(eventMetadata.CorrelationId);
             CorrelationContext.SetCausationId(eventMetadata.EventId);
                 

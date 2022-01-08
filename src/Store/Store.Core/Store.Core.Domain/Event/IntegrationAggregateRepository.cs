@@ -24,14 +24,14 @@ public class IntegrationAggregateRepository : IAggregateRepository
     public Task<Result<T>> GetAsync<T, TKey>(TKey id) where T : AggregateEntity<TKey>, new()
         => _repository.GetAsync<T, TKey>(id);
 
-    public async Task<Result> SaveAsync<T, TKey>(T entity, Guid correlationId, Guid causationId) 
+    public async Task<Result> SaveAsync<T, TKey>(T entity) 
         where T : AggregateEntity<TKey>
     {
         // Copy the events before commit to be able to translate
         // them to integration events after they are submitted.
         List<IEvent> events = new(entity.GetUncommittedEvents());
             
-        Result saveResult = await _repository.SaveAsync<T, TKey>(entity, correlationId, causationId);
+        Result saveResult = await _repository.SaveAsync<T, TKey>(entity);
            
         // TODO: think about how concurrency might mess up
         // temporal stream of events.
@@ -40,7 +40,7 @@ public class IntegrationAggregateRepository : IAggregateRepository
             if (_integrationEventMapper.TryMap(@event, out IEvent integrationEvent))
             {
                 // TODO: correlation and causation ids should come from @event instead of from outside.
-                await _eventDispatcher.DispatchAsync(integrationEvent, correlationId, causationId);
+                await _eventDispatcher.DispatchAsync(integrationEvent);
             }
         }
 

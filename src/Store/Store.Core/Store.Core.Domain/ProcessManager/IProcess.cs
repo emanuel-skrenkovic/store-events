@@ -1,6 +1,6 @@
 using Store.Core.Domain.Event;
 
-namespace Store.Core.Domain;
+namespace Store.Core.Domain.ProcessManager;
 
 public interface IProcess<TState>
 {
