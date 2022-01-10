@@ -17,7 +17,7 @@ public class InventoryController: ControllerBase
         => _mediator = Ensure.NotNull(mediator);
 
     [HttpPost]
-    [Route("{productId:guid}")]
+    [Route("{productId:guid}/actions/add")]
     public async Task<IActionResult> AddToStock([FromRoute] Guid productId, ProductInventoryAddToStockCommand command)
     {
         Result result = await _mediator.Send(command with { ProductId = productId });
@@ -25,7 +25,7 @@ public class InventoryController: ControllerBase
     }
     
     [HttpPost]
-    [Route("{productId:guid}")]
+    [Route("{productId:guid}/actions/remove")]
     public async Task<IActionResult> RemoveFromStock([FromRoute] Guid productId, ProductInventoryRemoveFromStockCommand command)
     {
         Result result = await _mediator.Send(command with { ProductId = productId });
