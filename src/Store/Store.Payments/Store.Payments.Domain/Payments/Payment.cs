@@ -7,6 +7,8 @@ namespace Store.Payments.Domain.Payments;
 
 public class Payment : AggregateEntity<Guid>
 {
+    public Guid OrderId { get; private set; }
+    
     public Refund RefundInfo { get; private set; }
 
     public PaymentStatus Status { get; private set; }
@@ -19,6 +21,7 @@ public class Payment : AggregateEntity<Guid>
     
     public static Payment Create(
         PaymentNumber paymentNumber,
+        OrderId orderId,
         Source source,
         Amount amount,
         string note = null)
@@ -26,6 +29,7 @@ public class Payment : AggregateEntity<Guid>
         Payment payment = new();
         payment.ApplyEvent(new PaymentCreatedEvent(
             paymentNumber.Value,
+            orderId.Value,
             source.Value,
             amount.Value,
             PaymentStatus.Created,
@@ -37,6 +41,7 @@ public class Payment : AggregateEntity<Guid>
     private void Apply(PaymentCreatedEvent domainEvent)
     {
         Id = domainEvent.PaymentId;
+        OrderId = domainEvent.OrderId;
         Source = domainEvent.Source;
         Amount = domainEvent.Amount;
         Status = domainEvent.Status;

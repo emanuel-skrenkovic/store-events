@@ -30,11 +30,11 @@ public class PaymentsEventStoreFixture : IAsyncLifetime
     
     public T GetService<T>() => BuildServiceProvider().GetRequiredService<T>();
 
-    public async Task<Guid> PaymentExists(string source, decimal amount, string note)
+    public async Task<Guid> PaymentExists(Guid orderId, string source, decimal amount, string note)
     {
         var mediator = GetService<IMediator>();
         
-        PaymentCreateCommand command = new(source, amount, note);
+        PaymentCreateCommand command = new(orderId, source, amount, note);
         Result<PaymentCreateResponse> paymentCreateResult = await mediator.Send(command);
         
         return paymentCreateResult.Unwrap().PaymentId;
