@@ -4,10 +4,6 @@ namespace Store.Shopping.Domain.Orders;
 public enum OrderStatus
 {
     Created,
-    ShippingInformationAdded,
-    PaymentDetailsAdded, // TODO
-    PaymentCreated,
-    PaymentConfirmed,
-    Shipped,
-    Delivered
+    Confirmed,
+    Fulfilled
 }

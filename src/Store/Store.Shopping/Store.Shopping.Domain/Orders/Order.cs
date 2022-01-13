@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Store.Core.Domain;
+using Store.Core.Domain.ErrorHandling;
 using Store.Shopping.Domain.Orders.Events;
 using Store.Shopping.Domain.Orders.ValueObjects;
 using Store.Shopping.Domain.ValueObjects;
@@ -24,33 +26,62 @@ public class Order : AggregateEntity<Guid>
     public static Order Create(
         OrderNumber orderNumber, 
         CustomerNumber customerNumber, 
-        PaymentNumber paymentNumber, 
-        OrderLines orderLines, 
-        ShippingInformation shippingInformation)
+        OrderLines orderLines)
     {
         Order order = new();
-        order.ApplyEvent(new OrderPlacedEvent(
-            orderNumber.Value, 
-            customerNumber.Value, 
-            paymentNumber.Value,
+        order.ApplyEvent(new OrderCreatedEvent(
+            orderNumber.Value,
+            customerNumber.Value,
             orderLines.Value,
-            shippingInformation.ToInfo()));
+            OrderStatus.Created));
 
         return order;
     }
 
-    private void Apply(OrderPlacedEvent domainEvent)
+    private void Apply(OrderCreatedEvent domainEvent)
     {
         Id = domainEvent.OrderId;
         CustomerNumber = domainEvent.CustomerNumber;
-        PaymentId = domainEvent.PaymentId;
+        
         OrderLines = domainEvent.OrderLines;
-        Status = OrderStatus.Created;
-        ShippingInformation = ShippingInformation.FromValues(domainEvent.ShippingInfo);
+        Total = OrderLines.Select(ol => ol.Price).Sum();
+        
+        Status = domainEvent.Status;
     }
+
+    public Result SubmitPayment(PaymentNumber paymentNumber)
+    {
+        if (PaymentId != default) return new Error($"Order with id {Id} already contains a submitted payment {PaymentId}.");
+        ApplyEvent(new OrderPaymentSubmittedEvent(Id, paymentNumber.Value));
+        
+        return Result.Ok();
+    }
+
+    private void Apply(OrderPaymentSubmittedEvent domainEvent)
+        => PaymentId = domainEvent.PaymentId;
+
+    public void SetShippingInformation(ShippingInformation shippingInformation)
+        => ApplyEvent(new OrderShippingInformationSetEvent(Id, shippingInformation.ToInfo()));
+
+    private void Apply(OrderShippingInformationSetEvent domainEvent)
+        => ShippingInformation = ShippingInformation.FromValues(domainEvent.ShippingInfo);
+
+    public Result Confirm()
+    {
+        if (ShippingInformation == null) return new Error("Cannot confirm order without shipping info.");
+        if (PaymentId == default)        return new Error("Cannot confirm order without a submitted payment.");
+        
+        ApplyEvent(new OrderConfirmedEvent(Id, OrderStatus.Confirmed));
+        return Result.Ok();
+    }
+
+    private void Apply(OrderConfirmedEvent domainEvent)=> Status = domainEvent.Status;
 
     protected override void RegisterAppliers()
     {
-        RegisterApplier<OrderPlacedEvent>(Apply);
+        RegisterApplier<OrderCreatedEvent>(Apply);
+        RegisterApplier<OrderPaymentSubmittedEvent>(Apply);
+        RegisterApplier<OrderShippingInformationSetEvent>(Apply);
+        RegisterApplier<OrderConfirmedEvent>(Apply);
     }
 }

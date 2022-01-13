@@ -6,10 +6,12 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Store.Core.Domain;
+using Store.Core.Domain.ErrorHandling;
 using Store.Core.Infrastructure.EventStore;
 using Store.Core.Tests.Infrastructure;
 using Store.Shopping.Application.Buyers;
 using Store.Shopping.Application.Buyers.Commands.AddItemToCart;
+using Store.Shopping.Application.Orders.Commands.CreateOrder;
 using Store.Shopping.Infrastructure;
 using Store.Shopping.Infrastructure.Entity;
 using Xunit;
@@ -62,6 +64,14 @@ public class StoreShoppingCombinedFixture : IAsyncLifetime
     }
     
     public T GetService<T>() => BuildServices().GetRequiredService<T>();
+
+    public async Task<Guid> OrderExists(string customerNumber, string sessionId)
+    {
+        var mediator = GetService<IMediator>();
+        Result<OrderCreateResponse> createCommandResult = await mediator.Send(new OrderCreateCommand(customerNumber, sessionId));
+        
+        return createCommandResult.Unwrap().OrderId;
+    }
     
     public async Task ProductsExist(params ProductEntity[] products)
     {

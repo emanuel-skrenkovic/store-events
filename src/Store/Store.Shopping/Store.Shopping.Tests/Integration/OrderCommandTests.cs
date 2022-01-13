@@ -5,9 +5,10 @@ using MediatR;
 using Store.Core.Domain;
 using Store.Core.Domain.ErrorHandling;
 using Store.Shopping.Application.Orders;
-using Store.Shopping.Application.Orders.Commands.PlaceOrder;
+using Store.Shopping.Application.Orders.Commands.CreateOrder;
+using Store.Shopping.Application.Orders.Commands.SetShippingInformation;
+using Store.Shopping.Application.Orders.Commands.SubmitPayment;
 using Store.Shopping.Domain.Orders.Events;
-using Store.Shopping.Domain.ValueObjects;
 using Store.Shopping.Infrastructure.Entity;
 using Xunit;
 using Order = Store.Shopping.Domain.Orders.Order;
@@ -23,56 +24,37 @@ public class OrderCommandTests
         => _fixture = Ensure.NotNull(fixture);
 
     [Fact]
-    public async Task OrderPlaceCommand_Should_ReturnError_When_BuyerDoesNotExist()
+    public async Task OrderCreateCommand_Should_ReturnError_When_BuyerDoesNotExist()
     {
         IMediator mediator = _fixture.GetService<IMediator>();
 
         string customerNumber = Guid.NewGuid().ToString();
         string sessionId      = Guid.NewGuid().ToString();
-        PaymentNumber paymentNumber = new(Guid.NewGuid());
-        ShippingInfo shippingInformation = new(
-            0,
-            "full-name",
-            "street-address",
-            "city",
-            "state-province",
-            "postcode",
-            "phone-number");
-
 
         #region Act
         
-        OrderPlaceCommand orderPlaceCommand = new(customerNumber, sessionId, paymentNumber.Value, shippingInformation);
-        Result orderPlaceResult = await mediator.Send(orderPlaceCommand);
+        OrderCreateCommand orderCreateCommand = new(customerNumber, sessionId);
+        Result orderCreateResult = await mediator.Send(orderCreateCommand);
         
         #endregion
         
         #region Assert
         
-        Assert.NotNull(orderPlaceResult);
-        Assert.True(orderPlaceResult.IsError);
+        Assert.NotNull(orderCreateResult);
+        Assert.True(orderCreateResult.IsError);
 
-        orderPlaceResult.Match(null, Assert.IsType<NotFoundError>);
+        orderCreateResult.Match(null, Assert.IsType<NotFoundError>);
         
         #endregion
     }
 
     [Fact]
-    public async Task OrderPlaceCommand_Should_CreateOrder_When_PreconditionsMet()
+    public async Task OrderCreateCommand_Should_CreateOrder_When_PreconditionsMet()
     {
         var mediator = _fixture.GetService<IMediator>();
         
         string customerNumber = Guid.NewGuid().ToString();
         string sessionId      = Guid.NewGuid().ToString();
-        PaymentNumber paymentNumber = new(Guid.NewGuid());
-        ShippingInfo shippingInformation = new(
-            0,
-            "full-name",
-            "street-address",
-            "city",
-            "state-province",
-            "postcode",
-            "phone-number");
 
         string[] productNumbers =
         {
@@ -94,33 +76,182 @@ public class OrderCommandTests
         
         #region Act
 
-        OrderPlaceCommand orderPlaceCommand = new(customerNumber, sessionId, paymentNumber.Value, shippingInformation);
-        Result<OrderPlaceResponse> orderPlaceResult = await mediator.Send(orderPlaceCommand);
+        OrderCreateCommand orderCreateCommand = new(customerNumber, sessionId);
+        Result<OrderCreateResponse> orderCreateResult = await mediator.Send(orderCreateCommand);
         
         #endregion
         
         #region Assert
         
-        Assert.NotNull(orderPlaceResult);
-        Assert.True(orderPlaceResult.IsOk);
+        Assert.NotNull(orderCreateResult);
+        Assert.True(orderCreateResult.IsOk);
 
-        OrderPlaceResponse response = orderPlaceResult.UnwrapOrDefault();
+        OrderCreateResponse response = orderCreateResult.UnwrapOrDefault();
         Assert.NotNull(response);
         Assert.NotEqual(default, response.OrderId);
 
         var events = await _fixture.EventStoreFixture.Events($"{typeof(Order).FullName}-{response.OrderId}");
         Assert.NotEmpty(events);
-        Assert.Contains(events, e => e is OrderPlacedEvent);
+        Assert.Contains(events, e => e is OrderCreatedEvent);
 
-        var orderCreatedEvent = events.SingleOrDefault(e => e is OrderPlacedEvent) as OrderPlacedEvent;
+        var orderCreatedEvent = events.SingleOrDefault(e => e is OrderCreatedEvent) as OrderCreatedEvent;
         Assert.NotNull(orderCreatedEvent);
         Assert.Equal(response.OrderId, orderCreatedEvent.OrderId);
         Assert.Equal(customerNumber, orderCreatedEvent.CustomerNumber);
-        Assert.Equal(paymentNumber.Value, orderCreatedEvent.PaymentId);
         
         var orderLinesCatalogueNumbers = orderCreatedEvent.OrderLines.Select(ol => ol.CatalogueNumber).ToArray();
         Assert.All(productNumbers, pn => orderLinesCatalogueNumbers.Contains(pn));
 
+        #endregion
+    }
+
+    [Fact]
+    public async Task OrderSubmitPaymentCommand_Should_SubmitPayment()
+    {
+        var mediator = _fixture.GetService<IMediator>();
+
+        #region Preconditions
+        
+        string customerNumber = Guid.NewGuid().ToString();
+        string sessionId      = Guid.NewGuid().ToString();
+
+        Guid paymentId = Guid.NewGuid();
+        
+        string[] productNumbers =
+        {
+            Guid.NewGuid().ToString(), 
+            Guid.NewGuid().ToString(), 
+            Guid.NewGuid().ToString()
+        };
+        
+        await _fixture.ProductsExist(
+            new ProductEntity { CatalogueNumber = productNumbers[0], Available = true, Name = "Product0" },
+            new ProductEntity { CatalogueNumber = productNumbers[1], Available = true, Name = "Product1" },
+            new ProductEntity { CatalogueNumber = productNumbers[2], Available = true, Name = "Product2" });
+        await _fixture.BuyerCreated(customerNumber, sessionId, productNumbers);
+        Guid orderId = await _fixture.OrderExists(customerNumber, sessionId);
+
+        #endregion
+
+        #region Act
+
+        OrderSubmitPaymentCommand command = new(orderId, paymentId);
+        Result result = await mediator.Send(command);
+
+        #endregion
+
+        #region Assert
+        
+        Assert.NotNull(result);
+        Assert.True(result.IsOk);
+
+        // TODO
+        
+        #endregion
+    }
+
+    [Fact]
+    public async Task OrderSubmitPaymentCommand_Should_ReturnError_When_PaymentAlreadySubmitted()
+    {
+        var mediator = _fixture.GetService<IMediator>();
+
+        #region Preconditions
+        
+        string customerNumber = Guid.NewGuid().ToString();
+        string sessionId      = Guid.NewGuid().ToString();
+
+        Guid paymentId = Guid.NewGuid();
+        
+        string[] productNumbers =
+        {
+            Guid.NewGuid().ToString(), 
+            Guid.NewGuid().ToString(), 
+            Guid.NewGuid().ToString()
+        };
+        
+        await _fixture.ProductsExist(
+            new ProductEntity { CatalogueNumber = productNumbers[0], Available = true, Name = "Product0" },
+            new ProductEntity { CatalogueNumber = productNumbers[1], Available = true, Name = "Product1" },
+            new ProductEntity { CatalogueNumber = productNumbers[2], Available = true, Name = "Product2" });
+        await _fixture.BuyerCreated(customerNumber, sessionId, productNumbers);
+        Guid orderId = await _fixture.OrderExists(customerNumber, sessionId);
+        
+        OrderSubmitPaymentCommand submitPaymentCommand = new(orderId, paymentId);
+        await mediator.Send(submitPaymentCommand);
+
+        #endregion
+
+        #region Act
+
+        OrderSubmitPaymentCommand command = new(orderId, paymentId);
+        Result result = await mediator.Send(command);
+
+        #endregion
+
+        #region Assert
+        
+        Assert.NotNull(result);
+        Assert.True(result.IsError);
+
+        // TODO
+        
+        #endregion
+    }
+    
+    [Fact]
+    public async Task OrderSetShippingInformationCommand_Should_SetShippingInfo() 
+    {
+        var mediator = _fixture.GetService<IMediator>();
+
+        #region Preconditions
+        
+        string customerNumber = Guid.NewGuid().ToString();
+        string sessionId      = Guid.NewGuid().ToString();
+        ShippingInfo shippingInformation = new(
+            0,
+            "full-name",
+            "street-address",
+            "city",
+            "state-province",
+            "postcode",
+            "phone-number");
+        
+        string[] productNumbers =
+        {
+            Guid.NewGuid().ToString(), 
+            Guid.NewGuid().ToString(), 
+            Guid.NewGuid().ToString()
+        };
+        
+        await _fixture.ProductsExist(
+            new ProductEntity { CatalogueNumber = productNumbers[0], Available = true, Name = "Product0" },
+            new ProductEntity { CatalogueNumber = productNumbers[1], Available = true, Name = "Product1" },
+            new ProductEntity { CatalogueNumber = productNumbers[2], Available = true, Name = "Product2" });
+        await _fixture.BuyerCreated(customerNumber, sessionId, productNumbers);
+        Guid orderId = await _fixture.OrderExists(customerNumber, sessionId);
+
+        #endregion
+        
+        #region Act
+
+        OrderSetShippingInformationCommand command = new(orderId, shippingInformation);
+        Result result = await mediator.Send(command);
+
+        #endregion
+        
+        #region Assert
+        
+        Assert.NotNull(result);
+        Assert.True(result.IsOk);
+        
+        var events = await _fixture.EventStoreFixture.Events($"{typeof(Order).FullName}-{orderId}");
+        Assert.NotEmpty(events);
+        Assert.Contains(events, e => e is OrderShippingInformationSetEvent);
+
+        var orderCreatedEvent = events.SingleOrDefault(e => e is OrderShippingInformationSetEvent) as OrderShippingInformationSetEvent;
+        Assert.NotNull(orderCreatedEvent);
+        Assert.Equal(orderId, orderCreatedEvent.OrderId);
+        
         Domain.Orders.ValueObjects.ShippingInfo shippingInfo = orderCreatedEvent.ShippingInfo;
         Assert.NotNull(shippingInfo);
         Assert.Equal(shippingInformation.CountryCode, shippingInfo.CountryCode);
@@ -130,7 +261,7 @@ public class OrderCommandTests
         Assert.Equal(shippingInformation.StateProvince, shippingInfo.StateProvince);
         Assert.Equal(shippingInformation.Postcode, shippingInfo.Postcode);
         Assert.Equal(shippingInformation.PhoneNumber, shippingInfo.PhoneNumber);
-
+        
         #endregion
     }
 }
