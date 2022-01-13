@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Store.Core.Domain.ErrorHandling;
 using Store.Core.Infrastructure.AspNet;
-using Store.Shopping.Application.Orders.Commands.PlaceOrder;
+using Store.Shopping.Application.Orders.Commands.CreateOrder;
 using Store.Shopping.Application.Orders.Queries;
 using Store.Shopping.Infrastructure.Entity;
 
@@ -21,9 +21,9 @@ public class OrdersController : ControllerBase
         
     [HttpPut]
     [Route("actions/place-order")]
-    public async Task<IActionResult> PlaceOrderAsync([FromBody] OrderPlaceCommand command)
+    public async Task<IActionResult> PlaceOrderAsync([FromBody] OrderCreateCommand command)
     {
-        Result<OrderPlaceResponse> placeOrderResult = await _mediator.Send(command);
+        Result<OrderCreateResponse> placeOrderResult = await _mediator.Send(command);
 
         return placeOrderResult.Match(
             response => CreatedAtAction("GetOrder", new { id = response.OrderId }, null),

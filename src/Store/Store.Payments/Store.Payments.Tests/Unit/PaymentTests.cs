@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using Store.Core.Domain.ErrorHandling;
 using Store.Payments.Domain.Payments;
@@ -14,12 +13,14 @@ public class PaymentTests
     private Payment ValidPayment()
     {
         PaymentNumber paymentNumber = new(Guid.NewGuid());
+        OrderId orderId = new(Guid.NewGuid());
         Source source = new("valid-source");
         Amount amount = new(15m);
         string note = "valid-note";
         
         return Payment.Create(
             paymentNumber,
+            orderId,
             source,
             amount,
             note);
@@ -29,12 +30,14 @@ public class PaymentTests
     public void Payment_Should_BeCreatedSuccessfully_With_ValidParameters()
     {
         PaymentNumber paymentNumber = new(Guid.NewGuid());
+        OrderId orderId = new(Guid.NewGuid());
         Source source = new("valid-source");
         Amount amount = new(15m);
         string note = "valid-note";
         
         Payment payment = Payment.Create(
             paymentNumber,
+            orderId,
             source,
             amount,
             note);
@@ -52,9 +55,8 @@ public class PaymentTests
         var @event = payment.GetUncommittedEvents().SingleOrDefault(e => e is PaymentCreatedEvent) as PaymentCreatedEvent;
         Assert.NotNull(@event);
         
-        Debug.Assert(@event != null);
-        
         Assert.Equal(paymentNumber.Value, @event.PaymentId);
+        Assert.Equal(orderId.Value, @event.OrderId);
         Assert.Equal(source.Value, @event.Source);
         Assert.Equal(amount.Value, @event.Amount);
         Assert.Equal(note, @event.Note);

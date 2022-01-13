@@ -23,13 +23,14 @@ public class PaymentEventStoreTests : IClassFixture<PaymentsEventStoreFixture>
     {
         var mediator = _fixture.GetService<IMediator>();
 
+        Guid orderId = Guid.NewGuid();
         string source = Guid.NewGuid().ToString();
         decimal amount = 15m;
         string note = Guid.NewGuid().ToString();
 
         #region Act
         
-        PaymentCreateCommand command = new(source, amount, note);
+        PaymentCreateCommand command = new(orderId, source, amount, note);
         Result<PaymentCreateResponse> paymentCreateResult = await mediator.Send(command);
         
         #endregion
@@ -51,6 +52,7 @@ public class PaymentEventStoreTests : IClassFixture<PaymentsEventStoreFixture>
         var @event = events.SingleOrDefault(e => e is PaymentCreatedEvent) as PaymentCreatedEvent;
         Assert.NotNull(@event);
         Assert.Equal(response.PaymentId, @event.PaymentId);
+        Assert.Equal(orderId, @event.OrderId);
         Assert.Equal(source, @event.Source);
         Assert.Equal(amount, @event.Amount);
         Assert.Equal(note, @event.Note);
@@ -63,15 +65,16 @@ public class PaymentEventStoreTests : IClassFixture<PaymentsEventStoreFixture>
     {
         var mediator = _fixture.GetService<IMediator>();
         
-        #region Preconditions        
-        
+        #region Preconditions
+
+        Guid orderId = Guid.NewGuid();
         string source = Guid.NewGuid().ToString();
         decimal amount = 15m;
         string note = Guid.NewGuid().ToString();
 
         string refundNote = Guid.NewGuid().ToString();
         
-        Guid paymentId = await _fixture.PaymentExists(source, amount, note);
+        Guid paymentId = await _fixture.PaymentExists(orderId, source, amount, note);
 
         #endregion
         
@@ -110,15 +113,16 @@ public class PaymentEventStoreTests : IClassFixture<PaymentsEventStoreFixture>
     {
         var mediator = _fixture.GetService<IMediator>();
         
-        #region Preconditions        
-        
+        #region Preconditions
+
+        Guid orderId = Guid.NewGuid();
         string source = Guid.NewGuid().ToString();
         decimal amount = 15m;
         string note = Guid.NewGuid().ToString();
 
         string refundNote = Guid.NewGuid().ToString();
         
-        Guid paymentId = await _fixture.PaymentExists(source, amount, note);
+        Guid paymentId = await _fixture.PaymentExists(orderId, source, amount, note);
         await mediator.Send(new PaymentRefundCommand(paymentId, refundNote));
 
         #endregion
@@ -158,13 +162,14 @@ public class PaymentEventStoreTests : IClassFixture<PaymentsEventStoreFixture>
     {
         var mediator = _fixture.GetService<IMediator>();
         
-        #region Preconditions        
-        
+        #region Preconditions
+
+        Guid orderId = Guid.NewGuid();
         string source = Guid.NewGuid().ToString();
         decimal amount = 15m;
         string note = Guid.NewGuid().ToString();
         
-        Guid paymentId = await _fixture.PaymentExists(source, amount, note);
+        Guid paymentId = await _fixture.PaymentExists(orderId, source, amount, note);
         
         #endregion
         
@@ -198,13 +203,14 @@ public class PaymentEventStoreTests : IClassFixture<PaymentsEventStoreFixture>
     {
         var mediator = _fixture.GetService<IMediator>();
         
-        #region Preconditions        
-        
+        #region Preconditions
+
+        Guid orderId = Guid.NewGuid();
         string source = Guid.NewGuid().ToString();
         decimal amount = 15m;
         string note = Guid.NewGuid().ToString();
         
-        Guid paymentId = await _fixture.PaymentExists(source, amount, note);
+        Guid paymentId = await _fixture.PaymentExists(orderId, source, amount, note);
         await mediator.Send(new PaymentRefundCommand(paymentId));
         
         #endregion

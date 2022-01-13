@@ -12,16 +12,15 @@ using Store.Shopping.Infrastructure;
 using Store.Shopping.Infrastructure.Entity;
 using Order = Store.Shopping.Domain.Orders.Order;
 using OrderLine = Store.Shopping.Domain.Orders.OrderLine;
-using ShippingInformation = Store.Shopping.Domain.Orders.ValueObjects.ShippingInformation;
 
-namespace Store.Shopping.Application.Orders.Commands.PlaceOrder;
+namespace Store.Shopping.Application.Orders.Commands.CreateOrder;
 
-public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Result<OrderPlaceResponse>>
+public class OrderCreateCommandHandler : IRequestHandler<OrderCreateCommand, Result<OrderCreateResponse>>
 {
     private readonly IAggregateRepository _repository;
     private readonly IDbConnection _db;
 
-    public OrderPlaceCommandHandler(
+    public OrderCreateCommandHandler(
         IAggregateRepository repository,
         StoreShoppingDbContext context)
     {
@@ -29,26 +28,22 @@ public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Resul
         _db         = context?.Database.GetDbConnection() ?? throw new ArgumentNullException(nameof(context));
     }
         
-    public Task<Result<OrderPlaceResponse>> Handle(OrderPlaceCommand request, CancellationToken cancellationToken)
+    public Task<Result<OrderCreateResponse>> Handle(OrderCreateCommand request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        
-        BuyerIdentifier buyerId = new(request.CustomerNumber, request.SessionId);
+
+        (string customerNumber, string sessionId) = request;
         OrderNumber orderNumber = new(Guid.NewGuid());
-        PaymentNumber paymentNumber = new(request.PaymentNumber);
         
-        return _repository.GetAsync<Buyer, string>(buyerId.ToString())
-            .Then(buyer => ValidateShippingInfo(request.ShippingInfo)
-                .Then(si => CreateOrder(buyer, orderNumber, paymentNumber, si)))
+        return _repository.GetAsync<Buyer, string>(new BuyerIdentifier(customerNumber, sessionId).ToString())
+            .Then(buyer => CreateOrder(buyer, orderNumber))
             .Then(order => _repository.SaveAsync<Order, Guid>(order))
-            .Then<OrderPlaceResponse>(() => new OrderPlaceResponse(orderNumber.Value));
+            .Then<OrderCreateResponse>(() => new OrderCreateResponse(orderNumber.Value));
     }
 
     private async Task<Result<Order>>CreateOrder(
         Buyer buyer, 
-        OrderNumber orderNumber, 
-        PaymentNumber paymentNumber, 
-        ShippingInformation shippingInformation)
+        OrderNumber orderNumber)
     {
         string[] catalogueNumbers = buyer
             .CartItems
@@ -81,18 +76,6 @@ public class OrderPlaceCommandHandler : IRequestHandler<OrderPlaceCommand, Resul
         return Order.Create(
             orderNumber,
             new CustomerNumber(buyer.CustomerNumber),
-            paymentNumber,
-            orderLines,
-            shippingInformation);
+            orderLines);
     }
-    
-    private Result<ShippingInformation> ValidateShippingInfo(ShippingInfo shippingInfo) 
-        => ShippingInformation.Create(
-            shippingInfo.CountryCode, 
-            shippingInfo.FullName, 
-            shippingInfo.StreetAddress,
-            shippingInfo.City,
-            shippingInfo.StateProvince, 
-            shippingInfo.Postcode, 
-            shippingInfo.PhoneNumber);
 }

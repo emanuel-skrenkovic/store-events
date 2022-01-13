@@ -18,6 +18,7 @@ public class PaymentCreateCommandHandler : IRequestHandler<PaymentCreateCommand,
         PaymentNumber paymentNumber = new(Guid.NewGuid());
         Payment payment = Payment.Create(
             paymentNumber,
+            new OrderId(request.OrderId),
             new Source(request.Source),
             new Amount(request.Amount),
             request.Note);

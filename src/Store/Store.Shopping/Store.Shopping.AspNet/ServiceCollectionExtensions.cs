@@ -8,7 +8,7 @@ using Store.Core.Infrastructure;
 using Store.Core.Infrastructure.EventStore;
 using Store.Shopping.Application.Buyers;
 using Store.Shopping.Application.Buyers.Projections;
-using Store.Shopping.Application.Orders.Commands.PlaceOrder;
+using Store.Shopping.Application.Orders.Commands.CreateOrder;
 using Store.Shopping.Application.Orders.Projections;
 using Store.Shopping.Application.Products.Projections;
 using Store.Shopping.Domain.Buyers;
@@ -36,7 +36,7 @@ public static class ServiceCollectionExtensions
         if (string.IsNullOrWhiteSpace(configuration.PostgresConnectionString)) 
             throw new InvalidOperationException($"Cannot create module 'Shopping' if {configuration.EventStoreConnectionString} is null or empty.");
 
-        services.AddMediatR(typeof(OrderPlaceCommand));
+        services.AddMediatR(typeof(OrderCreateCommand));
 
         services.AddSingleton(_ => new EventStoreClient(EventStoreClientSettings.Create(configuration.EventStoreConnectionString)));
             
