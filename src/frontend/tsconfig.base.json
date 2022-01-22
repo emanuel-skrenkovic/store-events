@@ -14,7 +14,11 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@store/payments-api": ["libs/payments-api/src/index.ts"],
+      "@store/products-api": ["libs/products-api/src/index.ts"],
+      "@store/shopping-api": ["libs/shopping-api/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

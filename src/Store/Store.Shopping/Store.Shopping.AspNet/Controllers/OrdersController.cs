@@ -21,6 +21,9 @@ public class OrdersController : ControllerBase
         
     [HttpPut]
     [Route("actions/place-order")]
+    [ProducesResponseType(201)]
+    [ProducesResponseType(typeof(ProblemDetails), 400)]
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
     public async Task<IActionResult> PlaceOrderAsync([FromBody] OrderCreateCommand command)
     {
         Result<OrderCreateResponse> placeOrderResult = await _mediator.Send(command);
@@ -33,7 +36,10 @@ public class OrdersController : ControllerBase
     #endregion
 
     [HttpGet]
-    [Route("id:guid")]
+    [Route("{id:guid}")]
+    [ProducesResponseType(typeof(Order), 200)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
     public async Task<IActionResult> GetOrder([FromRoute] Guid id)
     {
         Result<Order> getOrderResult = await _mediator.Send(new GetOrderQuery(id));

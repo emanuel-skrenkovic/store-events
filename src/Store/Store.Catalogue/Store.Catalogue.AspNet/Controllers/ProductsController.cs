@@ -21,6 +21,9 @@ public class ProductsController : ControllerBase
         => _context = context ?? throw new ArgumentNullException(nameof(context));
 
     [HttpPost]
+    [ProducesResponseType(201)]
+    [ProducesResponseType(typeof(ProblemDetails), 400)]
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
     public async Task<IActionResult> CreateProduct([FromBody] ProductCreateCommand command)
     {
         Guid productId = Guid.NewGuid();
@@ -46,6 +49,9 @@ public class ProductsController : ControllerBase
 
     [HttpPut]
     [Route("{id:guid}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
     public async Task<IActionResult> UpdateProduct([FromRoute] Guid id, [FromBody] ProductUpdateCommand command)
     {
         DbSet<ProductEntity> set = _context.Products;
@@ -70,6 +76,9 @@ public class ProductsController : ControllerBase
 
     [HttpGet]
     [Route("{id:guid}")]
+    [ProducesResponseType(typeof(ProductApiModel), 200)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
     public async Task<IActionResult> GetProduct([FromRoute] Guid id)
     {
         IDbConnection db = _context.Database.GetDbConnection();

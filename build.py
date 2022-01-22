@@ -54,6 +54,7 @@ class TaskRunner:
 runner = TaskRunner()
 runner.register_task("build", "dotnet build --no-restore src/Store")
 runner.register_task("test", "dotnet test --no-build src/Store", ["build"])
+runner.register_task("run-admin", "cd src/frontend && npx nx serve store-administration")
 
 
 if __name__ == "__main__":

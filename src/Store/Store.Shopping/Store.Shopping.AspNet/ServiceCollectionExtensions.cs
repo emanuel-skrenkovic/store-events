@@ -11,8 +11,6 @@ using Store.Shopping.Application.Buyers.Projections;
 using Store.Shopping.Application.Orders.Commands.CreateOrder;
 using Store.Shopping.Application.Orders.Projections;
 using Store.Shopping.Application.Products.Projections;
-using Store.Shopping.Domain.Buyers;
-using Store.Shopping.Domain.Orders;
 using Store.Shopping.Infrastructure;
 
 namespace Store.Shopping.AspNet;
@@ -34,16 +32,14 @@ public static class ServiceCollectionExtensions
         if (string.IsNullOrWhiteSpace(configuration.EventStoreConnectionString)) 
             throw new InvalidOperationException($"Cannot create module 'Shopping' if {configuration.EventStoreConnectionString} is null or empty.");
         if (string.IsNullOrWhiteSpace(configuration.PostgresConnectionString)) 
-            throw new InvalidOperationException($"Cannot create module 'Shopping' if {configuration.EventStoreConnectionString} is null or empty.");
+            throw new InvalidOperationException($"Cannot create module 'Shopping' if {configuration.PostgresConnectionString} is null or empty.");
 
         services.AddMediatR(typeof(OrderCreateCommand));
 
         services.AddSingleton(_ => new EventStoreClient(EventStoreClientSettings.Create(configuration.EventStoreConnectionString)));
             
         services.AddScoped<IAggregateRepository, EventStoreAggregateRepository>();
- 
         services.AddScoped<CartReadService>();
-
         services.AddSingleton<ISerializer, JsonSerializer>();
             
         services.AddDbContext<StoreShoppingDbContext>(
@@ -51,6 +47,7 @@ public static class ServiceCollectionExtensions
                 configuration.PostgresConnectionString, 
                 b => b.MigrationsAssembly("Store.Shopping.Infrastructure")));
         
+        services.AddSingleton(new EventStoreConnectionConfiguration { SubscriptionId = "Store.Catalogue" });
         services.AddSingleton<IEventSubscriptionFactory, EventStoreSubscriptionFactory>();
         services.AddSingleton<IEventListener, CartProjection>();
         services.AddSingleton<IEventListener, ProductProjection>();

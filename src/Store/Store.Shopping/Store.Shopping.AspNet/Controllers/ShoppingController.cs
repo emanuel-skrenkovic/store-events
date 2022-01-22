@@ -25,6 +25,9 @@ public class ShoppingController : ControllerBase
         
     [HttpPost]
     [Route("cart/actions/add-item")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(typeof(ProblemDetails), 400)]
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
     public async Task<IActionResult> AddItemToCart(BuyerAddItemToCartCommand command)
     {
         Result addItemToCartResult = await _mediator.Send(command); // TODO: need to pick up the user id from token or something.
@@ -33,9 +36,12 @@ public class ShoppingController : ControllerBase
 
     [HttpPost]
     [Route("cart/actions/remove-item")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(typeof(ProblemDetails), 400)]
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
     public async Task<IActionResult> RemoveItemFromCart(BuyerRemoveItemFromCartCommand command)
     {
-        Result removeItemFromCartResult = await _mediator.Send(command); // TODO: need to pick up the user id from token or something.
+        Result removeItemFromCartResult = await _mediator.Send(command); // TODO: need to pick up the user id from token or something. Auth gateway?
         return removeItemFromCartResult.Match(Ok, this.HandleError);
     }
         
@@ -43,9 +49,11 @@ public class ShoppingController : ControllerBase
 
     [HttpGet]
     [Route("cart")]
+    [ProducesResponseType(typeof(Cart), 200)]
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
     public async Task<IActionResult> GetCart([FromQuery] string customerId, [FromQuery] string sessionId) // TODO: need to pick up the user id and sessionId from token or something.
     {
         Result<Cart> cartResult = await _mediator.Send(new BuyerCartGetQuery(new BuyerIdentifier(customerId, sessionId)));
-        return cartResult.Match<IActionResult>(Ok, this.HandleError);
+        return cartResult.Match(Ok, this.HandleError);
     }
 }

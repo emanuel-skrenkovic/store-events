@@ -27,12 +27,14 @@ public static class ServiceCollectionExtensions
         if (string.IsNullOrWhiteSpace(configuration.EventStoreConnectionString)) 
             throw new InvalidOperationException($"Cannot create module 'Catalogue' if {configuration.EventStoreConnectionString} is null or empty.");
         if (string.IsNullOrWhiteSpace(configuration.PostgresConnectionString)) 
-            throw new InvalidOperationException($"Cannot create module 'Catalogue' if {configuration.EventStoreConnectionString} is null or empty.");
+            throw new InvalidOperationException($"Cannot create module 'Catalogue' if {configuration.PostgresConnectionString} is null or empty.");
         
         services.AddSingleton(_ => new EventStoreEventDispatcherConfiguration
         {
             IntegrationStreamName = "catalogue-integration"
         });
+
+        services.AddSingleton(new EventStoreConnectionConfiguration { SubscriptionId = "Store.Catalogue" });
         
         services.AddSingleton<IEventDispatcher, EventStoreEventDispatcher>();
         services.AddSingleton<IIntegrationEventMapper, CatalogueIntegrationEventMapper>();
