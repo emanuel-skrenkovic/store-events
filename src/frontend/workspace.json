@@ -1,7 +1,9 @@
 {
   "version": 2,
   "projects": {
+    "authentication": "libs/authentication",
     "payments-api": "libs/payments-api",
+    "products": "libs/products",
     "products-api": "libs/products-api",
     "shopping-api": "libs/shopping-api",
     "store-administration": "apps/store-administration",

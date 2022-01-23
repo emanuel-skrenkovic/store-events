@@ -15,7 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@store/authentication": ["libs/authentication/src/index.ts"],
       "@store/payments-api": ["libs/payments-api/src/index.ts"],
+      "@store/products": ["libs/products/src/index.ts"],
       "@store/products-api": ["libs/products-api/src/index.ts"],
       "@store/shopping-api": ["libs/shopping-api/src/index.ts"]
     }
