@@ -1,40 +1,56 @@
 import type { NextPage } from 'next';
 import { useDispatch } from "react-redux";
 
-import { add, remove, AppDispatch, useProducts, ProductsState } from '@store/products';
+import { add, remove, AppDispatch, useProducts } from '@store/products';
 import { ProductApiModel } from '@store/products-api';
 
+// TODO: here for testing. REMOVE LATER!
 const id = () => (Math.random() + 1).toString(36).substring(7);
-
-const removeProduct = (dispatch, productId) => dispatch(remove(productId));
-
-const renderProducts = (dispatch, products: ProductsState) => {
-  const productsArr = Object.values(products);
-  if (!productsArr) return null;
-
-  return productsArr.map(p => {
-    return (
-      <div key={p.id}>
-        {p.name}
-        <button onClick={() => removeProduct(dispatch, p.id)}>Remove</button>
-      </div>
-    );
-  });
-};
 
 const Products: NextPage = () => {
   const dispatch = useDispatch<AppDispatch>();
+
   const products = useProducts();
+  const productsArr = Object.values(products);
 
   return (
-    <>
+    <div className="ui container">
       <h2>Products:</h2>
       <br/>
-      <button onClick={() => dispatch(add({ id: id(), name: id() } as ProductApiModel))}>
-        Add Product
-      </button>
-      {renderProducts(dispatch, products)}
-    </>
+      <table className="ui compact celled definition table">
+        <thead className="full-width">
+        <tr>
+          <th>Name</th>
+          <th/>
+        </tr>
+        </thead>
+        <tbody>
+        {productsArr && productsArr.map(p =>
+          (
+            <tr key={p.id}>
+              <td>
+                {p.name}
+              </td>
+              <td>
+                <button className="ui button red" onClick={() => dispatch(remove(p.id))}>Remove</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot className="full-width">
+        <tr>
+          <th/>
+          <th>
+            <div
+              className="ui right floated small primary labeled icon button"
+              onClick={() => dispatch(add({ id: id(), name: id() } as ProductApiModel))}>
+              <i className="user icon" /> Add Product
+            </div>
+          </th>
+        </tr>
+        </tfoot>
+      </table>
+    </div>
   );
 };
 
