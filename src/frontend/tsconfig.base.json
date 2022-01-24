@@ -19,6 +19,7 @@
       "@store/payments-api": ["libs/payments-api/src/index.ts"],
       "@store/products": ["libs/products/src/index.ts"],
       "@store/products-api": ["libs/products-api/src/index.ts"],
+      "@store/shared": ["libs/shared/src/index.ts"],
       "@store/shopping-api": ["libs/shopping-api/src/index.ts"]
     }
   },
