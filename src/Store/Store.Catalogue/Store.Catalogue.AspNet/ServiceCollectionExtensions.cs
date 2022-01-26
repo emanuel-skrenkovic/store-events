@@ -6,6 +6,7 @@ using Store.Catalogue.Infrastructure;
 using Store.Catalogue.Infrastructure.Integration;
 using Store.Core.Domain;
 using Store.Core.Domain.Event;
+using Store.Core.Infrastructure.AspNet;
 using Store.Core.Infrastructure.EventStore;
 
 namespace Store.Catalogue.AspNet;
@@ -36,6 +37,7 @@ public static class ServiceCollectionExtensions
         
         services.AddSingleton<IEventDispatcher, EventStoreEventDispatcher>();
         services.AddSingleton<IIntegrationEventMapper, CatalogueIntegrationEventMapper>();
+        services.AddSingleton<CursorHandler>();
 
         services.AddSingleton<ISerializer, JsonSerializer>();
 
