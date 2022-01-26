@@ -12,7 +12,7 @@ using Store.Catalogue.Infrastructure;
 namespace Store.Catalogue.Infrastructure.Migrations
 {
     [DbContext(typeof(StoreCatalogueDbContext))]
-    [Migration("20211220132145_product")]
+    [Migration("20220126171038_product")]
     partial class product
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,14 +27,20 @@ namespace Store.Catalogue.Infrastructure.Migrations
 
             modelBuilder.Entity("Store.Catalogue.Infrastructure.Entity.ProductEntity", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("Available")
                         .HasColumnType("boolean")
                         .HasColumnName("available");
+
+                    b.Property<Guid>("CatalogueId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("catalogue_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -59,28 +65,6 @@ namespace Store.Catalogue.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("product", "public");
-                });
-
-            modelBuilder.Entity("Store.Core.Infrastructure.EntityFramework.Entity.SubscriptionCheckpointEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<decimal>("Position")
-                        .HasColumnType("numeric(20,0)")
-                        .HasColumnName("position");
-
-                    b.Property<string>("SubscriptionId")
-                        .HasColumnType("text")
-                        .HasColumnName("subscription_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubscriptionId");
-
-                    b.ToTable("subscription_checkpoint", "public");
                 });
 #pragma warning restore 612, 618
         }

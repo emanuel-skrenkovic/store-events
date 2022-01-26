@@ -4,7 +4,9 @@ namespace Store.Catalogue.Infrastructure.Entity;
 
 public class ProductEntity
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
+    
+    public Guid CatalogueId { get; set; }
         
     public DateTime CreatedAt { get; set; }
         

@@ -46,6 +46,18 @@ public static class Ensure
         return number;
     }
     
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static decimal Positive(decimal number, [CallerArgumentExpression("number")] string argName = null)
+    {
+        if (number < 1)
+        {
+            throw new ArgumentException($"{argName} is not positive.");
+        }
+
+        return number;
+    }
+    
     private static class CommonMessages
     {
         [DebuggerHidden]

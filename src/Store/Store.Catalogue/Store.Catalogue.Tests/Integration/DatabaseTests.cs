@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Store.Catalogue.AspNet.Commands;
 using Store.Catalogue.AspNet.Models;
 using Store.Catalogue.Infrastructure;
@@ -12,7 +13,7 @@ using Xunit;
 
 namespace Store.Catalogue.Tests.Integration;
 
-public class DatabaseTests : IClassFixture<StoreCatalogueDatabaseFixture>, IAsyncLifetime
+public class DatabaseTests : IClassFixture<StoreCatalogueDatabaseFixture>
 {
     private readonly StoreCatalogueDatabaseFixture _fixture;
 
@@ -48,12 +49,12 @@ public class DatabaseTests : IClassFixture<StoreCatalogueDatabaseFixture>, IAsyn
         Assert.Contains(response.Headers, kv => kv.Key == "Location");
         Assert.NotNull(response.Headers.Location);
         
-        Guid productId = new Guid(response.Headers.Location.AbsolutePath.Split('/').Last());
+        Guid productCatalogueId = new Guid(response.Headers.Location.AbsolutePath.Split('/').Last());
         
-        Assert.NotEqual(default, productId);
+        Assert.NotEqual(default, productCatalogueId);
         
         StoreCatalogueDbContext context = _fixture.PostgresFixture.Context;
-        ProductEntity productEntity = await context.FindAsync<ProductEntity>(productId);
+        ProductEntity productEntity = await context.Products.SingleOrDefaultAsync(p => p.CatalogueId == productCatalogueId);
         
         Assert.NotNull(productEntity);
         
@@ -82,7 +83,7 @@ public class DatabaseTests : IClassFixture<StoreCatalogueDatabaseFixture>, IAsyn
             Available = productAvailable
         });
         HttpResponseMessage postResponse = await client.PostAsJsonAsync("/products", command);
-        Guid productId = new Guid(postResponse.Headers.Location.AbsolutePath.Split('/').Last());
+        Guid productCatalogueId = new Guid(postResponse.Headers.Location.AbsolutePath.Split('/').Last());
         
         #endregion
         
@@ -97,7 +98,7 @@ public class DatabaseTests : IClassFixture<StoreCatalogueDatabaseFixture>, IAsyn
             Price = updatedProductPrice,
             Available = updatedProductAvailable
         });
-        HttpResponseMessage response = await client.PutAsJsonAsync($"/products/{productId}", updateCommand);
+        HttpResponseMessage response = await client.PutAsJsonAsync($"/products/{productCatalogueId}", updateCommand);
 
         #endregion
         
@@ -108,21 +109,14 @@ public class DatabaseTests : IClassFixture<StoreCatalogueDatabaseFixture>, IAsyn
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         
         StoreCatalogueDbContext context = _fixture.PostgresFixture.Context;
-        ProductEntity productEntity = await context.FindAsync<ProductEntity>(productId);
+        ProductEntity productEntity = await context.Products.SingleOrDefaultAsync(p => p.CatalogueId == productCatalogueId);
         
         Assert.NotNull(productEntity);
         
-        Assert.Equal(productEntity.Name, updatedProductName);
-        Assert.Equal(productEntity.Price, updatedProductPrice);
-        Assert.Equal(productEntity.Available, updatedProductAvailable);
+        Assert.Equal(updatedProductName, productEntity.Name);
+        Assert.Equal(updatedProductPrice, productEntity.Price);
+        Assert.Equal(updatedProductAvailable, productEntity.Available);
 
         #endregion
-    }
-    
-    public Task InitializeAsync() => Task.CompletedTask;
-
-    public async Task DisposeAsync()
-    {
-        await _fixture.PostgresFixture.CleanAsync();
     }
 }

@@ -4,7 +4,7 @@ namespace Store.Catalogue.AspNet.Models;
 
 public record ProductApiModel
 {
-    public Guid Id { get; init;  }
+    public Guid CatalogueId { get; init; }
     
     public DateTime CreatedAt { get; init; }
     

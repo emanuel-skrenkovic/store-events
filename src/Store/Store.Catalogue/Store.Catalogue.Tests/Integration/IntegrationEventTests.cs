@@ -51,8 +51,8 @@ public class IntegrationEventTests : IClassFixture<StoreCatalogueEventStoreFixtu
         var productCreatedEvent = events.FirstOrDefault(e => e is ProductCreatedEvent) as ProductCreatedEvent;
         Assert.NotNull(productCreatedEvent);
         
-        Guid productId = new Guid(response.Headers.Location.AbsolutePath.Split('/').Last());
-        Assert.Equal(productId, productCreatedEvent.ProductId);
+        Guid productCatalogueId = new Guid(response.Headers.Location.AbsolutePath.Split('/').Last());
+        Assert.Equal(productCatalogueId, productCreatedEvent.ProductId);
         Assert.Equal(productName, productCreatedEvent.ProductView.Name);
         Assert.Equal(productPrice, productCreatedEvent.ProductView.Price);
         Assert.Equal(productAvailable, productCreatedEvent.ProductView.Available);
@@ -85,7 +85,7 @@ public class IntegrationEventTests : IClassFixture<StoreCatalogueEventStoreFixtu
         HttpResponseMessage postResponse = await client.PostAsJsonAsync("/products", command);
         Assert.True(postResponse.IsSuccessStatusCode);
         
-        Guid productId = new Guid(postResponse.Headers.Location.AbsolutePath.Split('/').Last());
+        Guid productCatalogueId = new Guid(postResponse.Headers.Location.AbsolutePath.Split('/').Last());
         
         #endregion
         
@@ -100,7 +100,7 @@ public class IntegrationEventTests : IClassFixture<StoreCatalogueEventStoreFixtu
             Price = updatedProductPrice,
             Available = updatedProductAvailable
         });
-        HttpResponseMessage response = await client.PutAsJsonAsync($"/products/{productId}", updateCommand);
+        HttpResponseMessage response = await client.PutAsJsonAsync($"/products/{productCatalogueId}", updateCommand);
         
         #endregion
         
@@ -115,7 +115,7 @@ public class IntegrationEventTests : IClassFixture<StoreCatalogueEventStoreFixtu
         var productUpdatedEvent = events.FirstOrDefault(e => e is ProductUpdatedEvent) as ProductUpdatedEvent;
         Assert.NotNull(productUpdatedEvent);
         
-        Assert.Equal(productId, productUpdatedEvent.ProductId);
+        Assert.Equal(productCatalogueId, productUpdatedEvent.ProductId);
         Assert.Equal(updatedProductName, productUpdatedEvent.ProductView.Name);
         Assert.Equal(updatedProductPrice, productUpdatedEvent.ProductView.Price);
         Assert.Equal(updatedProductAvailable, productUpdatedEvent.ProductView.Available);

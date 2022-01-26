@@ -11,11 +11,15 @@ public class ProductEntityConfiguration : IEntityTypeConfiguration<ProductEntity
         builder.ToTable("product");
             
         builder.HasKey(p => p.Id);
-        builder.Property(p => p.Id).HasColumnName("id");
+        builder.Property(p => p.Id).HasColumnName("id").ValueGeneratedOnAdd();
+        
+        builder.HasIndex(p => p.Id);
+        builder.HasIndex(p => p.CatalogueId);
 
         builder.Property(p => p.CreatedAt).HasColumnName("created_at");
         builder.Property(p => p.UpdatedAt).HasColumnName("updated_at");
 
+        builder.Property(p => p.CatalogueId).HasColumnName("catalogue_id");
         builder.Property(p => p.Description).HasColumnName("description");
         builder.Property(p => p.Name).HasColumnName("name");
         builder.Property(p => p.Available).HasColumnName("available");

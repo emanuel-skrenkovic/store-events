@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -11,13 +12,15 @@ namespace Store.Catalogue.Infrastructure.Migrations
         {
             migrationBuilder.EnsureSchema(
                 name: "public");
-                
+
             migrationBuilder.CreateTable(
                 name: "product",
                 schema: "public",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    catalogue_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     name = table.Column<string>(type: "text", nullable: true),
@@ -29,36 +32,12 @@ namespace Store.Catalogue.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_product", x => x.id);
                 });
-
-            migrationBuilder.CreateTable(
-                name: "subscription_checkpoint",
-                schema: "public",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    subscription_id = table.Column<string>(type: "text", nullable: true),
-                    position = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_subscription_checkpoint", x => x.id);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_subscription_checkpoint_subscription_id",
-                schema: "public",
-                table: "subscription_checkpoint",
-                column: "subscription_id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
                 name: "product",
-                schema: "public");
-
-            migrationBuilder.DropTable(
-                name: "subscription_checkpoint",
                 schema: "public");
         }
     }

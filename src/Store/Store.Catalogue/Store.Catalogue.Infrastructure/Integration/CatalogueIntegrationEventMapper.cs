@@ -21,8 +21,8 @@ public class CatalogueIntegrationEventMapper : IIntegrationEventMapper
             ProductView productView = new(product.Name, product.Price, product.Available, product.Description);
             integrationEvent = entityState switch
             {
-                EntityState.Added    => new ProductCreatedEvent(product.Id, productView),
-                EntityState.Modified => new ProductUpdatedEvent(product.Id, productView),
+                EntityState.Added    => new ProductCreatedEvent(product.CatalogueId, productView),
+                EntityState.Modified => new ProductUpdatedEvent(product.CatalogueId, productView),
                 _ => null
             };
         }
