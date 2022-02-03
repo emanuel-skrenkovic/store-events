@@ -6,17 +6,43 @@ namespace Store.Core.Infrastructure.AspNet;
 
 public class PagedResponse<T>
 {
-    public T[] Data { get; }
+    public T[] Data { get; internal set; }
     
-    public string Cursor { get; }
+    public string Previous { get; internal set; }
+    
+    public string Next { get; internal set; }
 
     public PagedResponse(
-        ICollection<T> data, 
-        string cursor)
+        IEnumerable<T> data, 
+        string previous,
+        string next)
     {
-        Ensure.NotNull(data);
-        
-        Data     = data.ToArray();
-        Cursor   = cursor;
+        T[] dataArray = data?.ToArray();
+        Ensure.NotNull(dataArray);
+
+        Data = dataArray;
+        Previous = previous;
+        Next = next;
+    }
+}
+
+public static class PagedResponseExtensions
+{
+    private static CursorHandler CursorHandler = new(new JsonSerializer());
+    
+    public static PagedResponse<T> WithData<T>(this PagedResponse<T> pagedResponse, IEnumerable<T> data)
+    {
+        pagedResponse.Data = data.ToArray();
+        return pagedResponse;
+    }
+    
+    public static PagedResponse<T> WithNext<T>(this PagedResponse<T> pagedResponse, string cursor)
+    {
+        return pagedResponse;
+    }
+    
+    public static PagedResponse<T> Previous<T>(this PagedResponse<T> pagedResponse, string cursor)
+    {
+        return pagedResponse;
     }
 }

@@ -2,49 +2,48 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Primitives;
 using Store.Core.Domain;
 
 namespace Store.Core.Infrastructure.AspNet;
 
-public class CursorHandler
+public class PagingParams
 {
     private const string CursorQueryParameterName = "cursor";
-    private readonly ISerializer _serializer;
-
-    public CursorHandler(ISerializer serializer)
-        => _serializer = Ensure.NotNull(serializer);
     
-    public T Parse<T>(string composedCursor)
-    {
-        if (composedCursor == default) return default;
+    private readonly IEnumerable<KeyValuePair<string, StringValues>> _otherQueryParameters;
+    
+    public string Next { get; }
+    public string Previous { get; }
 
-        string decoded = Encoding.UTF8.GetString(
-            Convert.FromBase64String(composedCursor));
-        return _serializer.Deserialize<T>(decoded);
-    }
-
-    public string Compose<T>(T data)
+    public int Limit { get; }
+    
+    public PagingParams
+    (
+        object next, 
+        object previous, 
+        int limit,
+        IEnumerable<KeyValuePair<string, StringValues>> otherQueryParameters = null
+    )
     {
-        if (data == null) return null;
+        Ensure.Positive(limit);
         
-        return Convert.ToBase64String(
-            _serializer.SerializeToBytes(data));
+        Next = Encode(next);
+        Previous = Encode(previous);
+        Limit = limit;
+        _otherQueryParameters = otherQueryParameters;
     }
 
-    public (string, string) BuildCursorQueries(
-        string nextCursor, 
-        string previousCursor, 
-        IEnumerable<KeyValuePair<string, StringValues>> otherQueryParameters, 
-        string cursorQueryParameterName = CursorQueryParameterName)
+    public (string, string) ToQueryStrings(string cursorQueryParameterName = CursorQueryParameterName)
     {
-        List<KeyValuePair<string, StringValues>> queryParameters = otherQueryParameters
+        List<KeyValuePair<string, StringValues>> queryParameters = _otherQueryParameters
             .Where(kv => kv.Key != cursorQueryParameterName)
             .ToList(); 
         
         QueryBuilder nextQueryBuilder = null;
-        if (nextCursor != null)
+        if (Next != null)
         {
             nextQueryBuilder = new();
 
@@ -56,11 +55,11 @@ public class CursorHandler
                 }
             }
             
-            nextQueryBuilder.Add(cursorQueryParameterName, nextCursor);
+            nextQueryBuilder.Add(cursorQueryParameterName, Next);
         }
         
         QueryBuilder previousQueryBuilder = null;
-        if (previousCursor != null)
+        if (Previous != null)
         {
             previousQueryBuilder = new();
             
@@ -71,12 +70,19 @@ public class CursorHandler
                     previousQueryBuilder.Add(key, value.AsEnumerable());
                 }
             }
-            previousQueryBuilder.Add(cursorQueryParameterName, previousCursor);
+            previousQueryBuilder.Add(cursorQueryParameterName, Previous);
         }
         
         return (
             nextQueryBuilder?.ToString(), 
             previousQueryBuilder?.ToString()
         );
+    }
+
+    private string Encode(object cursor)
+    {
+        if (cursor is null) return null;
+        
+        return Convert.ToBase64String(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(cursor));
     }
 }

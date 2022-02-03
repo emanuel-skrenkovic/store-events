@@ -57,7 +57,7 @@ public class Buyer : AggregateEntity<string>
     {
         string catalogueNumber = domainEvent.ProductCatalogueNumber;
             
-        if (--CartItems[catalogueNumber] == 0)
+        if (--CartItems[catalogueNumber] is 0)
         {
             CartItems.Remove(catalogueNumber);
         }

@@ -16,4 +16,16 @@ public static class ControllerBaseExtensions
             _ => controller.BadRequest(error.Message)
         };
     }
+
+    public static PagingParams CreatePagingParams<TKey>
+    (
+        this ControllerBase controller, 
+        TKey nextCursor, 
+        TKey previousCursor, 
+        int limit
+    ) => new(
+            nextCursor, 
+            previousCursor,
+            limit,
+            controller.Request.Query);
 }

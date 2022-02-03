@@ -16,7 +16,7 @@ public class OrderLine : ValueObject<OrderLine>
     {
         Ensure.NotNullOrEmpty(catalogueNumber, nameof(catalogueNumber));
         if (price < 0) throw new ArgumentException($"{nameof(price)} cannot be negative.");
-        if (count == 0) throw new ArgumentException($"{nameof(count)} cannot be 0.");
+        if (count is 0) throw new ArgumentException($"{nameof(count)} cannot be 0.");
 
         CatalogueNumber = catalogueNumber;
         Price = price;

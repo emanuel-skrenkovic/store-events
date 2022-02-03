@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,6 +11,7 @@ using Store.Catalogue.Infrastructure;
 using Store.Catalogue.Infrastructure.Entity;
 using Store.Core.Domain;
 using Store.Core.Infrastructure.AspNet;
+using Store.Core.Infrastructure.EntityFramework.Extensions;
 
 namespace Store.Catalogue.AspNet.Controllers;
 
@@ -104,42 +104,36 @@ public class ProductsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetProducts(
         [FromQuery] int limit = 10, //TODO: cleaner
+        [FromQuery] string searchTerm = "",
         [FromQuery] string cursor = null)
     {
-        IDbConnection db = _context.Database.GetDbConnection();
+        int? parsedCursor = _cursorHandler.Parse<int?>(cursor);
+        
+        ProductEntity[] productEntities = await _context.Products
+            .Where(p => p.Name.Contains(searchTerm))
+            .After(p => p.Id, parsedCursor)
+            .Take(limit + 1)
+            .ToArrayAsync();
 
-        const string query =
-            @"SELECT * 
-              FROM public.product
-              WHERE id >= @cursor
-              ORDER BY id
-              LIMIT @limit;";
+        int? nextCursor     = productEntities.NextValueCursor(p => p.Id, limit);
+        int? previousCursor = await _context.Products
+            .PreviousValueCursorOrDefaultAsync(p => p.Id, parsedCursor, limit);
 
-        var queryParameters = new
-        {
-            limit = limit + 1, 
-            cursor = string.IsNullOrWhiteSpace(cursor) 
-                ? 0 : 
-                _cursorHandler.Parse<int>(cursor)
-        };
-                
-        IEnumerable<ProductEntity> productEntities = 
-            (await db.QueryAsync<ProductEntity>(query, queryParameters)).ToArray();
-
-        ProductApiModel[] products = productEntities
-            .Take(limit)
-            .Select(e => new ProductApiModel
-            {
-                CatalogueId = e.CatalogueId,
-                CreatedAt   = e.CreatedAt,
-                UpdatedAt   = e.UpdatedAt,
-                Name        = e.Name,
-                Description = e.Description,
-                Available   = e.Available
-            }).ToArray();
-
-        return Ok(new PagedResponse<ProductApiModel>(
-                products, 
-                _cursorHandler.Compose(productEntities.LastOrDefault()?.Id)));
+        return Ok
+        (
+            productEntities
+                .Select(Map)
+                .ToPagedResponse(this.CreatePagingParams(nextCursor, previousCursor, limit))
+        );
     }
+    
+    private ProductApiModel Map(ProductEntity productEntity) => new()
+    {
+        CatalogueId = productEntity.CatalogueId,
+        CreatedAt = productEntity.CreatedAt,
+        UpdatedAt = productEntity.UpdatedAt,
+        Name = productEntity.Name,
+        Description = productEntity.Description,
+        Available = productEntity.Available
+    };
 }
