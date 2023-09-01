@@ -15,16 +15,16 @@ public class OrderSetShippingInformation : IRequestHandler<OrderSetShippingInfor
     public OrderSetShippingInformation(IAggregateRepository repository)
         => _repository = Ensure.NotNull(repository);
     
-    public Task<Result> Handle(OrderSetShippingInformationCommand request, CancellationToken cancellationToken) =>
+    public Task<Result> Handle(OrderSetShippingInformationCommand request, CancellationToken ct) =>
         _repository
-            .GetAsync<Order, Guid>(request.OrderId)
+            .GetAsync<Order, Guid>(request.OrderId, ct)
             .Then
             (
                 order => ValidateShippingInfo(request.ShippingInfo)
                     .Then(si =>
                     {
                         order.SetShippingInformation(si);
-                        return _repository.SaveAsync<Order, Guid>(order);
+                        return _repository.SaveAsync<Order, Guid>(order, ct);
                     })
             );
 

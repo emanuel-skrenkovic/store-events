@@ -14,13 +14,13 @@ public class ProductInventoryRemoveFromStock : IRequestHandler<ProductInventoryR
     public ProductInventoryRemoveFromStock(IAggregateRepository repository)
         => _repository = Ensure.NotNull(repository);
     
-    public Task<Result> Handle(ProductInventoryRemoveFromStockCommand request, CancellationToken cancellationToken) =>
+    public Task<Result> Handle(ProductInventoryRemoveFromStockCommand request, CancellationToken ct) =>
         _repository
-            .GetAsync<ProductInventory, Guid>(request.ProductId)
+            .GetAsync<ProductInventory, Guid>(request.ProductId, ct)
             .Then
             (
                 pi => pi
                     .RemoveFromStock(request.Count)
-                    .Then(() => _repository.SaveAsync<ProductInventory, Guid>(pi))
+                    .Then(() => _repository.SaveAsync<ProductInventory, Guid>(pi, ct))
             );
 }

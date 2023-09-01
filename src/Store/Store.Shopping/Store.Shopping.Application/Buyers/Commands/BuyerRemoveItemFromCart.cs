@@ -16,18 +16,16 @@ public class BuyerRemoveItemFromCart : IRequestHandler<BuyerRemoveItemFromCartCo
     public BuyerRemoveItemFromCart(IAggregateRepository repository)
         => _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         
-    public Task<Result> Handle(BuyerRemoveItemFromCartCommand request, CancellationToken cancellationToken)
+    public Task<Result> Handle(BuyerRemoveItemFromCartCommand request, CancellationToken ct)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         (string customerNumber, string sessionId, string productCatalogueNumber) = request;
         BuyerIdentifier buyerId = new(customerNumber, sessionId);
         
-        return _repository.GetAsync<Buyer, string>(buyerId.ToString())
+        return _repository.GetAsync<Buyer, string>(buyerId.ToString(), ct)
             .Then(buyer =>
             {
                 buyer.RemoveCartItem(new CatalogueNumber(productCatalogueNumber));
-                return _repository.SaveAsync<Buyer, string>(buyer);
+                return _repository.SaveAsync<Buyer, string>(buyer, ct);
             });
     }
 }

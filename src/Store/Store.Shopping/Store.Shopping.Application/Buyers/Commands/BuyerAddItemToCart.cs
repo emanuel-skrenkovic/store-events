@@ -30,7 +30,7 @@ public class BuyerAddItemToCartCommandHandler : IRequestHandler<BuyerAddItemToCa
         _db         = Ensure.NotNull(context?.Database.GetDbConnection());
     }
         
-    public async Task<Result> Handle(BuyerAddItemToCartCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(BuyerAddItemToCartCommand request, CancellationToken ct)
     {
         (string customerNumber, string sessionId, string productCatalogueNumber) = request;
 
@@ -53,11 +53,11 @@ public class BuyerAddItemToCartCommandHandler : IRequestHandler<BuyerAddItemToCa
         
         BuyerIdentifier buyerId = new(customerNumber, sessionId);
         
-        Result<Buyer> getBuyerResult = await _repository.GetAsync<Buyer, string>(buyerId.ToString());
+        Result<Buyer> getBuyerResult = await _repository.GetAsync<Buyer, string>(buyerId.ToString(), ct);
         Buyer buyer = getBuyerResult.UnwrapOrDefault(Buyer.Create(buyerId));
 
         buyer.AddCartItem(new CatalogueNumber(productCatalogueNumber));
         
-        return await _repository.SaveAsync<Buyer, string>(buyer);
+        return await _repository.SaveAsync<Buyer, string>(buyer, ct);
     }
 }

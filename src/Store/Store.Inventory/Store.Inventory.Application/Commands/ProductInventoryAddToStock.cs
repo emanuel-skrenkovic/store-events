@@ -17,16 +17,16 @@ public class ProductInventoryAddToStock : IRequestHandler<ProductInventoryAddToS
         _repository = Ensure.NotNull(repository);
     }
     
-    public async Task<Result> Handle(ProductInventoryAddToStockCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(ProductInventoryAddToStockCommand request, CancellationToken ct)
     {
         (Guid productId, int count) = request;
-        Result<ProductInventory> getProductInventoryResult = await _repository.GetAsync<ProductInventory, Guid>(productId);
+        Result<ProductInventory> getProductInventoryResult = await _repository.GetAsync<ProductInventory, Guid>(productId, ct);
         
         ProductInventory productInventory = getProductInventoryResult
             .UnwrapOrDefault(ProductInventory.Create(new ProductNumber(productId)));
         
         productInventory.AddToStock(count);
 
-        return await _repository.SaveAsync<ProductInventory, Guid>(productInventory);
+        return await _repository.SaveAsync<ProductInventory, Guid>(productInventory, ct);
     }
 }

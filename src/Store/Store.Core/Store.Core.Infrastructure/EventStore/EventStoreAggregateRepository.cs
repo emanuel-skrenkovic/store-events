@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EventStore.Client;
 using Store.Core.Domain;
@@ -22,7 +23,7 @@ public class EventStoreAggregateRepository : IAggregateRepository
         _eventStore = Ensure.NotNull(eventStore);
     }
         
-    public async Task<Result<T>> GetAsync<T, TKey>(TKey id) 
+    public async Task<Result<T>> GetAsync<T, TKey>(TKey id, CancellationToken cancellationToken = default) 
         where T : AggregateEntity<TKey>, new()
     {
         try
@@ -31,7 +32,8 @@ public class EventStoreAggregateRepository : IAggregateRepository
             (
                 Direction.Forwards,
                 GenerateStreamName<T, TKey>(id),
-                StreamPosition.Start
+                StreamPosition.Start,
+                cancellationToken: cancellationToken
             );
 
             if (await eventStream.ReadState == ReadState.StreamNotFound)
@@ -41,7 +43,7 @@ public class EventStoreAggregateRepository : IAggregateRepository
 
             IReadOnlyCollection<IEvent> domainEvents = await eventStream
                 .Select(e => e.Deserialize(_serializer) as IEvent)
-                .ToArrayAsync();
+                .ToArrayAsync(cancellationToken);
 
             T entity = new();
             entity.Hydrate(id, domainEvents);
@@ -54,7 +56,7 @@ public class EventStoreAggregateRepository : IAggregateRepository
         }
     }
 
-    public async Task<Result> SaveAsync<T, TKey>(T entity) 
+    public async Task<Result> SaveAsync<T, TKey>(T entity, CancellationToken cancellationToken = default) 
         where T : AggregateEntity<TKey>
     {
         try
@@ -66,14 +68,15 @@ public class EventStoreAggregateRepository : IAggregateRepository
                 .Select(domainEvent => domainEvent.ToEventData
                 (
                     CorrelationContext.CreateEventMetadata(domainEvent), 
-                    _serializer)
-                ).ToImmutableList();
+                    _serializer
+                )).ToImmutableList();
 
             await _eventStore.AppendToStreamAsync
             (
                 GenerateStreamName<T, TKey>(entity.Id),
                 StreamState.Any, // TODO: fix this
-                eventsData
+                eventsData,
+                cancellationToken: cancellationToken
             );
 
             return Result.Ok();
@@ -84,8 +87,5 @@ public class EventStoreAggregateRepository : IAggregateRepository
         }
     }
 
-    private string GenerateStreamName<T, TKey>(TKey id)
-    {
-        return $"{typeof(T).FullName}-{id}";
-    }
+    private string GenerateStreamName<T, TKey>(TKey id) => $"{typeof(T).FullName}-{id}";
 }

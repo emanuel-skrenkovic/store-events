@@ -14,14 +14,14 @@ public class PaymentVerify : IRequestHandler<PaymentVerifyCommand, Result>
     public PaymentVerify(IAggregateRepository repository)
         => _repository = Ensure.NotNull(repository);
 
-    public Task<Result> Handle(PaymentVerifyCommand request, CancellationToken cancellationToken)
-        => _repository.GetAsync<Payment, Guid>(request.PaymentId)
+    public Task<Result> Handle(PaymentVerifyCommand request, CancellationToken ct)
+        => _repository.GetAsync<Payment, Guid>(request.PaymentId, ct)
             .Then(async payment =>
             {
                 if (payment.Status == PaymentStatus.Verified) return Result.Ok();
 
                 return await payment
                     .Verify()
-                    .Then(() => _repository.SaveAsync<Payment, Guid>(payment));
+                    .Then(() => _repository.SaveAsync<Payment, Guid>(payment, ct));
             });
 }

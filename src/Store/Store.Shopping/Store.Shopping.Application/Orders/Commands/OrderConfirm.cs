@@ -14,14 +14,14 @@ public class OrderConfirm : IRequestHandler<OrderConfirmCommand, Result>
     public OrderConfirm(IAggregateRepository repository)
         => _repository = Ensure.NotNull(repository);
     
-    public Task<Result> Handle(OrderConfirmCommand request, CancellationToken cancellationToken) =>
-        _repository
-            .GetAsync<Order, Guid>(request.OrderId)
+    public Task<Result> Handle(OrderConfirmCommand request, CancellationToken ct) 
+        => _repository
+            .GetAsync<Order, Guid>(request.OrderId, ct)
             .Then
             (
                 order => order
                     .Confirm()
-                    .Then(() => _repository.SaveAsync<Order, Guid>(order))
+                    .Then(() => _repository.SaveAsync<Order, Guid>(order, ct))
             );
             
 }

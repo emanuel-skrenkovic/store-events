@@ -15,8 +15,13 @@ public class OrderSubmitPayment : IRequestHandler<OrderSubmitPaymentCommand, Res
     public OrderSubmitPayment(IAggregateRepository repository)
         => _repository = Ensure.NotNull(repository);
     
-    public Task<Result> Handle(OrderSubmitPaymentCommand request, CancellationToken cancellationToken) =>
-        _repository.GetAsync<Order, Guid>(request.OrderId)
-            .Then(order => order.SubmitPayment(new PaymentNumber(request.PaymentId))
-                .Then(() => _repository.SaveAsync<Order, Guid>(order)));
+    public Task<Result> Handle(OrderSubmitPaymentCommand request, CancellationToken ct) 
+        => _repository
+            .GetAsync<Order, Guid>(request.OrderId, ct)
+            .Then
+            (
+                order => order
+                    .SubmitPayment(new PaymentNumber(request.PaymentId))
+                    .Then(() => _repository.SaveAsync<Order, Guid>(order, ct))
+            );
 }

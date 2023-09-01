@@ -23,7 +23,7 @@ public class PaymentCreate : IRequestHandler<PaymentCreateCommand, Result<Paymen
     public PaymentCreate(IAggregateRepository repository)
         => _repository = Ensure.NotNull(repository);
     
-    public Task<Result<PaymentCreateResponse>> Handle(PaymentCreateCommand request, CancellationToken cancellationToken)
+    public Task<Result<PaymentCreateResponse>> Handle(PaymentCreateCommand request, CancellationToken ct)
     {
         PaymentNumber paymentNumber = new(Guid.NewGuid());
         Payment payment = Payment.Create
@@ -35,7 +35,7 @@ public class PaymentCreate : IRequestHandler<PaymentCreateCommand, Result<Paymen
             request.Note
         );
 
-        return _repository.SaveAsync<Payment, Guid>(payment)
+        return _repository.SaveAsync<Payment, Guid>(payment, ct)
             .Then<PaymentCreateResponse>(() => new PaymentCreateResponse(paymentNumber.Value));
     }
 }

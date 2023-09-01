@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Store.Core.Domain.ErrorHandling;
 
@@ -11,27 +12,28 @@ public class IntegrationAggregateRepository : IAggregateRepository
     private readonly IIntegrationEventMapper _integrationEventMapper;
     private readonly IEventDispatcher _eventDispatcher;
 
-    public IntegrationAggregateRepository(
+    public IntegrationAggregateRepository
+    (
         IAggregateRepository repository, 
         IIntegrationEventMapper integrationEventMapper, 
         IEventDispatcher eventDispatcher)
     {
-        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _repository             = repository ?? throw new ArgumentNullException(nameof(repository));
         _integrationEventMapper = integrationEventMapper ?? throw new ArgumentNullException(nameof(integrationEventMapper));
-        _eventDispatcher = eventDispatcher ?? throw new ArgumentNullException(nameof(eventDispatcher));
+        _eventDispatcher        = eventDispatcher ?? throw new ArgumentNullException(nameof(eventDispatcher));
     }
 
-    public Task<Result<T>> GetAsync<T, TKey>(TKey id) where T : AggregateEntity<TKey>, new()
-        => _repository.GetAsync<T, TKey>(id);
+    public Task<Result<T>> GetAsync<T, TKey>(TKey id, CancellationToken ct) where T : AggregateEntity<TKey>, new()
+        => _repository.GetAsync<T, TKey>(id, ct);
 
-    public async Task<Result> SaveAsync<T, TKey>(T entity) 
+    public async Task<Result> SaveAsync<T, TKey>(T entity, CancellationToken ct) 
         where T : AggregateEntity<TKey>
     {
         // Copy the events before commit to be able to translate
         // them to integration events after they are submitted.
         List<IEvent> events = new(entity.GetUncommittedEvents());
             
-        Result saveResult = await _repository.SaveAsync<T, TKey>(entity);
+        Result saveResult = await _repository.SaveAsync<T, TKey>(entity, ct);
            
         // TODO: think about how concurrency might mess up
         // temporal stream of events.

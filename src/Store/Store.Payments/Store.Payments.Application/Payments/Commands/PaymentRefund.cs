@@ -20,14 +20,19 @@ public class PaymentRefund : IRequestHandler<PaymentRefundCommand, Result<Paymen
         => _repository = Ensure.NotNull(repository);
     
     // TODO: paying beer for anyone who can read this shit.
-    public Task<Result<PaymentRefundResponse>> Handle(PaymentRefundCommand request, CancellationToken cancellationToken)
-        => _repository.GetAsync<Payment, Guid>(request.PaymentId)
+    public Task<Result<PaymentRefundResponse>> Handle(PaymentRefundCommand request, CancellationToken ct)
+        => _repository
+            .GetAsync<Payment, Guid>(request.PaymentId, ct)
             .Then(async payment =>
             {
                 if (payment.Status == PaymentStatus.Refunded) return new PaymentRefundResponse(payment.RefundInfo.Id);
                 
                 return await payment.Refund(request.Note)
-                    .Then(refund => _repository.SaveAsync<Payment, Guid>(payment)
-                        .Then<PaymentRefundResponse>(() => new PaymentRefundResponse(refund.Id)));
+                    .Then
+                    (
+                        refund => _repository
+                            .SaveAsync<Payment, Guid>(payment, ct)
+                            .Then<PaymentRefundResponse>(() => new PaymentRefundResponse(refund.Id))
+                    );
             });
 }

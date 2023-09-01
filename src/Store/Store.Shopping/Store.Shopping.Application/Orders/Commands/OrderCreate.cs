@@ -36,16 +36,15 @@ public class OrderCreate : IRequestHandler<OrderCreateCommand, Result<OrderCreat
         _db         = context?.Database.GetDbConnection() ?? throw new ArgumentNullException(nameof(context));
     }
         
-    public Task<Result<OrderCreateResponse>> Handle(OrderCreateCommand request, CancellationToken cancellationToken)
+    public Task<Result<OrderCreateResponse>> Handle(OrderCreateCommand request, CancellationToken ct)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         (string customerNumber, string sessionId) = request;
         OrderNumber orderNumber = new(Guid.NewGuid());
         
-        return _repository.GetAsync<Buyer, string>(new BuyerIdentifier(customerNumber, sessionId).ToString())
+        return _repository
+            .GetAsync<Buyer, string>(new BuyerIdentifier(customerNumber, sessionId).ToString(), ct)
             .Then(buyer => CreateOrder(buyer, orderNumber))
-            .Then(order => _repository.SaveAsync<Order, Guid>(order))
+            .Then(order => _repository.SaveAsync<Order, Guid>(order, ct))
             .Then<OrderCreateResponse>(() => new OrderCreateResponse(orderNumber.Value));
     }
 
@@ -60,30 +59,38 @@ public class OrderCreate : IRequestHandler<OrderCreateCommand, Result<OrderCreat
 
         if (!catalogueNumbers.Any()) return new Error($"Cannot create order out of an empty cart. BuyerId {buyer.Id}");
 
-        string query =
-            @"SELECT p.catalogue_number AS CatalogueNumber,
-                     p.name,
-                     p.price,
-                     p.available
-              FROM public.product p
-              WHERE p.catalogue_number = ANY(@catalogueNumbers);";
+        const string query =
+            @"SELECT 
+                  p.catalogue_number AS CatalogueNumber,
+                  p.name,
+                  p.price,
+                  p.available
+              FROM 
+                  public.product p
+              WHERE 
+                  p.catalogue_number = ANY(@catalogueNumbers);";
 
         IEnumerable<ProductInfo> productsInfo = await _db.QueryAsync<ProductInfo>(query, new { catalogueNumbers });
 
-        OrderLines orderLines = new(
+        OrderLines orderLines = new
+        (
             productsInfo.Select(i =>
             {
                 uint count = buyer.CartItems[i.CatalogueNumber];
-                return new OrderLine(
+                return new OrderLine
+                (
                     i.CatalogueNumber,
                     count * i.Price,
-                    count);
-            })
-            .ToArray());
+                    count
+                );
+            }).ToArray()
+        );
             
-        return Order.Create(
+        return Order.Create
+        (
             orderNumber,
             new CustomerNumber(buyer.CustomerNumber),
-            orderLines);
+            orderLines
+        );
     }
 }
