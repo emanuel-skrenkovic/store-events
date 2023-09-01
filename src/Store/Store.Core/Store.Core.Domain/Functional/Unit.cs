@@ -4,5 +4,5 @@ public class Unit
 {
     private Unit() { }
 
-    public static Unit Value = new Unit();
+    public static Unit Value = new();
 }

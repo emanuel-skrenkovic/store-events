@@ -5,7 +5,8 @@ using Store.Payments.Domain.Payments;
 
 namespace Store.Payments.Application.Payments.Commands;
 
-public record PaymentRefundCommand(
+public record PaymentRefundCommand
+(
     Guid PaymentId, 
     string Note = null
 ) : IRequest<Result<PaymentRefundResponse>>;
@@ -27,7 +28,8 @@ public class PaymentRefund : IRequestHandler<PaymentRefundCommand, Result<Paymen
             {
                 if (payment.Status == PaymentStatus.Refunded) return new PaymentRefundResponse(payment.RefundInfo.Id);
                 
-                return await payment.Refund(request.Note)
+                return await payment
+                    .Refund(request.Note)
                     .Then
                     (
                         refund => _repository
