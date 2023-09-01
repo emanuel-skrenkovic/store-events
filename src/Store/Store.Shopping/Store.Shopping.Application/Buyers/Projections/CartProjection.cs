@@ -75,9 +75,12 @@ public class CartProjection : IEventListener
     {
         BuyerIdentifier buyerId = BuyerIdentifier.FromString(@event.BuyerId);
 
-        CartEntity cartEntity = await context.Carts.SingleOrDefaultAsync(
-            c => c.CustomerNumber == buyerId.CustomerNumber &&
-                 c.SessionId == buyerId.SessionId);
+        CartEntity cartEntity = await context
+            .Carts
+            .SingleOrDefaultAsync
+            (
+                c => c.CustomerNumber == buyerId.CustomerNumber && c.SessionId == buyerId.SessionId
+            );
             
         string productCatalogueNumber = @event.ProductCatalogueNumber;
             
@@ -86,7 +89,7 @@ public class CartProjection : IEventListener
             cartEntity = new()
             {
                 CustomerNumber = buyerId.CustomerNumber,
-                SessionId = buyerId.SessionId,
+                SessionId      = buyerId.SessionId,
             };
 
             ProductEntity product = await context.FindAsync<ProductEntity>(productCatalogueNumber);
@@ -118,10 +121,8 @@ public class CartProjection : IEventListener
         {
             Cart cart = _serializer.Deserialize<Cart>(cartEntity.Data);
 
-            if (cart.Entries?.ContainsKey(productCatalogueNumber) == true)
+            if (cart.Entries?.TryGetValue(productCatalogueNumber, out CartEntry cartEntry) == true)
             {
-                CartEntry cartEntry = cart.Entries[productCatalogueNumber];
-                    
                 cartEntry.Quantity++;
                 cartEntry.Price += cartEntry.ProductInfo.Price;
             }
@@ -155,9 +156,12 @@ public class CartProjection : IEventListener
     {
         BuyerIdentifier buyerId = BuyerIdentifier.FromString(@event.BuyerId);
 
-        CartEntity cartEntity = await context.Carts.SingleOrDefaultAsync(
-            c => c.CustomerNumber == buyerId.CustomerNumber
-                 && c.SessionId == buyerId.SessionId);
+        CartEntity cartEntity = await context
+            .Carts
+            .SingleOrDefaultAsync
+            (
+                c => c.CustomerNumber == buyerId.CustomerNumber && c.SessionId == buyerId.SessionId
+            );
             
         if (cartEntity == null) return;
 

@@ -27,10 +27,12 @@ public class EventStoreAggregateRepository : IAggregateRepository
     {
         try
         {
-            EventStoreClient.ReadStreamResult eventStream = _eventStore.ReadStreamAsync(
+            EventStoreClient.ReadStreamResult eventStream = _eventStore.ReadStreamAsync
+            (
                 Direction.Forwards,
                 GenerateStreamName<T, TKey>(id),
-                StreamPosition.Start);
+                StreamPosition.Start
+            );
 
             if (await eventStream.ReadState == ReadState.StreamNotFound)
             {
@@ -59,16 +61,20 @@ public class EventStoreAggregateRepository : IAggregateRepository
         {
             Ensure.NotNull(entity);
 
-            IReadOnlyCollection<EventData> eventsData = entity.GetUncommittedEvents()
-                .Select(domainEvent => domainEvent.ToEventData(
+            IReadOnlyCollection<EventData> eventsData = entity
+                .GetUncommittedEvents()
+                .Select(domainEvent => domainEvent.ToEventData
+                (
                     CorrelationContext.CreateEventMetadata(domainEvent), 
-                    _serializer))
-                .ToImmutableList();
+                    _serializer)
+                ).ToImmutableList();
 
-            await _eventStore.AppendToStreamAsync(
+            await _eventStore.AppendToStreamAsync
+            (
                 GenerateStreamName<T, TKey>(entity.Id),
                 StreamState.Any, // TODO: fix this
-                eventsData);
+                eventsData
+            );
 
             return Result.Ok();
         }

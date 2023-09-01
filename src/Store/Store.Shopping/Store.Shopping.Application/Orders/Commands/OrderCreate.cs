@@ -13,14 +13,22 @@ using Store.Shopping.Infrastructure.Entity;
 using Order = Store.Shopping.Domain.Orders.Order;
 using OrderLine = Store.Shopping.Domain.Orders.OrderLine;
 
-namespace Store.Shopping.Application.Orders.Commands.CreateOrder;
+namespace Store.Shopping.Application.Orders.Commands;
 
-public class OrderCreateCommandHandler : IRequestHandler<OrderCreateCommand, Result<OrderCreateResponse>>
+public record OrderCreateCommand
+(
+    string CustomerNumber, 
+    string SessionId
+) : IRequest<Result<OrderCreateResponse>>;
+
+public record OrderCreateResponse(Guid OrderId);
+
+public class OrderCreate : IRequestHandler<OrderCreateCommand, Result<OrderCreateResponse>>
 {
     private readonly IAggregateRepository _repository;
     private readonly IDbConnection _db;
 
-    public OrderCreateCommandHandler(
+    public OrderCreate(
         IAggregateRepository repository,
         StoreShoppingDbContext context)
     {

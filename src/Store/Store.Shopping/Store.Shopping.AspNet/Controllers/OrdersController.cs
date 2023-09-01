@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Store.Core.Domain.ErrorHandling;
 using Store.Core.Infrastructure.AspNet;
-using Store.Shopping.Application.Orders.Commands.CreateOrder;
+using Store.Shopping.Application.Orders.Commands;
 using Store.Shopping.Application.Orders.Queries;
 using Store.Shopping.Infrastructure.Entity;
 

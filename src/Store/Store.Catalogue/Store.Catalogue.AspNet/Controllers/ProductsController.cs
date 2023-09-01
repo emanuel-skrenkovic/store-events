@@ -74,16 +74,19 @@ public class ProductsController : ControllerBase
     {
         IDbConnection db = _context.Database.GetDbConnection();
             
-        string query = 
-            @"SELECT p.id,
-                     p.created_at as CreatedAt,
-                     p.updated_at as UpdatedAt,
-                     p.name,
-                     p.price,
-                     p.available,
-                     p.description
-                  FROM public.product p
-                  WHERE p.id = @id;";
+        const string query = 
+            @"SELECT 
+                  p.id,
+                  p.created_at as CreatedAt,
+                  p.updated_at as UpdatedAt,
+                  p.name,
+                  p.price,
+                  p.available,
+                  p.description
+              FROM 
+                  public.product p
+              WHERE 
+                  p.id = @id;";
 
         ProductApiModel product = await db.QueryFirstOrDefaultAsync<ProductApiModel>(query, new { id });
         if (product == null) return NotFound();

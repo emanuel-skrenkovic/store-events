@@ -2,9 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Store.Core.Domain.ErrorHandling;
 using Store.Core.Infrastructure.AspNet;
-using Store.Shopping.Application.Buyers.Commands.AddItemToCart;
-using Store.Shopping.Application.Buyers.Commands.RemoveItemFromCart;
-using Store.Shopping.Application.Buyers.Queries.GetCart;
+using Store.Shopping.Application.Buyers.Commands;
+using Store.Shopping.Application.Buyers.Queries;
 using Store.Shopping.Domain.Buyers.ValueObjects;
 using Store.Shopping.Infrastructure.Entity;
 
@@ -46,6 +45,6 @@ public class ShoppingController : ControllerBase
     public async Task<IActionResult> GetCart([FromQuery] string customerId, [FromQuery] string sessionId) // TODO: need to pick up the user id and sessionId from token or something.
     {
         Result<Cart> cartResult = await _mediator.Send(new BuyerCartGetQuery(new BuyerIdentifier(customerId, sessionId)));
-        return cartResult.Match<IActionResult>(Ok, this.HandleError);
+        return cartResult.Match(Ok, this.HandleError);
     }
 }

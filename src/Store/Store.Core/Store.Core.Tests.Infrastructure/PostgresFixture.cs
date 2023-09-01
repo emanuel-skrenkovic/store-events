@@ -11,7 +11,7 @@ public class PostgresFixture<TContext> : IAsyncLifetime where TContext : DbConte
     #region DockerParameters
 
     private const string ContainerName = "store.integration-tests.postgres";
-    private const string ImageName = "postgres:14-alpine";
+    private const string ImageName = "docker.io/library/postgres:14-alpine";
 
     private readonly List<string> _env = new()
     {

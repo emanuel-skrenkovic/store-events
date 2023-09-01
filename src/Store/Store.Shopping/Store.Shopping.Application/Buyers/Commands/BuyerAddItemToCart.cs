@@ -10,7 +10,14 @@ using Store.Shopping.Domain.Buyers.ValueObjects;
 using Store.Shopping.Infrastructure;
 using Store.Shopping.Infrastructure.Entity;
 
-namespace Store.Shopping.Application.Buyers.Commands.AddItemToCart;
+namespace Store.Shopping.Application.Buyers.Commands;
+
+public record BuyerAddItemToCartCommand
+(
+    string CustomerNumber, 
+    string SessionId, 
+    string ProductCatalogueNumber
+) : IRequest<Result>;
 
 public class BuyerAddItemToCartCommandHandler : IRequestHandler<BuyerAddItemToCartCommand, Result>
 {
@@ -27,14 +34,19 @@ public class BuyerAddItemToCartCommandHandler : IRequestHandler<BuyerAddItemToCa
     {
         (string customerNumber, string sessionId, string productCatalogueNumber) = request;
 
-        string query =
-            @"SELECT p.*
-              FROM public.product p
-              WHERE p.catalogue_number = @productCatalogueNumber;";
+        const string query =
+            @"SELECT 
+                  p.*
+              FROM 
+                  public.product p
+              WHERE 
+                  p.catalogue_number = @productCatalogueNumber;";
 
-        ProductEntity product = await _db.QuerySingleOrDefaultAsync<ProductEntity>(
+        ProductEntity product = await _db.QuerySingleOrDefaultAsync<ProductEntity>
+        (
             query, 
-            new { productCatalogueNumber });
+            new { productCatalogueNumber }
+        );
 
         if (product == null)    return new Error($"Could not find product with catalogue number: '{productCatalogueNumber}'.");
         if (!product.Available) return new Error($"Product with catalogue number '{productCatalogueNumber}' is not available.");

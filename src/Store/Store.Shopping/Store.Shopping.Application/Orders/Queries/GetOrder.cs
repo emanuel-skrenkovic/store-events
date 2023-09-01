@@ -9,12 +9,14 @@ using Store.Shopping.Infrastructure.Entity;
 
 namespace Store.Shopping.Application.Orders.Queries;
 
-public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, Result<Order>>
+public record GetOrderQuery(Guid OrderId) : IRequest<Result<Order>>;
+
+public class GetOrder : IRequestHandler<GetOrderQuery, Result<Order>>
 {
     private readonly ISerializer _serializer;
     private readonly IDbConnection _db;
 
-    public GetOrderQueryHandler(ISerializer serializer, StoreShoppingDbContext context)
+    public GetOrder(ISerializer serializer, StoreShoppingDbContext context)
     {
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         _db = context?.Database.GetDbConnection() ?? throw new ArgumentNullException(nameof(context));   

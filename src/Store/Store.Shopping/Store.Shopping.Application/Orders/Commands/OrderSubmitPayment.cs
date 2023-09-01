@@ -4,13 +4,15 @@ using Store.Core.Domain.ErrorHandling;
 using Store.Shopping.Domain.Orders;
 using Store.Shopping.Domain.ValueObjects;
 
-namespace Store.Shopping.Application.Orders.Commands.SubmitPayment;
+namespace Store.Shopping.Application.Orders.Commands;
 
-public class OrderSubmitPaymentCommandHandler : IRequestHandler<OrderSubmitPaymentCommand, Result>
+public record OrderSubmitPaymentCommand(Guid OrderId, Guid PaymentId) : IRequest<Result>;
+
+public class OrderSubmitPayment : IRequestHandler<OrderSubmitPaymentCommand, Result>
 {
     private readonly IAggregateRepository _repository;
 
-    public OrderSubmitPaymentCommandHandler(IAggregateRepository repository)
+    public OrderSubmitPayment(IAggregateRepository repository)
         => _repository = Ensure.NotNull(repository);
     
     public Task<Result> Handle(OrderSubmitPaymentCommand request, CancellationToken cancellationToken) =>

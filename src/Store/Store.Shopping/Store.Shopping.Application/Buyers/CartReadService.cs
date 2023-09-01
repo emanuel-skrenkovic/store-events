@@ -22,10 +22,15 @@ public class CartReadService
         
     public async Task<Result<Cart>> GetCartAsync(BuyerIdentifier buyerId)
     {
-        string query = @"SELECT *
-                         FROM public.cart
-                         WHERE customer_number = @CustomerNumber 
-                         AND session_id = @SessionId;";
+        string query = @"
+            SELECT 
+                *
+            FROM 
+                public.cart
+            WHERE 
+                customer_number = @CustomerNumber 
+            AND 
+                session_id = @SessionId;";
 
         CartEntity cartEntity = await _db.QuerySingleOrDefaultAsync<CartEntity>(query, new { buyerId.CustomerNumber, buyerId.SessionId });
         if (cartEntity == null) return new NotFoundError($"Cart from buyer {buyerId} was not found.");

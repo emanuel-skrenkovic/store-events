@@ -5,11 +5,18 @@ using Store.Payments.Domain.Payments;
 
 namespace Store.Payments.Application.Payments.Commands;
 
-public class PaymentRefundCommandHandler : IRequestHandler<PaymentRefundCommand, Result<PaymentRefundResponse>>
+public record PaymentRefundCommand(
+    Guid PaymentId, 
+    string Note = null
+) : IRequest<Result<PaymentRefundResponse>>;
+
+public record PaymentRefundResponse(Guid RefundId);
+
+public class PaymentRefund : IRequestHandler<PaymentRefundCommand, Result<PaymentRefundResponse>>
 {
     private readonly IAggregateRepository _repository;
 
-    public PaymentRefundCommandHandler(IAggregateRepository repository)
+    public PaymentRefund(IAggregateRepository repository)
         => _repository = Ensure.NotNull(repository);
     
     // TODO: paying beer for anyone who can read this shit.

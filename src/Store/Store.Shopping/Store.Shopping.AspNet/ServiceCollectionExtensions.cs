@@ -8,11 +8,9 @@ using Store.Core.Infrastructure;
 using Store.Core.Infrastructure.EventStore;
 using Store.Shopping.Application.Buyers;
 using Store.Shopping.Application.Buyers.Projections;
-using Store.Shopping.Application.Orders.Commands.CreateOrder;
+using Store.Shopping.Application.Orders.Commands;
 using Store.Shopping.Application.Orders.Projections;
 using Store.Shopping.Application.Products.Projections;
-using Store.Shopping.Domain.Buyers;
-using Store.Shopping.Domain.Orders;
 using Store.Shopping.Infrastructure;
 
 namespace Store.Shopping.AspNet;

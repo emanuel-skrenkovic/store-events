@@ -5,13 +5,15 @@ using Store.Shopping.Domain;
 using Store.Shopping.Domain.Buyers;
 using Store.Shopping.Domain.Buyers.ValueObjects;
 
-namespace Store.Shopping.Application.Buyers.Commands.RemoveItemFromCart;
+namespace Store.Shopping.Application.Buyers.Commands;
 
-public class BuyerRemoveItemFromCartCommandHandler : IRequestHandler<BuyerRemoveItemFromCartCommand, Result>
+public record BuyerRemoveItemFromCartCommand(string CustomerNumber, string SessionId, string ProductCatalogueNumber) : IRequest<Result>;
+
+public class BuyerRemoveItemFromCart : IRequestHandler<BuyerRemoveItemFromCartCommand, Result>
 {
     private readonly IAggregateRepository _repository;
 
-    public BuyerRemoveItemFromCartCommandHandler(IAggregateRepository repository)
+    public BuyerRemoveItemFromCart(IAggregateRepository repository)
         => _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         
     public Task<Result> Handle(BuyerRemoveItemFromCartCommand request, CancellationToken cancellationToken)

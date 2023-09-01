@@ -6,11 +6,13 @@ using Store.Inventory.Domain.ValueObjects;
 
 namespace Store.Inventory.Application.Commands;
 
-public class ProductInventoryAddToStockCommandHandler : IRequestHandler<ProductInventoryAddToStockCommand, Result>
+public record ProductInventoryAddToStockCommand(Guid ProductId, int Count) : IRequest<Result>;
+
+public class ProductInventoryAddToStock : IRequestHandler<ProductInventoryAddToStockCommand, Result>
 {
     private readonly IAggregateRepository _repository;
 
-    public ProductInventoryAddToStockCommandHandler(IAggregateRepository repository)
+    public ProductInventoryAddToStock(IAggregateRepository repository)
     {
         _repository = Ensure.NotNull(repository);
     }

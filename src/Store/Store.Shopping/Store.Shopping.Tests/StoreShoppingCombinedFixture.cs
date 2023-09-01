@@ -10,8 +10,8 @@ using Store.Core.Domain.ErrorHandling;
 using Store.Core.Infrastructure.EventStore;
 using Store.Core.Tests.Infrastructure;
 using Store.Shopping.Application.Buyers;
-using Store.Shopping.Application.Buyers.Commands.AddItemToCart;
-using Store.Shopping.Application.Orders.Commands.CreateOrder;
+using Store.Shopping.Application.Buyers.Commands;
+using Store.Shopping.Application.Orders.Commands;
 using Store.Shopping.Infrastructure;
 using Store.Shopping.Infrastructure.Entity;
 using Xunit;
@@ -111,12 +111,11 @@ public class StoreShoppingCombinedFixture : IAsyncLifetime
         
         services.AddMediatR(typeof(BuyerAddItemToCartCommand));
 
-        //services.AddScoped(_ => PostgresFixture.Context.Database.GetConnectionString());
         services.AddScoped(_ =>
         {
             DbContextOptionsBuilder<StoreShoppingDbContext> optionsBuilder = new();
             optionsBuilder
-                .UseNpgsql(PostgresFixture.Context.Database.GetConnectionString());
+                .UseNpgsql(PostgresFixture?.Context?.Database.GetConnectionString()!);
 
             return new StoreShoppingDbContext(
                 optionsBuilder.Options);

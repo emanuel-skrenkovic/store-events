@@ -44,7 +44,7 @@ public class DockerContainer : IAsyncLifetime
         if (runningContainers.Any(c => c.ID == _containerId)) return;
 
         var images = await _dockerClient.Images.ListImagesAsync(new ImagesListParameters());
-        if (!images.Any(i => i.RepoTags.Contains(_imageName)))
+        if (!images.Any(i => i.RepoTags?.Contains(_imageName) ?? false))
         {
             string[] imageNameParts = _imageName.Split(':');
             
@@ -134,7 +134,6 @@ public class DockerContainer : IAsyncLifetime
     public async Task DisposeAsync()
     {
         await _dockerClient.Containers.StopContainerAsync(_containerId, new ContainerStopParameters());
-
         await _dockerClient.Containers.RemoveContainerAsync(_containerId, new ContainerRemoveParameters());
 
         var runningVolumes = await _dockerClient.Volumes.ListAsync();

@@ -11,7 +11,7 @@ public class EventStoreFixture : IAsyncLifetime
     #region DockerParameters
     
     private const string ContainerName = "store.integration-tests.eventstore";
-    private const string ImageName = "eventstore/eventstore:21.6.0-buster-slim";
+    private const string ImageName = "docker.io/eventstore/eventstore:21.6.0-buster-slim";
 
     // TODO: remove unnecessary
     private readonly List<string> _env = new()
